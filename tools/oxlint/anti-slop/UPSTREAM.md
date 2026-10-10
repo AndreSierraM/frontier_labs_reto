@@ -26,11 +26,13 @@ than assuming a commit.
 | `tools/oxlint/anti-slop/index.ts` | Generic anti-slop plugin (`anti-slop`) | yes (`jsPlugins` in `.oxlintrc.json`) |
 | `tools/oxlint/anti-slop/rules/*.ts` | Generic rule implementations | via entry point |
 | `tools/oxlint/anti-slop/shared/*.ts` | Shared rule helpers | via rule imports |
-| `tools/oxlint/anti-slop/effect/index.ts` | Opt-in Effect rules (`anti-slop-effect`) | **no** — see deviations |
+| `tools/oxlint/anti-slop/effect/index.ts` | Opt-in Effect rules (`anti-slop-effect`) | **no** — eliminado del repo el 2026-10-10 (nunca estuvo registrado) |
 
 ## Intentional deviations from the bundle
 
-- The Effect plugin (`tools/oxlint/anti-slop/effect/`) is vendored but **not registered**. This
+- The Effect plugin (`tools/oxlint/anti-slop/effect/`) was vendored but **never
+  registered** (this repository has no direct `effect` dependency), and was
+  removed from the repo on 2026-10-10 to keep the tree lean. This
   repository has no direct `effect` dependency (root `package.json` declares only `pg`), and the
   Effect rules were not explicitly requested.
 - No rules were renamed, added, removed, or re-scoped relative to the bundle.

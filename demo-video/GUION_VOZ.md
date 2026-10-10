@@ -1,6 +1,6 @@
 # 🎬 Guion de Voz en Off — La Caja Negra
 
-> **Video:** `out/demo-final-v7.mp4` · 1920×1080 @ 30fps · **93.5 s**
+> **Video:** `out/demo-final-v8.mp4` · 1920×1080 @ 30fps · **93.5 s**
 > **10 escenas** con transiciones · **logos reales** (Node, PostgreSQL, Neon, Vercel, GitHub Actions)
 > **Syntax highlighting** real en la escena de código
 
@@ -128,7 +128,7 @@ Timestamps con el solape de transiciones (0.5 s c/u).
 cd demo-video
 
 ./node_modules/.bin/remotion studio src/index.ts --no-open
-./node_modules/.bin/remotion render src/index.ts la-caja-negra-demo out/demo-final-v7.mp4 --codec=h264
+./node_modules/.bin/remotion render src/index.ts la-caja-negra-demo out/demo-final-v8.mp4 --codec=h264
 ./node_modules/.bin/remotion render src/index.ts 07-flujo out/flujo.mp4
 ```
 

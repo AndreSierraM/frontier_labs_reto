@@ -80,7 +80,7 @@ export const SceneEnjambre: React.FC = () => {
                 <div style={{ width: 60, height: 2, backgroundColor: COLORS.green, opacity: 0.5 }} />
                 <div style={{ width: 0, height: 0, borderTop: "6px solid transparent", borderBottom: "6px solid transparent", borderLeft: `9px solid ${COLORS.green}` }} />
                 <div style={{ padding: "12px 22px", borderRadius: 10, backgroundColor: `${COLORS.green}12`, border: `1px solid ${COLORS.green}40`, color: COLORS.green, fontFamily: FONTS.mono, fontSize: 16, fontWeight: 700 }}>
-                  Pull Request → Merge → Deploy
+                  Pull Request listo para revisión
                 </div>
               </div>
             </div>

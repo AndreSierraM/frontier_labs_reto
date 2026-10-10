@@ -30,3 +30,6 @@ reto2-investigacion/logs/*.jsonl
 # Evidencia generada por el agente de adaptación
 agent/evidence.json
 agent/state/
+
+# Datos del escáner privado
+reto2-investigacion/logs/watch-map/

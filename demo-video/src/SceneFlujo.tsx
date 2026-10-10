@@ -50,7 +50,6 @@ const StepNode: React.FC<{ s: Step & { color: string }; opacity: number; scale: 
         justifyContent: "center",
         gap: 8,
         boxShadow: active ? `0 0 55px ${s.color}40` : `0 10px 30px ${s.color}10`,
-        transition: "none",
       }}
     >
       <div style={{ position: "absolute", top: -14, left: 14, width: 34, height: 34, borderRadius: 10, backgroundColor: s.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONTS.mono, fontSize: 18, fontWeight: 800, color: "#080a0f", boxShadow: `0 4px 14px ${s.color}50` }}>

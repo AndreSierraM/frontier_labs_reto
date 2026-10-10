@@ -26,4 +26,4 @@ No ejecutar estas herramientas automáticamente durante tests locales. Un timeou
 
 Los seis intentos offline de hashes/CRC/modelos afines están en [historico/](historico/). Se conservan como historial del razonamiento; el cálculo vigente es `control.py`.
 
-`probe_recon.py`, `probe_xreq.py`, `collect_*.py` y `crack_control_bruteforce.py` se conservan en su ruta original, pero dependen de un módulo `api` externo en `/tmp`. No son comandos reproducibles desde un checkout limpio. Para pruebas actuales usar el cliente canónico, la suite de exploración y los verificadores; no añadir una copia de aquel módulo temporal.
+Limpieza 2026-10-10: se eliminaron `probe_recon.py`, `probe_xreq.py`, `collect_*.py` y `crack_control_bruteforce.py` (dependían de un módulo `api` externo en `/tmp`, no reproducibles desde un checkout limpio) y los one-shot `cubrir_gaps*.py` (ya cerraron los gaps, IDs 348–366; re-ejecutarlos duplicaría el log). Para pruebas actuales usar el cliente canónico, la suite de exploración y los verificadores.

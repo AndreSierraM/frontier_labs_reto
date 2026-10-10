@@ -30,7 +30,6 @@ y **reemplazo funcional** que replica su comportamiento, errores y reglas de est
 cd reto2-investigacion
 
 python3 scripts/client.py                 # prueba de conexión y cliente canónico
-# probe_recon.py / probe_xreq.py son históricos y dependen de /tmp/api.py.
 # Para comandos reproducibles usar client.py, explorar.py y verificar.py.
 
 python3 scripts/explorar.py               # suite completa (integridad/aridad/comandos/estado)
@@ -66,8 +65,6 @@ python3 scripts/verificar.py --url http://localhost:3111 --token local-test \
 ### Descubrimiento / exploración
 | Script | Qué hace |
 | --- | --- |
-| `scripts/probe_recon.py` | Auth (variantes), rutas, métodos, formas de body, rango del control. |
-| `scripts/probe_xreq.py` | Mide `x-req` y si el control depende del estado. |
 | `scripts/explorar.py` | Suite por secciones: `integridad`, `aridad`, `alta`, `consulta`, `deposito`, `transfer`, `anula`, `estado`, `bordes`. |
 | `scripts/bloqueo.py`, `bloqueo_conteo.py`, `bloqueo_reset.py`, `bloqueo_precedencia.py` | Caracterización del bloqueo `E510`. |
 | `scripts/prueba_diferencial.py` | Batería comparativa original vs reemplazo. |
@@ -87,7 +84,6 @@ conservan en `scripts/`. Ver [índice y requisitos de scripts](scripts/README.md
 | `historico/crack_afin.py` | modelos afines sobre features |
 | `historico/crack_crc.py` | CRC-16, Fletcher, rotaciones |
 | `historico/crack_tabla.py` | Tabla comparativa de candidatos |
-| `historico/crack_control_bruteforce.py` | fuerza bruta de controles (histórico) |
 | `extraer_pares.py` / `scan_control.py` | dataset `(cuerpo → control)` y escaneo |
 
 ### Datos
