@@ -1,0 +1,26 @@
+name: monitor
+
+# Disparador gratuito y frecuente (Vercel Hobby limita sus crons a 1/día).
+# Llama al endpoint de monitorización desplegado, que corre la batería contra
+# el original, guarda snapshot y registra eventos si algo cambió.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Disparar monitor
+        env:
+          MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/monitor.json -w "%{http_code}" \
+            "https://frontier-labs-reto.vercel.app/api/monitor/run" \
+            -H "Authorization: Bearer ${MONITOR_TOKEN}")
+          echo "HTTP ${code}"
+          cat /tmp/monitor.json
+          test "${code}" = "200"
