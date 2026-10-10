@@ -1,9 +1,13 @@
 name: monitor
 
-# Vigilancia del original. Dos modos:
-#  - `schedule`: una pasada cada 15 min (GitHub puede retrasarlo).
-#  - `workflow_dispatch` con loop_minutes>0: un job que vigila en bucle durante
-#    N minutos (más fiable para el demo day; un solo job, sin depender del cron).
+# Vigilancia del original + disparo del enjambre en el MISMO run.
+# Se usa un workflow reutilizable (swarm.yml) porque GitHub no permite que un
+# workflow dispare a otro con el GITHUB_TOKEN.
+#
+# Modos:
+#  - `schedule`: una pasada cada 15 min.
+#  - `workflow_dispatch` con loop_minutes>0: un job que vigila en bucle hasta
+#    detectar un cambio (o agotar los minutos) y acto seguido adapta.
 on:
   schedule:
     - cron: "*/15 * * * *"
@@ -16,14 +20,17 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  # ---------------------------------------------------------------- una pasada
-  pass:
+  # ------------------------------------------------------------- una pasada
+  check:
     name: Una pasada
     if: ${{ github.event_name == 'schedule' || github.event.inputs.loop_minutes == '0' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      changed: ${{ steps.monitor.outputs.changed }}
     steps:
       - name: "Fase 1 · Consultar el monitor"
         id: monitor
@@ -34,39 +41,37 @@ jobs:
           echo "::group::GET /api/monitor/run"
           code=$(curl -sS -o /tmp/monitor.json -w "%{http_code}" \
             "https://frontier-labs-reto.vercel.app/api/monitor/run" \
-            -H "Authorization: Bearer ${MONITOR_TOKEN}")
+            -H "Authorization: Bearer ${MONITOR_TOKEN}") || true
           echo "HTTP ${code}"
-          cat /tmp/monitor.json
+          cat /tmp/monitor.json 2>/dev/null || true
           echo "::endgroup::"
-          if [ "${code}" != "200" ]; then
-            echo "::warning::el monitor respondió ${code}; se omite esta pasada (sin fallar el workflow)"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            exit 0
+          changed=0
+          if [ "${code}" = "200" ]; then
+            n=$(jq -r '.changes | length // 0' /tmp/monitor.json 2>/dev/null || echo 0)
+            [ "${n}" != "0" ] && changed=1
+          else
+            echo "::warning::el monitor respondió ${code}; se omite esta pasada"
           fi
-          echo "changed=$(jq -r '.changes | length' /tmp/monitor.json)" >> "$GITHUB_OUTPUT"
+          echo "changed=${changed}" >> "$GITHUB_OUTPUT"
 
-      - name: "Fase 2 · Despertar al enjambre si cambió"
-        if: steps.monitor.outputs.changed != '0'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api "repos/${{ github.repository }}/dispatches" -f event_type=original-changed
-
-  # ------------------------------------------------------ bucle (demo day)
+  # -------------------------------------------------------- bucle demo day
   watch:
     name: Bucle de vigilancia
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.loop_minutes != '0' }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    outputs:
+      changed: ${{ steps.watch.outputs.changed }}
     steps:
-      - name: "Fase 1 · Vigilar en bucle cada 15 min"
+      - name: "Fase 1 · Vigilar cada 15 min y detenerse al detectar"
+        id: watch
         env:
           MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MINUTES: ${{ github.event.inputs.loop_minutes }}
         run: |
           set -euo pipefail
           end=$(( SECONDS + MINUTES * 60 ))
-          tick=0
+          tick=0; found=0
           while [ $SECONDS -lt $end ]; do
             tick=$((tick + 1))
             echo "::group::tick ${tick} · $(date -u +%H:%M:%SZ)"
@@ -75,14 +80,26 @@ jobs:
               -H "Authorization: Bearer ${MONITOR_TOKEN}") || true
             echo "HTTP ${code}"
             cat /tmp/monitor.json 2>/dev/null || true
-            changed=$(jq -r '.changes | length' /tmp/monitor.json 2>/dev/null || echo 0)
-            if [ "$changed" != "0" ]; then
-              echo "cambio detectado (${changed}) -> despertando al enjambre"
-              gh api "repos/${{ github.repository }}/dispatches" -f event_type=original-changed || true
+            if [ "${code}" = "200" ]; then
+              c=$(jq -r '.changes | length // 0' /tmp/monitor.json 2>/dev/null || echo 0)
+              if [ "${c}" != "0" ]; then
+                found=1
+                echo "::warning::cambio detectado (${c}) -> se dispara el enjambre"
+              fi
             fi
             echo "::endgroup::"
+            [ "$found" = "1" ] && break
             remaining=$(( end - SECONDS ))
             [ "$remaining" -le 0 ] && break
             sleep $(( remaining < 900 ? remaining : 900 ))
           done
-          echo "bucle terminado tras ${tick} ticks"
+          echo "changed=${found}" >> "$GITHUB_OUTPUT"
+          echo "bucle terminado tras ${tick} ticks (cambio=${found})"
+
+  # --------------------------------------------------- adaptación (enjambre)
+  adapt:
+    name: Adaptar (enjambre)
+    needs: [check, watch]
+    if: ${{ always() && (needs.check.outputs.changed == '1' || needs.watch.outputs.changed == '1') }}
+    uses: ./.github/workflows/swarm.yml
+    secrets: inherit

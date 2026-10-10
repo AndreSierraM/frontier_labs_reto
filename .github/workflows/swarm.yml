@@ -3,6 +3,9 @@ name: swarm
 # Enjambre de adaptación. Se dispara cuando el monitor detecta un cambio
 # (repository_dispatch) o manualmente. NO empuja a main: abre un PR.
 on:
+  # Llamado por monitor.yml en el MISMO run (evita la limitación del
+  # GITHUB_TOKEN para disparar otros workflows).
+  workflow_call:
   repository_dispatch:
     types: [original-changed]
   workflow_dispatch:
