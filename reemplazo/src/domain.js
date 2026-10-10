@@ -169,7 +169,7 @@ function processMessage(state, m) {
         return { code: "E510", intentos: origen.intentos };
       }
       const monto = Number(segs[3]);
-      if (monto > 100000) {
+      if (monto > 50000) {
         origen.fallos += 1;
         return { code: "E506" };
       }

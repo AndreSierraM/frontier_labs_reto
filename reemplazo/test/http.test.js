@@ -132,4 +132,14 @@ test("v2: saldo decimal, E510 423+intentos, HALT (E520) y NOTAS", async (t) => {
     { error: "E510", mensaje: "cuenta bloqueada", intentos: 1 });
   await message("TRANSFER;AC-0001;AC-0002;10", 423,
     { error: "E510", mensaje: "cuenta bloqueada", intentos: 2 });
+  // v2: el umbral E506 bajó a 50000 (50000 pasa, 50001 no).
+  await check("/__reset", { method: "POST" }, 200, { ok: true });
+  await message("ALTA;A", 201, { cuentaId: "AC-0001" });
+  await message("ALTA;B", 201, { cuentaId: "AC-0002" });
+  await message("DEPOSITO;AC-0001;1000000", 200,
+    { status: "recieved", operacionId: "OP-0001" });
+  await message("TRANSFER;AC-0001;AC-0002;50000", 200,
+    { status: "recieved", operacionId: "OP-0002" });
+  await message("TRANSFER;AC-0001;AC-0002;50001", 422,
+    { error: "E506", mensaje: "límite excedido" });
 });
