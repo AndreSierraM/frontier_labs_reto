@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reto 2 · La caja negra · Systems Design</title>
+<style>
+:root{--ink:#0e2736;--muted:#5a7380;--teal:#086b68;--paper:#fbfdfd;--line:#cddee3;--aqua:#e7f4f1;--sand:#fff2d4;--rose:#fdecec;--code:#0b3a44}
+*{box-sizing:border-box}
+body{margin:0;background:#d7e7ea;color:var(--ink);font:9.4px/1.3 Arial,Helvetica,sans-serif}
+main{width:min(210mm,100%);margin:12px auto;padding:7mm 8mm 5mm;background:var(--paper);box-shadow:0 8px 30px #16323f26}
+header{border-bottom:3.5px solid var(--teal);padding-bottom:6px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+h1,h2,p{margin:0}
+h1{font-size:21px;line-height:1;letter-spacing:-.6px}
+h1 small{display:block;font-size:10px;font-weight:400;color:var(--muted);letter-spacing:0;margin-top:3px}
+.badge{font-size:8.5px;font-weight:700;color:#fff;background:var(--teal);border-radius:20px;padding:3px 9px;white-space:nowrap}
+.meta{font-size:8.6px;color:var(--muted);margin-top:3px}
+.lead{font-size:10.5px;padding:7px 9px;margin-top:7px;background:var(--aqua);border-left:4px solid var(--teal);border-radius:0 4px 4px 0}
+.lead b{color:var(--teal)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:8px}
+section{break-inside:avoid;margin-bottom:7px}
+h2{font-size:11px;color:var(--teal);margin-bottom:3px;display:flex;align-items:center;gap:5px}
+h2 .n{display:inline-flex;width:14px;height:14px;border-radius:50%;background:var(--teal);color:#fff;font-size:8px;align-items:center;justify-content:center;flex:none}
+p+p{margin-top:3px}
+ul{margin:2px 0;padding-left:13px}li{margin:1px 0}
+table{width:100%;border-collapse:collapse;font-size:8.8px;line-height:1.22}
+th{background:var(--ink);color:#fff;text-align:left;padding:3px 4px;font-weight:700}
+td{padding:2.6px 4px;vertical-align:top;border-bottom:1px solid var(--line)}
+tr:nth-child(even) td{background:#f3f9f9}
+code{font-family:"SFMono-Regular",Consolas,monospace;font-size:.93em;background:#eef5f5;padding:0 2px;border-radius:2px;color:var(--code)}
+.note{padding:6px 7px;background:var(--aqua);border-left:3px solid var(--teal);border-radius:0 4px 4px 0}
+.warn{background:var(--sand);border-left-color:#b47b13}.risk{background:var(--rose);border-left-color:#b23b3b}
+.chain{font-size:8.9px;line-height:1.55;background:#0b3a44;color:#dff3f0;border-radius:4px;padding:6px 7px;font-family:"SFMono-Regular",Consolas,monospace}
+.chain b{color:#ffd479}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:1px 7px;font-size:9px}
+.kv dt{font-weight:700;color:var(--teal)}.kv dd{margin:0}
+.mark{background:linear-gradient(transparent 56%,#ffe89a 56%)}
+footer{border-top:1px solid var(--line);padding-top:5px;margin-top:6px;font-size:8px;color:var(--muted)}
+.tiny{font-size:8.4px;color:var(--muted)}
+@page{size:A4;margin:0}
+@media print{body{background:#fff}main{margin:0;box-shadow:none;width:210mm}a{color:inherit}}
+@media(max-width:760px){main{padding:18px;margin:0}.grid{display:block}body{font-size:12px}table{font-size:11px}}
+</style>
+</head>
+<body><main>
+<header>
+<div>
+<h1>La caja negra · Máquina de estados compatible<small>Systems Design · protocolo textual + control ISO 7064 + reglas de estado</small></h1>
+<p class="meta">Frontier Labs · Reto 2 · documentación del comportamiento observado y del diseño del servicio</p>
+</div>
+<div class="badge">30% · cierre 12:00</div>
+</header>
+
+<p class="lead"><b>No es una calculadora:</b> es un servicio <i>stateful</i> con protocolo textual propio, dígito de control <b>ISO 7064 MOD 97-10</b> y reglas de estado —incluido un bloqueo antifraude oculto—. Modelo: <code>δ(S, evento) = (S′, respuesta)</code>; el transporte no decide reglas.</p>
+
+<div class="grid"><div>
+
+<section><h2><span class="n">1</span>El contrato</h2>
+<p>100 tests (<b>40</b> de uno, <b>45</b> de 2–5 y <b>15</b> de 6–12), <code>__reset</code> antes de cada uno, <b>5 s</b> por paso, <b>un solo proceso</b>. Pasa si coinciden <b>status</b> y <b>cuerpo</b>: JSON por semántica (claves sin orden, arrays ordenados) y texto exacto si no es JSON. Endpoints <code>GET /health</code>, <code>POST /msg</code>, <code>POST /__reset</code> y rutas inexistentes; <code>Bearer &lt;token&gt;</code> en todas.</p></section>
+
+<section><h2><span class="n">2</span>El mapa: protocolo, control y comandos</h2>
+<p><b>Mensaje</b> <code>COMANDO;arg1;…;control</code> (el último segmento es el control). Sin <code>;</code> → falta control; segmento vacío → <code>E104</code>. <code>PING</code> ignora el control.</p>
+<p><b>Control ISO 7064 MOD 97-10:</b> del mensaje sin su último campo, cada dígito vale su valor y cada letra <code>A=1…Z=26</code> (sin distinguir mayúsculas); <code>;</code>, <code>-</code>, espacios y no-ASCII no aportan. Con <code>N</code> como número decimal, <code>r = N mod 97</code> y <code class="mark">control = 98 − (100·r mod 97)</code>, en <code>[2..98]</code> sin ceros a la izquierda (<code>"3"</code> sí, <code>"03"</code> no). Ej.: <code>CONSULTA;AC-0001 → 14</code>.</p>
+<table><thead><tr><th>Comando</th><th>Args+control</th><th>Efecto / respuesta</th></tr></thead><tbody>
+<tr><td><code>PING</code></td><td>2</td><td><code>200 {pong:true}</code> · no muta S</td></tr>
+<tr><td><code>ALTA</code></td><td>3</td><td>crea cuenta · <code>201 {cuentaId:"AC-000N"}</code></td></tr>
+<tr><td><code>CONSULTA</code></td><td>3</td><td><code>200 {cuenta_id,saldo}</code> · <code>404 E401</code></td></tr>
+<tr><td><code>DEPOSITO</code></td><td>4</td><td>suma + <code>fallos=0</code> · <code>200 {status:"recieved",operacionId}</code></td></tr>
+<tr><td><code>TRANSFER</code></td><td>5</td><td>debita/acredita · límite 100000 · fallos del origen</td></tr>
+<tr><td><code>ANULA</code></td><td>3</td><td>revierte una vez · <code>{ok:true,anulada}</code> / <code>{ok:false,"ya anulada"}</code></td></tr>
+</tbody></table>
+<p class="tiny"><b>Rutas estrictas:</b> <code>/msg/</code>→404, <code>HEAD /health</code>→404, <code>Content-Type</code> ignorado, BOM no se limpia, &gt;8191 B → <code>413 E101</code>. IDs <code>AC-%04d</code>/<code>OP-%04d</code> secuenciales; <code>x-req</code> es transporte y no se compara.</p></section>
+
+<section><h2><span class="n">3</span>Precedencia de evaluación (lo que gana)</h2>
+<p class="tiny">Orden determinista de guardas; es lo que fija qué error sale cuando hay varios.</p>
+<p class="chain"><b>E001</b>→E101→E100→E102→E103→E104→<b>E201/E202</b>→E301→E302→E303→E304→E401→<b>E510</b>→E506→E507</p>
+<p class="tiny">Auth, tamaño, JSON, <code>m</code>, control presente, segmento vacío, <b>dígito de control</b> (salvo PING), comando (+<i>sugerencia</i> Levenshtein ≤ 2), aridad, monto, igualdad, cuentas, bloqueo, límite, saldo. <code>ANULA</code> inexistente → <code>E402</code>; ruta/método → <code>E404</code>. Un error de negocio <b>no</b> es “sin transición”: <code>E506/E507</code> mutan el estado.</p></section>
+
+<section><h2><span class="n">4</span>Máquina de estados</h2>
+<p><code>S = {cuentas, operaciones, nextCuenta, nextOperacion}</code>; cuenta <code>{id,nombre,saldo,fallos}</code>, operación <code>{id,tipo,monto,cuentas,anulada}</code>. <b>Activa</b> si <code>fallos&lt;3</code>, <b>Bloqueada</b> si <code>fallos≥3</code> (derivado, no un flag); operación <b>Vigente→Anulada</b> una sola vez.</p>
+<div class="kv">
+<dt>E506/E507</dt><dd><code>fallos++</code> (llega a 3) · responde 422</dd>
+<dt>bloqueada + TRANSFER</dt><dd>sin mutar · <code>409 E510</code></dd>
+<dt>DEPOSITO</dt><dd><code>saldo+</code>, <code>fallos=0</code>, nueva OP · desbloquea</dd>
+<dt>TRANSFER válida</dt><dd>debita/acredita, <code>fallos origen=0</code>, OP</dd>
+<dt>ANULA / RESET</dt><dd>revierte una vez / borra todo y reinicia contadores</dd>
+</div></section>
+
+</div><div>
+
+<section class="note warn"><h2><span class="n">5</span>🕵️ Regla oculta: <code>E510</code> cuenta bloqueada</h2>
+<p class="tiny">No está en los 20 ejemplos ni en el material; apareció por experimentación dirigida.</p>
+<ul><li><code>E506/E507</code> suman fallos por cuenta; <code>E303/E304/E401</code> <b>no</b>.</li>
+<li>Con <b>3 fallos</b>, la siguiente transferencia como <b>origen</b> → <code>409 {"error":"E510","mensaje":"cuenta bloqueada"}</code>.</li>
+<li>Se evalúa tras monto/igualdad/cuentas y <b>antes</b> de límite y saldo (un bloqueado aún da E303/E304/E401).</li>
+<li>Un <b>depósito</b> o un éxito reinician; el depósito <b>desbloquea</b>. <code>ANULA</code> no desbloquea. <code>CONSULTA</code>/<code>DEPOSITO</code>/<code>ANULA</code> siguen permitidos.</li></ul></section>
+
+<section><h2><span class="n">6</span>Arquitectura: hexagonal mínima</h2>
+<div class="kv">
+<dt>Adaptador</dt><dd>traduce HTTP a evento: auth, rutas, límite 8191, JSON, <code>x-req</code>. No decide reglas.</dd>
+<dt>Núcleo</dt><dd>parser → ISO 7064 → guardas ordenadas → <code>δ</code>. Independiente del transporte.</dd>
+<dt>Estado</dt><dd>cuentas, operaciones y contadores; cada comando mutante agrupa saldo + operación + contador en una <b>transacción atómica</b> (commit también en 422).</dd>
+</div>
+<p class="tiny" style="margin-top:4px">Por qué no más capas: un solo adaptador y una sola persistencia. Repositorios CRUD, DI, framework FSM o event sourcing serían ceremonia sin retorno. El <i>seam</i> dominio/adaptador mantiene las reglas fuera del transporte y el estado inyectable para <code>__reset</code>.</p></section>
+
+<section><h2><span class="n">7</span>Evidencia del modelo</h2>
+<table><thead><tr><th>Fuente</th><th>Dato</th></tr></thead><tbody>
+<tr><td>Log de experimentos</td><td><b>347</b> observaciones con hipótesis e IDs</td></tr>
+<tr><td>Pares de control confirmados</td><td><b>34/34</b> (ISO 7064 MOD 97-10)</td></tr>
+<tr><td>Ejemplos oficiales</td><td><b>20</b> requests en orden, cotejados</td></tr>
+<tr><td>Rutas, auth y errores</td><td>probados por separado (probe de entrada)</td></tr>
+</tbody></table>
+<p class="tiny">El log es evidencia primaria; las contradicciones se resuelven contra la captura, no contra el resumen.</p></section>
+
+<section><h2><span class="n">8</span>Decisiones de diseño y riesgos</h2>
+<div class="kv">
+<dt>Modelo</dt><dd>Monolito de estados, no FSM framework ni microservicios.</dd>
+<dt>Estado</dt><dd>Transaccional por comando; una instancia; PostgreSQL solo con réplicas reales.</dd>
+<dt>Fidelidad</dt><dd>Reproducir bugs heredados: no “corregir” <code>recieved</code> ni inventar saldo ≥ 0.</dd>
+</div>
+<p class="tiny" style="margin-top:4px"><b>Riesgos del diseño heredado:</b> el bloqueo por 3 fallos penaliza reintentos; el control sobre letras/dígitos es falsificable; <code>ANULA</code> revierte sin auditoría; los IDs son predecibles; el estado es local a un proceso.</p></section>
+
+<section class="note"><h2><span class="n">9</span>Detección de cambios durante el día</h2>
+<p class="tiny">Se comparan capturas de una batería fija antes/después para detectar el cambio anunciado. <code>E510</code> ya estaba presente desde el inicio de la observación: es comportamiento existente, no el incidente.</p></section>
+
+</div></div>
+
+<footer>Fuentes: <code>frontier-reto-2/</code> (contrato) · <code>SPEC.md</code> · <code>experimentos.jsonl</code> (347 obs.) · <code>data/pares_control.jsonl</code> (34) · <code>logs/fingerprint.md</code>. El dígito de control es ISO 7064 MOD 97-10. Documento de Systems Design.</footer>
+</main></body></html>
