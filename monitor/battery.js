@@ -48,7 +48,7 @@ const BATERIA = [
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function request(base, token, path, body, timeoutMs, tries = 3) {
+async function request(base, token, path, body, timeoutMs, tries = 2) {
   let lastErr = "";
   for (let i = 0; i < tries; i++) {
     try {
@@ -78,15 +78,20 @@ async function request(base, token, path, body, timeoutMs, tries = 3) {
   return { status: 0, response: "unreachable", error: lastErr };
 }
 
-async function runBattery(base, token, { sleepMs = 100, timeoutMs = 20000 } = {}) {
+async function runBattery(base, token, { sleepMs = 100, timeoutMs = 20000, tries = 2, abortOnInfra = false } = {}) {
   const foto = {};
   for (const [label, m] of BATERIA) {
+    let sample;
     if (m === null) {
-      await request(base, token, "/__reset", null, timeoutMs);
-      foto[label] = { status: 200, response: "reset" };
+      const r = await request(base, token, "/__reset", null, timeoutMs, tries);
+      sample = r.status === 429 || r.status === 0 ? r : { status: 200, response: "reset" };
     } else {
-      foto[label] = await request(base, token, "/msg", { m }, timeoutMs);
+      sample = await request(base, token, "/msg", { m }, timeoutMs, tries);
     }
+    foto[label] = sample;
+    // Al primer 429/inaccesible, la foto ya no sirve: abortar rápido para no
+    // agotar el tiempo de la función serverless.
+    if (abortOnInfra && (sample.status === 429 || sample.status === 0)) break;
     if (sleepMs) await sleep(sleepMs);
   }
   return foto;

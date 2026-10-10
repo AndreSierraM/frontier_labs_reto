@@ -38,7 +38,11 @@ jobs:
           echo "HTTP ${code}"
           cat /tmp/monitor.json
           echo "::endgroup::"
-          test "${code}" = "200"
+          if [ "${code}" != "200" ]; then
+            echo "::warning::el monitor respondió ${code}; se omite esta pasada (sin fallar el workflow)"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           echo "changed=$(jq -r '.changes | length' /tmp/monitor.json)" >> "$GITHUB_OUTPUT"
 
       - name: "Fase 2 · Despertar al enjambre si cambió"

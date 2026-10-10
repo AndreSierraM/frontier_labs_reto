@@ -84,7 +84,7 @@ module.exports = async (req, res) => {
   };
 
   // 1) Original
-  const fotoOrig = await runBattery(originalUrl, originalToken);
+  const fotoOrig = await runBattery(originalUrl, originalToken, { abortOnInfra: true });
   result.original.samples = Object.keys(fotoOrig).length;
   result.original.rateLimited = hasInfra(fotoOrig);
 
