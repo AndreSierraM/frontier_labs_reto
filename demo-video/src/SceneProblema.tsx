@@ -62,7 +62,7 @@ export const SceneProblema: React.FC = () => {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                 {[
                   { icon: "clipboard" as IconName, label: "Registro local", value: "394 obs.", c: COLORS.cyan },
-                  { icon: "flask" as IconName, label: "Histórico", value: "116/116", c: COLORS.green },
+                  { icon: "flask" as IconName, label: "Validación", value: "118/126", c: COLORS.green },
                   { icon: "microscope" as IconName, label: "Formato", value: "JSONL", c: COLORS.purple },
                 ].map((item) => (
                   <Card key={item.label} padding="18px">

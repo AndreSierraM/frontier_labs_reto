@@ -25,7 +25,7 @@ const NODES: N[] = [
 type Edge = { from: string; to: string; label?: string; color: string; dashed?: boolean };
 
 const EDGES: Edge[] = [
-  { from: "cliente", to: "vercel", label: "HTTP + Bearer", color: COLORS.yellow },
+  { from: "cliente", to: "vercel", label: "HTTP", color: COLORS.yellow },
   { from: "vercel", to: "domain", label: "mensaje", color: COLORS.cyan },
   { from: "domain", to: "neon", label: "estado", color: COLORS.purple },
   { from: "lab", to: "monitor", label: "respuesta", color: COLORS.green },
@@ -104,15 +104,15 @@ export const SceneArquitectura: React.FC = () => {
         <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
           <div style={{ position: "relative", width: CW, height: CH }}>
             {/* Etiquetas de capa */}
-            <div style={{ position: "absolute", left: 0, top: 8, display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ position: "absolute", left: 0, top: -10, display: "flex", alignItems: "center", gap: 14 }}>
               <span style={{ fontFamily: FONTS.mono, fontSize: 15, color: COLORS.cyan, textTransform: "uppercase", letterSpacing: "0.22em", fontWeight: 700 }}>1 · Servicio</span>
               <div style={{ width: 320, height: 2, background: `linear-gradient(90deg, ${COLORS.cyan}55, transparent)` }} />
             </div>
-            <div style={{ position: "absolute", left: 0, top: 298, display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ position: "absolute", left: 0, top: 280, display: "flex", alignItems: "center", gap: 14 }}>
               <span style={{ fontFamily: FONTS.mono, fontSize: 15, color: COLORS.greenBright, textTransform: "uppercase", letterSpacing: "0.22em", fontWeight: 700 }}>2 · Vigilancia</span>
               <div style={{ width: 320, height: 2, background: `linear-gradient(90deg, ${COLORS.greenBright}55, transparent)` }} />
             </div>
-            <div style={{ position: "absolute", left: 0, top: 568, display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ position: "absolute", left: 0, top: 550, display: "flex", alignItems: "center", gap: 14 }}>
               <span style={{ fontFamily: FONTS.mono, fontSize: 15, color: COLORS.pink, textTransform: "uppercase", letterSpacing: "0.22em", fontWeight: 700 }}>3 · Adaptación</span>
               <div style={{ width: 320, height: 2, background: `linear-gradient(90deg, ${COLORS.pink}55, transparent)` }} />
             </div>

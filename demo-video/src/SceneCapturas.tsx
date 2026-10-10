@@ -3,9 +3,9 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remo
 import { COLORS, FONTS, GlowOrb, GridBg, SectionHeader, ScreenshotFrame } from "./DesignSystem";
 
 const CAPTURES = [
-  { src: "captures/diseno.png", path: "entregas/01-diseno-sistemas.html", title: "01 · Diseño de Sistemas", note: "Misma respuesta y mismo estado posterior: el criterio de compatibilidad.", tag: "Entregable oficial", color: COLORS.cyan, scale: 2.1 },
-  { src: "captures/arquitectura.png", path: "entregas/02-diagrama-arquitectura.html", title: "02 · Diagrama de Arquitectura", note: "Adaptador HTTP, núcleo de estados y persistencia con responsabilidades claras.", tag: "Entregable oficial", color: COLORS.purple, scale: 1.55 },
-  { src: "captures/entregables.png", path: "entregas/", title: "Índice de entregables", note: "SPEC, experimentos y bitácora: decisiones que se pueden rastrear.", tag: "Documentación", color: COLORS.green, scale: 2.1 },
+  { src: "captures/diseno.png", path: "entregas/01-diseno-sistemas.html", title: "01 · Diseño de sistemas", note: "Criterios de equivalencia: respuesta HTTP y estado posterior.", tag: "Diseño técnico", color: COLORS.cyan, scale: 2.1 },
+  { src: "captures/arquitectura.png", path: "entregas/02-diagrama-arquitectura.html", title: "02 · Diagrama de arquitectura", note: "Adaptador HTTP, dominio y persistencia: componentes e interfaces.", tag: "Arquitectura", color: COLORS.purple, scale: 1.55 },
+  { src: "captures/entregables.png", path: "entregas/", title: "Índice de entregables", note: "Especificación, experimentos JSONL y bitácora de cambios.", tag: "Documentación", color: COLORS.green, scale: 2.1 },
 ];
 
 export const SceneCapturas: React.FC = () => {

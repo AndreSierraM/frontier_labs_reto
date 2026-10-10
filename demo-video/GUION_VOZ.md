@@ -13,7 +13,7 @@ Copy descriptivo: objetivo, operaciones, validación, arquitectura, agentes, cam
 | 0:00–0:06 | Presentación | Implementación y validación del reto 2. |
 | 0:06–0:16 | Objetivo | Contrato HTTP y criterios de comprobación. |
 | 0:16–0:36 | Demostración local | Seis operaciones: entrada, respuesta JSON y saldo posterior. |
-| 0:36–0:52 | Validación | 21 pruebas de dominio, 5 HTTP/aislamiento; corte de 394 observaciones y 82 filas SPEC. Los 116 casos se identifican como históricos. |
+| 0:36–0:52 | Validación | 21 pruebas de dominio, 5 HTTP/aislamiento; 394 observaciones y 82 filas SPEC. Registro: 34/34 controles, 72/72 batería v2 y 12/20 ejemplos v1; total 118/126. |
 | 0:52–1:04 | Arquitectura | Adaptador HTTP, dominio, persistencia, monitor y workflow. |
 | 1:04–1:22 | Agentes | Activación (6 s), paralelismo de scouts (6 s), verificación y pendientes CI (6 s). |
 | 1:22–1:40 | Cambios registrados | Saldo decimal, contrato E510 y estado de apagado HALT. |
@@ -28,7 +28,7 @@ Copy descriptivo: objetivo, operaciones, validación, arquitectura, agentes, cam
 
 **Demostración:** “La secuencia local crea dos cuentas, deposita doscientos cincuenta y transfiere cuarenta. La consulta devuelve el saldo de destino. La anulación restaura los saldos previos. La pantalla reproduce las respuestas del dominio.”
 
-**Validación:** “Pasan veintiuna pruebas de dominio y cinco de HTTP y aislamiento. El corte revisado contiene trescientas noventa y cuatro observaciones y ochenta y dos filas de especificación con evidencia. Los ciento dieciséis casos son un resultado histórico del proyecto.”
+**Validación:** “Pasan veintiuna pruebas de dominio y cinco de HTTP. El registro local aprueba treinta y cuatro controles y setenta y dos casos v2, con ocho diferencias frente a ejemplos v1. Hay trescientas noventa y cuatro observaciones y ochenta y dos filas de especificación con evidencia.”
 
 **Arquitectura:** “El adaptador HTTP delega en el dominio y persiste el estado en PostgreSQL. El monitor registra diferencias y GitHub Actions coordina el pipeline de adaptación.”
 
@@ -46,7 +46,7 @@ Copy descriptivo: objetivo, operaciones, validación, arquitectura, agentes, cam
 - `node scripts/verify-demo.cjs`: ejecuta la secuencia y comprueba respuestas y saldos.
 - `npm --prefix reemplazo test`: 21 pruebas de dominio y 5 HTTP/aislamiento.
 - `python3 reto2-investigacion/scripts/validar_spec.py`: corte del 10 de octubre de 2026, 394 observaciones y 82 filas con evidencia. Valida el esquema y las referencias, no todos los comportamientos del servicio.
-- `116/116`: resultado registrado en `README.md`; no es una nueva ejecución del evaluador externo.
+- `reto2-investigacion/logs/validacion.json`, fecha `2026-10-10T23:22:58.497775+00:00`, URL `http://localhost:3111`: 34/34 controles, 72/72 batería v2 y 12/20 ejemplos v1, total 118/126. Es una ejecución local registrada, no una nueva ejecución de esta revisión ni del evaluador externo. El README atribuye las 8 diferencias de los ejemplos al cambio de contrato v1 → v2.
 - Agentes: `agent/pipeline.mjs`, `agent/lib/config.mjs` y los workflows `monitor.yml` / `swarm.yml`.
 - Activación: salida `changed=1` de check, recon o watch → workflow reutilizable. También se admiten ejecución manual y `repository_dispatch: original-changed`.
 - Sin eventos pendientes o en modo dry-run no se invocan agentes.

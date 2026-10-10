@@ -5,7 +5,7 @@ import { Icon } from "./Icons";
 
 const METRICS = [
   { value: "21/21", label: "Pruebas de dominio", color: COLORS.green, icon: "check-circle" as const },
-  { value: "116/116", label: "Validación histórica", color: COLORS.greenBright, icon: "check-circle" as const },
+  { value: "118/126", label: "Validación registrada", color: COLORS.blue, icon: "flask" as const },
   { value: "394", label: "Observaciones al corte", color: COLORS.purple, icon: "microscope" as const },
   { value: "82", label: "Filas SPEC con evidencia", color: COLORS.cyan, icon: "target" as const },
 ];
@@ -19,16 +19,17 @@ const DELIVERABLES = [
 ];
 
 const TESTS = [
-  { text: "COMPROBACIÓN LOCAL", color: COLORS.cyan },
+  { text: "COMPROBACIÓN DE ESTA REVISIÓN", color: COLORS.cyan },
   { text: "" },
   { text: "✓ Dominio: 21 pruebas OK", color: COLORS.green },
   { text: "✓ HTTP y aislamiento: 5 pruebas OK", color: COLORS.green },
   { text: "✓ Log: 394 observaciones, IDs 1..394", color: COLORS.green },
   { text: "✓ SPEC: 82 filas con evidencia", color: COLORS.green },
   { text: "" },
-  { text: "VALIDACIÓN REGISTRADA EN EL PROYECTO", color: COLORS.cyan },
-  { text: "20 ejemplos + 34 controles + 62 casos", color: COLORS.textMuted },
-  { text: "Total: 116/116 · fuente: README.md", color: COLORS.green },
+  { text: "VALIDACIÓN REGISTRADA · localhost:3111", color: COLORS.cyan },
+  { text: "Control: 34/34 · Batería v2: 72/72", color: COLORS.green },
+  { text: "Ejemplos v1: 12/20 · 8 diferencias registradas", color: COLORS.orange },
+  { text: "Total: 118/126 · logs/validacion.json", color: COLORS.textMuted },
   { text: "", color: COLORS.textMuted },
   { text: "Corte de revisión: 10 oct 2026 · no es una sesión en vivo.", color: COLORS.textDim },
 ];
@@ -54,7 +55,7 @@ export const SceneResultados: React.FC = () => {
       <GlowOrb color={COLORS.green} size={550} style={{ top: "12%", left: "50%", transform: "translateX(-50%)", opacity: 0.11 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "54px 90px 84px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="03 / Validación" title="Pruebas y evidencia registrada" subtitle="Comprobaciones locales al 10 de octubre de 2026. Los 116 casos corresponden al registro histórico del proyecto." color={COLORS.green} />
+        <SectionHeader label="03 / Validación" title="Pruebas y evidencia registrada" subtitle="Pruebas de esta revisión y validación local registrada. Se conservan las diferencias frente a los ejemplos v1." color={COLORS.green} />
 
         {/* Métricas */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 22, marginBottom: 28 }}>
@@ -82,7 +83,7 @@ export const SceneResultados: React.FC = () => {
             </div>
             <div style={{ padding: "18px 24px" }}>
               {TESTS.slice(0, visibleTests).map((l, i) => (
-                <div key={i} style={{ fontFamily: FONTS.mono, fontSize: 17, lineHeight: "26px", color: l.color || COLORS.textMuted, display: "flex", gap: 10 }}>
+                <div key={i} style={{ fontFamily: FONTS.mono, fontSize: 19, lineHeight: "28px", color: l.color || COLORS.textMuted, display: "flex", gap: 10 }}>
                   <span>{l.text}</span>
                 </div>
               ))}
