@@ -108,7 +108,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | K-T2 | Monto inválido → `400 E303` (igual que depósito). | 87–100 | confirmado |
 | K-T3 | Origen = destino → `400 {"error":"E304","mensaje":"origen y destino iguales"}` (antes de límite/saldo). | 122–163 | confirmado |
 | K-T4 | Origen o destino inexistente → `404 E401`. | 87–100 | confirmado |
-| K-T5 | Monto > 100000 → `422 {"error":"E506","mensaje":"límite excedido"}`. | 87–100, 122–163 | confirmado |
+| K-T5 | Monto > 100000 → `422 {"error":"E506","mensaje":"limite excedido v2"}`. | 87–100, 122–163 | confirmado |
 | K-T6 | Monto > saldo → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. `E506` tiene prioridad sobre `E507`. | 87–100, 122–163 | confirmado |
 | K-T7 | Éxito: resta del origen, suma al destino, reinicia el contador de fallos del origen. | 87–100, 240–278 | confirmado |
 
@@ -156,7 +156,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | E401 | 404 | `{"error":"E401","mensaje":"cuenta inexistente"}` | cuenta no existe | 58–64, 87–100 | confirmado |
 | E402 | 404 | `{"error":"E402","mensaje":"operación inexistente"}` | operación no existe | 101–116, 240–278 | confirmado |
 | E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos | pendiente #3 (observado en probe_recon, sin id) | probable |
-| E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 100000 | 87–100, 122–163 | confirmado |
+| E506 | 422 | `{"error":"E506","mensaje":"limite excedido v2"}` | transferencia > 100000 | 87–100, 122–163 | confirmado |
 | E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo | 87–100, 122–163 | confirmado |
 | E510 | 409 | `{"error":"E510","mensaje":"cuenta bloqueada"}` | cuenta con 3 fallos de transferencia | 164–239, 240–278, 309–336 | confirmado |
 
