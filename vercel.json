@@ -2,6 +2,12 @@
   "rewrites": [
     { "source": "/(.*)", "destination": "/api/index" }
   ],
+  "crons": [
+    { "path": "/api/monitor/run", "schedule": "*/15 * * * *" }
+  ],
+  "functions": {
+    "api/monitor/run.js": { "maxDuration": 60 }
+  },
   "headers": [
     {
       "source": "/entregables/(.*)",
