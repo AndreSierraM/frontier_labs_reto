@@ -1,14 +1,16 @@
 /**
  * LAB · Original falso controlable, solo para pruebas de la cadena automática.
  *
- * Igual que el reemplazo (reutiliza su handler y su dominio) pero:
- *   - guarda su estado en la tabla `lab_estado`
- *   - permite cambiar el mensaje de E506 en caliente con POST /api/lab/__lab
+ * Reutiliza el handler y el dominio del reemplazo, pero permite cambiar en
+ * caliente (POST /api/lab/__lab):
+ *   - `e506`: mensaje del error E506.
+ *   - `newCommand`: añade un comando nuevo (p.ej. "SALDO") que responde 200.
  *
  * No forma parte del entrypoint oficial; se accede en /api/lab/*.
  */
 "use strict";
 
+const { Readable } = require("stream");
 const { Pool } = require("pg");
 const { createHandler } = require("../../reemplazo/src/server");
 const { createPostgresStorage } = require("../../reemplazo/src/storage");
@@ -25,16 +27,18 @@ function init() {
 }
 
 async function ensureConfig() {
-  await pool.query(`CREATE TABLE IF NOT EXISTS lab_config (id integer PRIMARY KEY, e506 text NOT NULL)`);
   await pool.query(
-    `INSERT INTO lab_config (id, e506) VALUES (1, 'límite excedido')
-     ON CONFLICT (id) DO NOTHING`
+    `CREATE TABLE IF NOT EXISTS lab_config (id integer PRIMARY KEY, e506 text NOT NULL, new_command text)`
+  );
+  await pool.query(`ALTER TABLE lab_config ADD COLUMN IF NOT EXISTS new_command text`);
+  await pool.query(
+    `INSERT INTO lab_config (id, e506) VALUES (1, 'límite excedido') ON CONFLICT (id) DO NOTHING`
   );
 }
 
 async function readConfig() {
-  const { rows } = await pool.query("SELECT e506 FROM lab_config WHERE id = 1");
-  return rows[0] || { e506: "límite excedido" };
+  const { rows } = await pool.query("SELECT e506, new_command FROM lab_config WHERE id = 1");
+  return rows[0] || { e506: "límite excedido", new_command: null };
 }
 
 function authorized(req) {
@@ -48,6 +52,15 @@ async function readBody(req) {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+// Reinyecta un cuerpo ya leído para que el handler real lo vuelva a leer.
+function fakeReq(req, buffer) {
+  const r = Readable.from([buffer]);
+  r.method = req.method;
+  r.url = req.url;
+  r.headers = req.headers;
+  return r;
+}
+
 module.exports = async (req, res) => {
   init();
   await storage.ensure();
@@ -55,7 +68,7 @@ module.exports = async (req, res) => {
 
   const pathname = new URL(req.url, "http://localhost").pathname;
 
-  // --- gestión: cambiar el mensaje de E506 -----------------------------
+  // --- gestión ---------------------------------------------------------
   if (pathname.endsWith("/__lab")) {
     if (!authorized(req)) {
       res.statusCode = 401;
@@ -67,19 +80,38 @@ module.exports = async (req, res) => {
       const raw = await readBody(req);
       if (raw) payload = JSON.parse(raw);
     } catch (_) {}
-    const e506 = typeof payload.e506 === "string" ? payload.e506 : "límite excedido";
+    const e506 = typeof payload.e506 === "string" ? payload.e506 : undefined;
+    const newCommand = typeof payload.newCommand === "string" ? payload.newCommand : undefined;
     await pool.query(
-      `INSERT INTO lab_config (id, e506) VALUES (1, $1)
-       ON CONFLICT (id) DO UPDATE SET e506 = EXCLUDED.e506`,
-      [e506]
+      `UPDATE lab_config SET e506 = COALESCE($1, e506), new_command = $2 WHERE id = 1`,
+      [e506 ?? null, newCommand === undefined ? null : newCommand || null]
     );
+    const cfg = await readConfig();
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
-    return res.end(JSON.stringify({ ok: true, e506 }));
+    return res.end(JSON.stringify({ ok: true, ...cfg }));
   }
 
-  // --- override de E506 en las respuestas ------------------------------
   const cfg = await readConfig();
+
+  // --- comando nuevo ---------------------------------------------------
+  if (req.method === "POST" && pathname.endsWith("/msg")) {
+    const raw = await readBody(req);
+    let m = "";
+    try {
+      const p = JSON.parse(raw);
+      if (p && typeof p.m === "string") m = p.m;
+    } catch (_) {}
+    const first = m.split(";")[0].toUpperCase();
+    if (cfg.new_command && first === cfg.new_command.toUpperCase()) {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      return res.end(JSON.stringify({ ok: true, comando: first, saldo: 0 }));
+    }
+    req = fakeReq(req, Buffer.from(raw));
+  }
+
+  // --- override de E506 ------------------------------------------------
   const originalEnd = res.end.bind(res);
   res.end = (chunk, ...args) => {
     if (chunk && cfg.e506 !== "límite excedido") {
@@ -91,7 +123,7 @@ module.exports = async (req, res) => {
     return originalEnd(chunk, ...args);
   };
 
-  // --- delegar al handler real, quitando el prefijo /api/lab -----------
+  // --- delegar ---------------------------------------------------------
   req.url = req.url.replace(/^\/api\/lab/, "") || "/";
   return handler(req, res);
 };

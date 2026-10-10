@@ -48,7 +48,15 @@ module.exports = async (req, res) => {
     const last = await store.lastMap(pool);
     return json(res, 200, {
       ok: true,
-      map: last ? { id: last.id, taken_at: last.taken_at, fingerprint: last.fingerprint, total: Object.keys(last.map).length } : null,
+      map: last
+        ? {
+            id: last.id,
+            taken_at: last.taken_at,
+            fingerprint: last.fingerprint,
+            total: Object.keys(last.map).length,
+            samples: last.map,
+          }
+        : null,
     });
   }
 
@@ -76,19 +84,31 @@ module.exports = async (req, res) => {
   const saved = await store.saveMap(pool, fp, map);
 
   if (prev && (diff.added.length || diff.changed.length)) {
+    // Resumen compacto (sin volcar los mapas completos).
     await store.recordEvent(
       pool,
       "map_changed",
       null,
-      prev.map,
-      map,
+      null,
+      null,
       `nuevos: ${diff.added.length}, cambiados: ${diff.changed.length}, removidos: ${diff.removed.length}`
     );
-    for (const label of diff.added.slice(0, 20)) {
-      await store.recordEvent(pool, "map_added", label, null, map[label], "comportamiento nuevo detectado");
+
+    const isUnknown = (s) => Boolean(s) && s.response && s.response.error === "E301";
+
+    for (const label of diff.added) {
+      const kind = label.startsWith("cmd:") ? "new_command" : label.startsWith("route:") ? "new_route" : "map_added";
+      await store.recordEvent(pool, kind, label, null, map[label], "comportamiento nuevo detectado");
     }
-    for (const label of diff.changed.slice(0, 20)) {
-      await store.recordEvent(pool, "map_value_changed", label, prev.map[label], map[label], "respuesta cambiada");
+    for (const label of diff.changed) {
+      const before = prev.map[label];
+      const after = map[label];
+      // Un comando candidato que dejó de ser "desconocido" (E301) es un comando NUEVO.
+      const newCommand = label.startsWith("cmd:") && isUnknown(before) && !isUnknown(after);
+      // Una ruta que dejó de ser 404 es una ruta NUEVA.
+      const newRoute = label.startsWith("route:") && before && before.status === 404 && after && after.status !== 404;
+      const kind = newCommand ? "new_command" : newRoute ? "new_route" : "map_value_changed";
+      await store.recordEvent(pool, kind, label, before, after, newCommand ? "comando nuevo" : "respuesta cambiada");
     }
   }
 

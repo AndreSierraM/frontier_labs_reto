@@ -48,10 +48,20 @@ async function monitorFetch(pathname, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
+// Cambios que despiertan al enjambre: batería, mapa y descubrimientos.
+// `map_changed` es un resumen sin before/after, así que no entra.
+const CHANGE_KINDS = new Set([
+  "original_changed",
+  "map_added",
+  "map_value_changed",
+  "new_command",
+  "new_route",
+]);
+
 function pendingChanges(events) {
   const acks = (events || []).filter((e) => e.kind === "adaptation_applied").map((e) => e.id);
   const lastAck = acks.length ? Math.max(...acks) : 0;
-  return (events || []).filter((e) => e.kind === "original_changed" && e.id > lastAck);
+  return (events || []).filter((e) => CHANGE_KINDS.has(e.kind) && e.id > lastAck);
 }
 
 function runTests() {
