@@ -47,19 +47,52 @@ const request = (base, token, path, body, timeoutMs, tries) =>
   requestRaw(base, token, "POST", path, body, timeoutMs, tries);
 
 // ---------------------------------------------------------------- runner
-async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries = 2, abortOnInfra = false } = {}) {
+async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries = 2, abortOnInfra = false, concurrency = 1 } = {}) {
   const map = {};
-  for (const p of list) {
-    const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries);
+  const record = (p, raw) => {
     map[p.label] = p.path === "/__reset" && raw.status === 200 ? { status: 200, response: "reset" } : raw;
-    // Al primer 429/inaccesible la muestra ya no sirve: abortar rápido.
-    if (abortOnInfra && (raw.status === 429 || raw.status === 0)) return map;
-    if (sleepMs) await sleep(sleepMs);
+  };
+  const infra = (raw) => abortOnInfra && (raw.status === 429 || raw.status === 0);
+
+  // Secuencial: obligatorio para la batería (tiene estado).
+  if (concurrency <= 1) {
+    for (const p of list) {
+      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries);
+      record(p, raw);
+      if (infra(raw)) return map; // al primer 429 la muestra ya no sirve
+      if (sleepMs) await sleep(sleepMs);
+    }
+    return map;
   }
+
+  // Concurrente (pool): para sondas independientes (descubrimiento/rutas).
+  let next = 0;
+  let aborted = false;
+  const worker = async () => {
+    while (next < list.length && !aborted) {
+      const p = list[next++];
+      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries);
+      record(p, raw);
+      if (infra(raw)) aborted = true;
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, list.length) }, worker));
   return map;
 }
-const runBattery = (base, token, opts) => run(base, token, PROBES.battery, { sleepMs: 50, timeoutMs: 20000, ...opts });
-const runAll = (base, token, opts) => run(base, token, PROBES.all, { sleepMs: 25, ...opts });
+
+const runBattery = (base, token, opts) => run(base, token, PROBES.battery, { sleepMs: 50, timeoutMs: 20000, ...opts, concurrency: 1 });
+
+// Batería secuencial (estado) + descubrimiento/rutas en paralelo (sin estado).
+async function runAll(base, token, opts = {}) {
+  const battery = await runBattery(base, token, opts);
+  if (opts.abortOnInfra && hasInfra(battery)) return battery;
+  const rest = await run(base, token, [...PROBES.discovery, ...PROBES.routes], {
+    sleepMs: 0,
+    ...opts,
+    concurrency: opts.concurrency || 6,
+  });
+  return { ...battery, ...rest };
+}
 
 async function health(base, token, timeoutMs = 15000) {
   try {
