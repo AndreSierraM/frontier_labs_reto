@@ -15,6 +15,7 @@ que detecta cuándo el original cambia y propone el parche.
 | **Reloj** | GitHub Actions `monitor.yml` | Cada 15 min, o en bucle (`loop_minutes`) para el demo day |
 | **Enjambre de agentes** | GitHub Actions `swarm.yml` | Ante un cambio: investiga, parchea, verifica y abre PR |
 | **Original falso (lab)** | Vercel `/api/lab` | Solo pruebas; permite cambiar `E506` en caliente |
+| **Panel** | Vercel `/monitor` | Dashboard: estado del original + nuestro servicio |
 
 ```
 monitor.yml (cron / bucle)
@@ -29,6 +30,8 @@ monitor.yml (cron / bucle)
 ```
 
 Detalle del enjambre: [`agent/README.md`](agent/README.md).
+- **Fix post-evaluación** (2026-10-10): en `server.js` se corrige `readBody` para que
+  `413 E101` devuelva el JSON en lugar de cerrar la conexión (afectaba tests de body grande).
 
 ## Estructura del repositorio
 
@@ -107,6 +110,7 @@ No publicar `.env`, tokens, DB locales ni capturas con credenciales.
 | Diagrama para entregar | [HTML](docs/entregables/02-diagrama-arquitectura.html) · [PDF](docs/entregables/02-diagrama-arquitectura.pdf) |
 | Decisiones completas | [Diseño](docs/01-diseno.md) · [Arquitectura](docs/02-arquitectura.md) |
 | Enjambre de agentes | [agent/README.md](agent/README.md) |
+| Observabilidad (qué vemos) | [docs/observabilidad.md](docs/observabilidad.md) |
 | Pruebas E2E (laboratorio) | [docs/lab-e2e](docs/lab-e2e/README.md) |
 | Comportamiento observado | [SPEC](reto2-investigacion/SPEC.md) · [experimentos](reto2-investigacion/experimentos.jsonl) |
 | Cronología e incidente | [Bitácora](reto2-investigacion/BITACORA.md) |
@@ -116,6 +120,8 @@ No publicar `.env`, tokens, DB locales ni capturas con credenciales.
 
 - Validación local: **20/20** ejemplos, **34/34** control y **62/62** batería
   (**116/116**) + **21/21** unitarias.
+- Log de experimentos: **366 observaciones**; cada comportamiento del SPEC cita
+  líneas concretas del log (no quedan referencias genéricas como `probe_recon`).
 - El evaluador usa 100 tests, reset antes de cada test y máximo 5s por paso;
   compara status y cuerpo.
 - **Rate-limit de infraestructura:** el original responde `429 {"infra":"rate-limit"}`

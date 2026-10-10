@@ -13,6 +13,7 @@
 
 ## Operación (monitor y enjambre)
 
+- [Observabilidad](observabilidad.md): qué se observa (original y nuestro servicio), endpoints, disparadores y panel.
 - [Enjambre de agentes](../agent/README.md): roles, harness, workflow reutilizable, modelo y límites.
 - [Prueba E2E del enjambre](lab-e2e/README.md): detección → parche → verificación (original falso).
 - [Cadena automática](lab-e2e/cadena-automatica.md): monitor → enjambre → PR, con runs y PRs.
