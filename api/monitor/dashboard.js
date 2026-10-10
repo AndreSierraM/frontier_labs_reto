@@ -40,6 +40,25 @@ module.exports = async (req, res) => {
   const pool = getPool();
   await store.ensure(pool);
 
+  // TEMPORAL · diagnóstico: ?trace=1&from=<iso>&to=<iso> vuelca la timeline
+  // de /msg y /__reset para reconstruir las corridas del set oculto.
+  let q = null;
+  try {
+    q = new URL(req.url, "http://localhost").searchParams;
+  } catch (_) {}
+  if (q && q.get("trace") === "1") {
+    const from = q.get("from") || "1970-01-01T00:00:00Z";
+    const to = q.get("to") || new Date().toISOString();
+    const limit = Math.min(Number(q.get("limit") || 5000), 20000);
+    const { rows } = await pool.query(
+      `SELECT id, at, method, path, status, ms FROM runtime_log
+        WHERE at >= $1 AND at <= $2 AND path IN ('/msg','/__reset')
+        ORDER BY id LIMIT $3`,
+      [from, to, limit]
+    );
+    return json(res, 200, { ok: true, from, to, n: rows.length, rows });
+  }
+
   let runtime = null;
   try {
     runtime = await store.runtimeSummary(pool, 60);
