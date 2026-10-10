@@ -2,184 +2,126 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reto 2 · La caja negra · Arquitectura y estados</title>
+<title>Reto 2 · Diagrama de arquitectura del reemplazo</title>
 <style>
-:root{--ink:#0e2736;--muted:#5a7380;--teal:#086b68;--paper:#fbfdfd;--line:#cddee3;--aqua:#e7f4f1;--sand:#fff2d4;--rose:#fdecec;--code:#0b3a44}
-*{box-sizing:border-box}
-body{margin:0;background:#d7e7ea;color:var(--ink);font:12px/1.35 Arial,Helvetica,sans-serif}
-main{width:min(297mm,100%);margin:14px auto;padding:6mm 9mm 4mm;background:var(--paper);box-shadow:0 8px 30px #16323f26}
-header{border-bottom:4px solid var(--teal);padding-bottom:8px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
-h1,h2,p{margin:0}h1{font-size:23px;line-height:1.05;letter-spacing:-.5px}h1 small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:3px}
-.badge{font-size:9px;font-weight:700;color:#fff;background:var(--teal);border-radius:20px;padding:4px 10px;white-space:nowrap}
-.diagram{margin-top:8px;border:1px solid var(--line);background:#fff;border-radius:5px;padding:4px}
-svg{display:block;width:100%;height:auto}
-.cards{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:10px;margin-top:8px}
-.note{padding:7px 8px;background:var(--aqua);border-left:3px solid var(--teal);border-radius:0 4px 4px 0;break-inside:avoid}
-.note.warn{background:var(--sand);border-left-color:#b47b13}.note.risk{background:var(--rose);border-left-color:#b23b3b}
-h2{font-size:11.5px;color:var(--teal);margin-bottom:4px}
-.note p,.note li{font-size:10px}
-ul,ol{margin:2px 0;padding-left:14px}li{margin:1.5px 0}
-code{font-family:"SFMono-Regular",Consolas,monospace;font-size:.92em;background:#eef5f5;padding:1px 3px;border-radius:3px;color:var(--code)}
-footer{border-top:1px solid var(--line);padding-top:5px;margin-top:7px;color:var(--muted);font-size:8.6px}
+:root{--ink:#0e2736;--muted:#49616e;--teal:#086b68;--paper:#fbfdfd;--line:#cddee3;--aqua:#e7f4f1;--sand:#fff2d4}
+*{box-sizing:border-box}body{margin:0;background:#d7e7ea;color:var(--ink);font:11px/1.35 Arial,Helvetica,sans-serif}
+main{width:min(297mm,100%);margin:12px auto;padding:7mm 9mm;background:var(--paper);box-shadow:0 8px 30px #16323f26}
+header{border-bottom:3px solid var(--teal);padding-bottom:7px}h1,h2,p{margin:0}
+h1{font-size:23px;letter-spacing:-.4px;line-height:1.1}.meta{font-size:10px;color:var(--muted);margin-top:4px}
+.diagram{margin-top:9px;border:1px solid var(--line);background:#fff;padding:4px}svg{display:block;width:100%;height:auto}
+.bottom{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:8px}h2{font-size:12px;color:var(--teal);margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:9.5px;line-height:1.3}th{text-align:left;background:var(--ink);color:#fff;padding:3px 4px}td{vertical-align:top;padding:3px 4px;border-bottom:1px solid var(--line)}
+p+p{margin-top:4px}code{font-family:Consolas,monospace;font-size:.94em;overflow-wrap:anywhere}
+footer{border-top:1px solid var(--line);padding-top:5px;margin-top:7px;color:var(--muted);font-size:8.5px}
+a{color:var(--teal)}a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 @page{size:A4 landscape;margin:0}
 @media print{body{background:#fff}main{margin:0;box-shadow:none;width:297mm}a{color:inherit}}
-@media(max-width:820px){main{padding:16px;margin:0}.cards{display:block}.note{margin:8px 0}body{font-size:13px}}
+@media screen and (max-width:820px){main{padding:16px;margin:0}.bottom{display:block}.bottom section+section{margin-top:12px}body{font-size:13px}table{font-size:12px}}
 </style>
 </head>
 <body><main>
-<header>
-<div><h1>Eventos, guardas y transiciones detrás de puertos mínimos<small>Arquitectura hexagonal mínima · máquina de estados de cuenta y operación · secuencia de TRANSFER</small></h1>
-<p style="font-size:10px;color:var(--muted);margin-top:3px">Frontier Labs · Reto 2 · protocolo textual + control ISO 7064 + reglas de estado observadas</p></div>
-<div class="badge">30% · cierre 12:00</div>
-</header>
-
+<header><h1>Arquitectura del reemplazo · Un proceso, estado explícito</h1>
+<p class="meta">Frontier Labs · Reto 2 · Systems Design (30%) · cierre 12:00 · actual y propuesto diferenciados</p></header>
 <div class="diagram">
-<svg viewBox="0 0 1400 552" role="img" aria-labelledby="t d">
-<title id="t">Arquitectura y máquina de estados de la caja negra</title>
-<desc id="d">Pipeline HTTP hacia el núcleo de dominio y el estado; máquina de cuenta Activa/Bloqueada derivada de fallos; máquina de operación Vigente/Anulada; y secuencia de decisión de TRANSFER con sus errores.</desc>
+<svg viewBox="0 0 1200 565" role="img" aria-labelledby="titulo descripcion">
+<title id="titulo">Arquitectura hexagonal mínima, flujo HTTP y estados del reemplazo</title>
+<desc id="descripcion">El cliente envía HTTP al adaptador. El adaptador autentica y enruta: health y errores de transporte responden directamente; mensaje y reset usan el núcleo. El núcleo lee y cambia estado Map y devuelve un resultado al adaptador, que emite HTTP al cliente. SQLite es una propuesta de sustitución del almacenamiento, no implementada. La producción no llama al original. E506 y E507 incrementan fallos; el tercer fallo devuelve 422 y la siguiente transferencia elegible 409. ANULA revierte una sola vez.</desc>
 <defs>
-<marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="2.6" orient="auto"><path d="M0 0L0 5.2L7.6 2.6z" fill="#086b68"/></marker>
-<marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="2.6" orient="auto"><path d="M0 0L0 5.2L7.6 2.6z" fill="#b47b13"/></marker>
-<marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="2.6" orient="auto"><path d="M0 0L0 5.2L7.6 2.6z" fill="#b23b3b"/></marker>
+<marker id="flecha" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#086b68"/></marker>
+<marker id="futura" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#ad7618"/></marker>
 <style>
-.zone{fill:#f2f8f8;stroke:#587985;stroke-width:1.4;rx:7}
-.core{fill:#eaf6f2;stroke:#086b68;stroke-width:2.6}
-.node{fill:#fff;stroke:#587985;stroke-width:1.1;rx:5}
-.chip{fill:#eef5f5;stroke:#b9cfd6;stroke-width:1;rx:4}
-.st{fill:#dcefe6;stroke:#086b68;stroke-width:1.5;rx:7}
-.blk{fill:#fff2d4;stroke:#ad7618;stroke-width:1.5;rx:7}
-.op{fill:#e7eef9;stroke:#3a5f9e;stroke-width:1.5;rx:7}
-.t{font:700 14px Arial;fill:#0b3a44}
-.s{font:11px Arial;fill:#5a7380}
-.m{font:700 11px Arial;fill:#086b68}
-.e{font:700 10.5px Arial;fill:#b23b3b}
-.g{font:700 10.5px Arial;fill:#9a6a12}
-.circ{fill:#086b68}
-.ln{stroke:#086b68;stroke-width:1.7;fill:none;marker-end:url(#a)}
-.lng{stroke:#b47b13;stroke-width:1.5;fill:none;marker-end:url(#ag);stroke-dasharray:5 4}
-.lnr{stroke:#b23b3b;stroke-width:1.4;fill:none;marker-end:url(#ar)}
-.seam{stroke:#587985;stroke-width:1.4;stroke-dasharray:6 5;fill:none;marker-end:url(#a)}
-.flow{stroke:#086b68;stroke-width:2;fill:none;marker-end:url(#a)}
-</style>
-</defs>
+.boundary{fill:#f2f8f8;stroke:#587985;stroke-width:1.4}.box{fill:#fff;stroke:#587985;stroke-width:1.4}.core{fill:#e7f4f1;stroke:#086b68;stroke-width:2}.future{fill:#fff8e6;stroke:#ad7618;stroke-width:1.5;stroke-dasharray:7 5}
+.title{font:700 18px Arial;fill:#0b3a44}.heading{font:700 16px Arial;fill:#086b68}.text{font:14px Arial;fill:#344f5e}.small{font:12px Arial;fill:#49616e}.label{font:700 12px Arial;fill:#086b68}.warn{font:700 12px Arial;fill:#91610d}
+.line{stroke:#086b68;stroke-width:2;fill:none;marker-end:url(#flecha)}.proposal{stroke:#ad7618;stroke-width:1.6;stroke-dasharray:7 5;fill:none;marker-end:url(#futura)}
+</style></defs>
 
-<!-- ===== Row 1: pipeline ===== -->
-<rect class="zone" x="150" y="30" width="360" height="120" rx="7"/>
-<text class="m" x="164" y="50">Adaptador HTTP</text>
-<text class="s" x="164" y="65">transporte → evento · sin reglas de negocio</text>
-<rect class="chip" x="162" y="74" width="102" height="30"/><text class="s" x="171" y="88">Auth Bearer</text><text class="s" x="171" y="100">E001 en toda ruta</text>
-<rect class="chip" x="270" y="74" width="102" height="30"/><text class="s" x="279" y="88">Rutas /msg</text><text class="s" x="279" y="100">/health · /__reset</text>
-<rect class="chip" x="378" y="74" width="120" height="30"/><text class="s" x="387" y="88">Límite 8191 B</text><text class="s" x="387" y="100">E101 · E100 · E102</text>
-<rect class="chip" x="270" y="110" width="228" height="30"/><text class="s" x="279" y="124">Rutas estrictas · HEAD/404 · E404</text><text class="s" x="279" y="136">cabecera x-req (no se compara)</text>
+<!-- Frontera y componentes implementados -->
+<rect class="boundary" x="180" y="24" width="1000" height="306" rx="6"/>
+<text class="heading" x="198" y="48">Reemplazo · una instancia Node.js · sin llamadas al original ni a otro reemplazo</text>
+<rect class="box" x="18" y="104" width="136" height="106" rx="5"/>
+<text class="title" x="32" y="132">Cliente /</text><text class="title" x="32" y="154">evaluador</text>
+<text class="small" x="32" y="186">Bearer del equipo</text>
+<rect class="box" x="210" y="76" width="260" height="145" rx="5"/>
+<text class="heading" x="226" y="101">Adaptador HTTP</text>
+<text class="small" x="226" y="122">src/server.js</text>
+<text class="text" x="226" y="148">Auth → ruta → bytes → JSON</text>
+<text class="text" x="226" y="170">Health / error HTTP: directo</text>
+<text class="text" x="226" y="192">Emite status y cuerpo exactos</text>
+<path class="line" d="M154 143 H210"/><text class="label" x="159" y="130">HTTP</text>
+<path class="line" d="M210 194 H154"/>
+<text class="small" x="18" y="235">Respuesta HTTP</text>
 
-<rect class="core" x="540" y="30" width="470" height="120" rx="7"/>
-<text class="t" x="556" y="52">Núcleo: δ(S, evento) = (S′, respuesta)</text>
-<text class="s" x="556" y="68">independiente del transporte y del almacenamiento</text>
-<rect class="chip" x="552" y="78" width="100" height="30"/><text class="s" x="561" y="92">Parser</text><text class="s" x="561" y="104">segmentos</text>
-<path class="ln" d="M652 93H672"/>
-<rect class="chip" x="672" y="78" width="112" height="30"/><text class="s" x="681" y="92">ISO 7064</text><text class="s" x="681" y="104">MOD 97-10</text>
-<path class="ln" d="M784 93H804"/>
-<rect class="chip" x="804" y="78" width="96" height="30"/><text class="s" x="813" y="92">Guardas</text><text class="s" x="813" y="104">orden fijo</text>
-<path class="ln" d="M900 93H920"/>
-<rect class="chip" x="920" y="78" width="78" height="30"/><text class="s" x="929" y="92">Transición</text><text class="s" x="929" y="104">δ</text>
+<rect class="core" x="540" y="76" width="284" height="145" rx="5"/>
+<text class="heading" x="556" y="101">Núcleo de estados</text>
+<text class="small" x="556" y="122">src/domain.js · sin HTTP ni E/S</text>
+<text class="text" x="556" y="148">Parser + dígito de control MOD 97</text>
+<text class="text" x="556" y="170">Guardas → δ(S, evento)</text>
+<text class="text" x="556" y="192">Reset: crear estado inicial</text>
+<path class="line" d="M470 143 H540"/>
+<text class="label" x="484" y="132">m / reset</text>
+<path class="line" d="M682 221 V262 H340 V221"/>
+<text class="label" x="451" y="253">Resultado → adaptador → cliente</text>
 
-<rect class="zone" x="1040" y="30" width="336" height="120" rx="7"/>
-<text class="m" x="1054" y="50">Estado S · por proceso</text>
-<text class="s" x="1054" y="65">un solo proceso · transaccional por comando</text>
-<rect class="chip" x="1052" y="76" width="150" height="28"/><text class="s" x="1061" y="93">cuentas: saldo, fallos</text>
-<rect class="chip" x="1212" y="76" width="156" height="28"/><text class="s" x="1221" y="93">operaciones: tipo, anulada</text>
-<rect class="chip" x="1052" y="110" width="150" height="28"/><text class="s" x="1061" y="127">contadores AC / OP</text>
-<rect class="chip" x="1212" y="110" width="156" height="28"/><text class="s" x="1221" y="127">commit también en 422</text>
+<rect class="box" x="902" y="76" width="254" height="145" rx="5"/>
+<text class="heading" x="918" y="101">Map · memoria actual</text>
+<text class="text" x="918" y="128">Cuentas: saldo + fallos</text>
+<text class="text" x="918" y="152">Operaciones: efecto + anulada</text>
+<text class="text" x="918" y="176">Contadores: nextCuenta / OP</text>
+<text class="small" x="918" y="201">Reinicio pierde estado; sin réplicas</text>
+<path class="line" d="M824 132 H902"/><text class="label" x="842" y="120">cambia S</text>
+<path class="line" d="M902 184 H824"/><text class="label" x="846" y="207">lee S</text>
+<text class="text" x="198" y="292">GET /health no muta. POST /__reset borra cuentas, OP y fallos; reinicia IDs a 1.</text>
+<text class="small" x="198" y="315">Token del equipo por entorno. Transiciones síncronas en memoria; no hay transacciones SQL implementadas.</text>
 
-<rect class="node" x="24" y="62" width="112" height="58" rx="5"/>
-<text class="t" x="38" y="88">Cliente /</text><text class="t" x="38" y="103">evaluador</text><text class="s" x="36" y="117">HTTP + Bearer</text>
-<path class="ln" d="M136 91H150"/>
-<path class="ln" d="M510 91H540"/>
-<path class="ln" d="M1010 91H1040"/>
-<path class="seam" d="M1040 128H1010"/>
-<text class="s" x="1048" y="146" text-anchor="start">estado / transacción</text>
-<!-- response back: sale del nucleo y vuelve al cliente -->
-<path class="flow" d="M775 150 V178 H120 V120"/>
-<text class="s" x="330" y="190" text-anchor="middle">respuesta exacta: status + cuerpo (sin “mejoras”)</text>
+<!-- Proyección de estados, no nuevos componentes desplegables -->
+<text class="heading" x="18" y="356">Estado observable · errores también pueden ser transiciones</text>
+<rect class="boundary" x="18" y="370" width="432" height="164" rx="5"/>
+<text class="heading" x="34" y="392">Cuenta: bloqueo derivado de fallos ≥ 3</text>
+<rect class="core" x="34" y="410" width="118" height="42" rx="4"/>
+<text class="text" x="49" y="435">Activa (&lt;3)</text>
+<rect class="box" x="285" y="410" width="147" height="42" rx="4" style="fill:#fff2d4"/>
+<text class="text" x="301" y="435">Bloqueada (≥3)</text>
+<path class="line" d="M152 425 H285"/><text class="label" x="159" y="417">3.er fallo → 422</text>
+<path class="line" d="M285 445 H152"/><text class="label" x="166" y="464">depósito válido</text>
+<text class="small" x="34" y="486">Sólo E506/E507 suman: 0 → 1 → 2 → 3.</text>
+<text class="small" x="34" y="505">Siguiente TRANSFER elegible: 409 E510, sin mutar.</text>
+<text class="small" x="34" y="524">Éxito reinicia fallos; ANULA no los limpia.</text>
 
-<!-- ===== Row 2: state machines ===== -->
-<rect class="zone" x="24" y="196" width="700" height="176" rx="8"/>
-<text class="m" x="40" y="216">Cuenta · estado derivado de fallos</text>
-<rect class="st" x="70" y="250" width="190" height="72"/>
-<text class="t" x="86" y="278">Activa</text><text class="s" x="86" y="298">fallos = 0 · 1 · 2</text><text class="s" x="86" y="313">puede transferir</text>
-<rect class="blk" x="470" y="250" width="200" height="72"/>
-<text class="t" x="486" y="278">Bloqueada</text><text class="s" x="486" y="298">fallos ≥ 3 (derivado)</text><text class="s" x="486" y="313">E510 al transferir</text>
-<path class="lng" d="M260 276 H470"/><text class="g" x="365" y="268" text-anchor="middle">3er E506/E507 · fallos=3 · 422</text>
-<path class="ln" d="M470 306 H260"/><text class="m" x="365" y="324" text-anchor="middle">DEPOSITO válido · fallos=0 · desbloquea</text>
-<path class="lnr" d="M150 250 C120 210 250 210 250 250"/><text class="e" x="200" y="204" text-anchor="middle">E506/E507 → fallos++ · 422</text>
-<path class="ln" d="M120 322 C90 360 230 360 214 322"/><text class="m" x="170" y="368" text-anchor="middle">éxito → fallos=0</text>
-<path class="lnr" d="M570 250 C545 214 650 214 660 250"/><text class="e" x="615" y="206" text-anchor="middle">TRANSFER elegible → E510 · 409</text>
+<rect class="boundary" x="470" y="370" width="404" height="164" rx="5"/>
+<text class="heading" x="486" y="392">Operación: una sola reversión</text>
+<rect class="box" x="490" y="410" width="112" height="42" rx="4"/>
+<text class="text" x="512" y="435">Vigente</text>
+<rect class="box" x="730" y="410" width="122" height="42" rx="4"/>
+<text class="text" x="753" y="435">Anulada</text>
+<path class="line" d="M602 433 H730"/><text class="label" x="643" y="420">ANULA</text>
+<text class="small" x="486" y="476">Primera ANULA revierte saldos y marca anulada.</text>
+<text class="small" x="486" y="496">Repetir: {"ok":false,"motivo":"ya anulada"}.</text>
+<text class="small" x="486" y="516">No se impone saldo no-negativo ni se duplica el efecto.</text>
 
-<rect class="zone" x="744" y="196" width="632" height="176" rx="8"/>
-<text class="m" x="760" y="216">Operación · reverso único</text>
-<rect class="op" x="800" y="262" width="190" height="72"/>
-<text class="t" x="816" y="290">Vigente</text><text class="s" x="816" y="310">DEPOSITO / TRANSFER</text><text class="s" x="816" y="325">con saldo y operación</text>
-<rect class="op" x="1130" y="262" width="200" height="72"/>
-<text class="t" x="1146" y="290">Anulada</text><text class="s" x="1146" y="310">efecto revertido</text><text class="s" x="1146" y="325">no se revierte dos veces</text>
-<path class="ln" d="M990 288 H1130"/><text class="m" x="1060" y="250" text-anchor="middle">ANULA · revierte · ok:true</text>
-<path class="lnr" d="M1240 262 C1225 220 1325 220 1310 262"/><text class="e" x="1275" y="216" text-anchor="middle">ANULA → ok:false</text>
-<text class="s" x="760" y="360">ANULA no limpia fallos · RESET elimina cuentas y operaciones y vuelve AC/OP a 1</text>
-
-<!-- ===== Row 3: transfer decision pipeline ===== -->
-<rect class="zone" x="24" y="388" width="1352" height="150" rx="8"/>
-<text class="m" x="40" y="408">TRANSFER · guardas en orden y efectos (un error de negocio no es “sin transición”)</text>
-<path class="flow" d="M90 486H1190"/>
-<text class="m" x="1270" y="450" text-anchor="middle">→ 200 {recieved}</text>
-<g>
-<circle class="circ" cx="130" cy="486" r="9"/><text class="s" x="130" y="511" text-anchor="middle">monto</text>
-<circle class="circ" cx="310" cy="486" r="9"/><text class="s" x="310" y="511" text-anchor="middle">origen≠destino</text>
-<circle class="circ" cx="500" cy="486" r="9"/><text class="s" x="500" y="511" text-anchor="middle">cuentas existen</text>
-<circle class="circ" cx="690" cy="486" r="9"/><text class="s" x="690" y="511" text-anchor="middle">no bloqueada</text>
-<circle class="circ" cx="880" cy="486" r="9"/><text class="s" x="880" y="511" text-anchor="middle">≤ 100000</text>
-<circle class="circ" cx="1070" cy="486" r="9"/><text class="s" x="1070" y="511" text-anchor="middle">saldo ≥ monto</text>
-<rect class="st" x="1190" y="456" width="150" height="58" rx="6"/><text class="t" x="1205" y="480">debita / acredita</text><text class="s" x="1205" y="498">nueva OP · fallos=0</text>
-</g>
-<path class="lnr" d="M130 486V430"/><text class="e" x="130" y="424" text-anchor="middle">E303 monto inválido · 400</text>
-<path class="lnr" d="M310 486V446"/><text class="e" x="310" y="440" text-anchor="middle">E304 iguales · 400</text>
-<path class="lnr" d="M500 486V430"/><text class="e" x="510" y="424" text-anchor="middle">E401 inexistente · 404</text>
-<path class="lnr" d="M690 486V446"/><text class="e" x="700" y="440" text-anchor="middle">E510 bloqueada · 409</text>
-<path class="lnr" d="M880 486V430"/><text class="e" x="890" y="424" text-anchor="middle">E506 límite · 422 (+fallos)</text>
-<path class="lnr" d="M1070 486V446"/><text class="e" x="1080" y="440" text-anchor="middle">E507 saldo · 422 (+fallos)</text>
-<text class="s" x="40" y="535">Antes del bloqueo se validan monto, igualdad y cuentas (un origen bloqueado aún puede dar E303/E304/E401). El bloqueo (E510) se evalúa antes que límite y saldo.</text>
-</svg>
-</div>
-
-<div class="cards">
-<section class="note">
-<h2>Precedencia de guardas</h2>
-<ol>
-<li>Auth → <code>401 E001</code></li>
-<li>Tamaño → <code>413 E101</code></li>
-<li>JSON → <code>400 E100</code> · campo m → <code>E102</code></li>
-<li>Control presente/vacío → <code>E103</code>/<code>E104</code></li>
-<li>Dígito de control → <code>E201</code>/<code>E202</code> (no PING)</li>
-<li>Comando → <code>E301</code> (+sugerencia ≤2)</li>
-<li>Aridad → <code>E302</code></li>
-<li>Monto/igualdad/cuentas → <code>E303</code>/<code>E304</code>/<code>E401</code></li>
-<li>Bloqueo → límite → saldo → <code>E510</code>/<code>E506</code>/<code>E507</code></li>
-</ol>
-</section>
-<section class="note warn">
-<h2>Invariantes</h2>
-<ul>
-<li>Bloqueo <b>derivado</b> de <code>fallos≥3</code>; nunca un flag paralelo.</li>
-<li><code>E506/E507</code> <b>sí</b> mutan (fallos++); <code>E303/E304/E401</code> no.</li>
-<li>Depósito y éxito reinician fallos; solo el depósito desbloquea.</li>
-<li>Un dígito de control se compara como texto, sin ceros a la izquierda.</li>
-<li><code>x-req</code> es transporte: no se reinicia con reset ni se compara.</li>
-</ul>
-</section>
-<section class="note risk">
-<h2>Evidencia y riesgos</h2>
-<p><b>Evidencia:</b> <code>experimentos.jsonl</code> con <b>347</b> observaciones; <b>34/34</b> pares de control; <b>20</b> ejemplos oficiales cotejados.</p>
-<p style="margin-top:3px"><b>Riesgos heredados:</b> el bloqueo por 3 fallos penaliza reintentos; el control sobre letras/dígitos es falsificable; <code>ANULA</code> revierte sin auditoría; IDs predecibles; estado local a un proceso.</p>
-</section>
-</div>
-
-<footer>Fuentes: contrato en <code>frontier-reto-2/</code> · <code>SPEC.md</code> · <code>experimentos.jsonl</code> (347 obs.) · <code>data/pares_control.jsonl</code> · <code>logs/fingerprint.md</code>. El dígito de control es ISO 7064 MOD 97-10. Documento de Systems Design.</footer>
+<path class="proposal" d="M1030 221 V370"/>
+<text class="warn" x="1060" y="346" text-anchor="middle">Sustitución propuesta</text>
+<rect class="future" x="902" y="370" width="254" height="164" rx="5"/>
+<text class="heading" x="918" y="392">SQLite · no implementado</text>
+<text class="text" x="918" y="417">Sólo si se exige durabilidad</text>
+<text class="small" x="918" y="441">Cuentas / operaciones / contadores</text>
+<text class="small" x="918" y="461">Volumen, WAL, SQL parametrizado</text>
+<text class="small" x="918" y="481">Commit de E506/E507 aunque sea 422</text>
+<text class="small" x="918" y="501">Rollback sólo por fallo interno</text>
+<text class="small" x="918" y="521">Probar reinicio, reset y locks &lt;5 s</text>
+<text class="small" x="18" y="555">Línea continua: flujo actual. Línea discontinua: propuesta. Monto, igualdad y existencia preceden al bloqueo; sus errores no suman fallos.</text>
+</svg></div>
+<div class="bottom">
+<section><h2>Decisiones, alternativas y costes</h2>
+<table><thead><tr><th>Elección</th><th>Alternativa descartada / razón</th><th>Coste aceptado</th></tr></thead><tbody>
+<tr><td>Monolito, una instancia</td><td>Microservicios: coordinación sin necesidad del contrato.</td><td>Sin alta disponibilidad ni réplicas.</td></tr>
+<tr><td>Dominio separado de HTTP</td><td>Reglas en rutas: dificulta pruebas y cambios de transporte.</td><td>Mantener la frontera de dos módulos.</td></tr>
+<tr><td>Map; SQLite condicional</td><td>DB ahora: durabilidad no exigida. PostgreSQL inicial: operación extra.</td><td>Map pierde estado; SQLite añade volumen/locks.</td></tr>
+</tbody></table></section>
+<section><h2>Verificación por la superficie pública</h2>
+<p><b>Casos:</b> entradas y precedencia; secuencias de 2–5 y 6–12 pasos; tercer fallo y bloqueo; depósito desbloqueando; primera/segunda ANULA; reset completo.</p>
+<p><b>Aceptación:</b> 100% de status/cuerpos y efectos posteriores coincidentes, cero timeouts y <b>cada request &lt;5 s</b> en el endpoint público. Reset explícito por secuencia; no reintentar mutaciones a ciegas.</p>
+<p><b>Adaptabilidad:</b> transporte cambia en el adaptador; reglas en el núcleo; SQLite exige adaptar acceso a estado y probar la migración, sin rediseñar reglas.</p>
+</section></div>
+<footer>Complementa el <a href="01-diseno-sistemas.html">documento de diseño</a>, donde se detallan supuestos, exclusiones y pruebas T1–T6. Fuente: contrato oficial + <code>reto2-investigacion/SPEC.md</code> y su log. Implementación actual en <code>reemplazo/</code>; SQLite propuesto no acredita persistencia actual.</footer>
 </main></body></html>
