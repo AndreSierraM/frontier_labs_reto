@@ -1,45 +1,26 @@
 /**
- * Verificador determinista: arranca el reemplazo LOCAL y compara la batería
- * contra una referencia del original. La referencia es el último snapshot del
- * monitor (evita re-martillar el original y chocar con 429). No usa LLM.
+ * Verificador determinista: arranca el reemplazo LOCAL y compara la batería y
+ * el mapa ampliado contra la referencia del monitor (sin re-martillar el
+ * original). No usa LLM.
  */
 import { spawn } from "node:child_process";
-import battery from "../../monitor/battery.js";
-import probes from "../../monitor/probes.js";
+import observe from "../../monitor/observe.js";
 
-const { runBattery, diffLabels, hasInfra } = battery;
-const { runProbes, diffMap } = probes;
+const { runBattery, runAll, diff, hasInfra } = observe;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function referenceFromMonitor() {
-  const base = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
-  const token = process.env.MONITOR_TOKEN || "";
-  if (!token) return null;
-  try {
-    const r = await fetch(base + "/api/monitor/status", {
-      headers: { Authorization: "Bearer " + token },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!r.ok) return null;
-    const j = await r.json();
-    return j.lastSnapshot && j.lastSnapshot.foto ? j.lastSnapshot.foto : null;
-  } catch (_) {
-    return null;
-  }
-}
+const MONITOR_URL = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
+const MONITOR_TOKEN = process.env.MONITOR_TOKEN || "";
 
-async function referenceMapFromMonitor() {
-  const base = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
-  const token = process.env.MONITOR_TOKEN || "";
-  if (!token) return null;
+async function monitorGet(path) {
+  if (!MONITOR_TOKEN) return null;
   try {
-    const r = await fetch(base + "/api/monitor/map", {
-      headers: { Authorization: "Bearer " + token },
+    const r = await fetch(MONITOR_URL + path, {
+      headers: { Authorization: "Bearer " + MONITOR_TOKEN },
       signal: AbortSignal.timeout(15000),
     });
     if (!r.ok) return null;
-    const j = await r.json();
-    return j.map && j.map.samples ? j.map.samples : null;
+    return await r.json();
   } catch (_) {
     return null;
   }
@@ -67,40 +48,33 @@ export async function verifyAgainstOriginal({ root, port = 3211 }) {
           headers: { Authorization: "Bearer local-swarm" },
           signal: AbortSignal.timeout(2000),
         });
-        if (r.ok) {
-          up = true;
-          break;
-        }
+        if (r.ok) { up = true; break; }
       } catch (_) {}
       await sleep(250);
     }
     if (!up) return { ok: false, inconclusive: true, divergences: [], summary: "el reemplazo local no arrancó: " + logs.slice(0, 300) };
 
-    let reference = await referenceFromMonitor();
+    // Referencia: snapshot + mapa del monitor (o se sondea el original).
+    const status = await monitorGet("/api/monitor/status");
+    const mapRes = await monitorGet("/api/monitor/map");
+    let reference = status && status.lastSnapshot ? status.lastSnapshot.foto : null;
     if (!reference) {
       if (!url || !token) return { ok: false, inconclusive: true, divergences: [], summary: "sin snapshot del monitor ni credenciales del original" };
       reference = await runBattery(url, token, { sleepMs: 60 });
     }
-    if (hasInfra(reference)) {
-      return { ok: false, inconclusive: true, divergences: [], summary: "la referencia del original está rate-limited (429/infra)" };
-    }
+    if (hasInfra(reference)) return { ok: false, inconclusive: true, divergences: [], summary: "la referencia del original está rate-limited (429/infra)" };
 
     const local = await runBattery(base, "local-swarm", { sleepMs: 20 });
-    if (hasInfra(local)) {
-      return { ok: false, inconclusive: true, divergences: [], summary: "el reemplazo local devolvió 429 o es inaccesible" };
-    }
+    if (hasInfra(local)) return { ok: false, inconclusive: true, divergences: [], summary: "el reemplazo local devolvió 429 o es inaccesible" };
 
-    const divergences = diffLabels(reference, local);
+    const divergences = diff(reference, local).diffs;
 
     // Verificación ampliada contra el mapa (cubre comandos/rutas nuevos).
     let mapDivergences = [];
-    const refMap = await referenceMapFromMonitor();
+    const refMap = mapRes && mapRes.map ? mapRes.map.samples : null;
     if (refMap) {
-      const localMap = await runProbes(base, "local-swarm", { abortOnInfra: false, sleepMs: 10 });
-      if (!hasInfra(localMap)) {
-        const md = diffMap(refMap, localMap);
-        mapDivergences = [...md.changed, ...md.added].map((label) => ({ label }));
-      }
+      const localMap = await runAll(base, "local-swarm", { abortOnInfra: false, sleepMs: 10 });
+      if (!hasInfra(localMap)) mapDivergences = diff(refMap, localMap).diffs;
     }
 
     const all = [...divergences, ...mapDivergences];

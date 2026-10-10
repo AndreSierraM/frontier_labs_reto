@@ -1,30 +1,12 @@
 /**
- * GET /api/monitor/dashboard
- *
- * Resumen para el panel: qué cambió en el original + cómo está y qué hizo
- * NUESTRO servicio (transacciones, errores y latencia de `runtime_log`).
- * Protegido con `MONITOR_TOKEN` (acepta `?token=`).
+ * GET /api/monitor/dashboard -> resumen para el panel: qué cambió en el
+ * original + cómo está y qué hizo NUESTRO servicio (runtime_log).
  */
 "use strict";
 
 const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
-
-function json(res, status, obj) {
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.end(JSON.stringify(obj));
-}
-
-function authorized(req, secret) {
-  const auth = req.headers["authorization"] || "";
-  const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  let q = "";
-  try {
-    q = new URL(req.url, "http://localhost").searchParams.get("token") || "";
-  } catch (_) {}
-  return Boolean(secret) && (bearer === secret || q === secret);
-}
+const { json, authorized } = require("../../monitor/serverless");
 
 module.exports = async (req, res) => {
   const secret = process.env.MONITOR_TOKEN || process.env.CRON_SECRET;
@@ -36,9 +18,7 @@ module.exports = async (req, res) => {
   let runtime = null;
   try {
     runtime = await store.runtimeSummary(pool, 60);
-  } catch (_) {
-    runtime = null;
-  }
+  } catch (_) {}
 
   const last = await store.lastSnapshot(pool);
   const events = await store.history(pool, 30);

@@ -1,47 +1,18 @@
 /**
- * POST /api/monitor/ack  -> marca como atendido el último cambio detectado.
- * Inserta un evento `adaptation_applied` para que `agent/adapt.mjs` no vuelva
- * a adaptar el mismo cambio en bucle.
+ * POST /api/monitor/ack  -> marca como atendido el último cambio detectado
+ * (inserta `adaptation_applied` para que el enjambre no repita el mismo cambio).
  */
 "use strict";
 
 const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
-
-function json(res, status, obj) {
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.end(JSON.stringify(obj, null, 2));
-}
-
-function authorized(req, secret) {
-  const auth = req.headers["authorization"] || "";
-  const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  let q = "";
-  try {
-    q = new URL(req.url, "http://localhost").searchParams.get("token") || "";
-  } catch (_) {}
-  return Boolean(secret) && (bearer === secret || q === secret);
-}
-
-async function readBody(req) {
-  const chunks = [];
-  for await (const c of req) chunks.push(c);
-  return Buffer.concat(chunks).toString("utf8");
-}
+const { json, authorized, readJson } = require("../../monitor/serverless");
 
 module.exports = async (req, res) => {
   const secret = process.env.MONITOR_TOKEN || process.env.CRON_SECRET;
   if (!authorized(req, secret)) return json(res, 401, { error: "E001", mensaje: "no autorizado" });
 
-  let payload = {};
-  try {
-    const raw = await readBody(req);
-    if (raw) payload = JSON.parse(raw);
-  } catch (_) {
-    payload = {};
-  }
-
+  const payload = await readJson(req);
   const pool = getPool();
   await store.ensure(pool);
   await store.recordEvent(

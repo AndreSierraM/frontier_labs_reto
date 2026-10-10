@@ -50,7 +50,7 @@ divergencias**. Si el fixer alucina, la verificación lo rechaza. El `PATCH: no`
 evita parchear falsos positivos.
 
 **Auto-ensanche:** al adaptar un comando/ruta nuevo, el fixer añade una sonda de
-regresión a `monitor/probes.js`, así el mapa sigue vigilando lo nuevo.
+regresión a `monitor/observe.js` (`PROBES`), así el mapa sigue vigilando lo nuevo.
 
 ## Cómo se ejecuta
 

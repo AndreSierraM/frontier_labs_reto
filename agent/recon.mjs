@@ -1,15 +1,13 @@
 #!/usr/bin/env node
 /**
- * Recon ampliado: corre el mapeo (`monitor/probes.js`) contra el original y lo
- * envía a `/api/monitor/map`, que compara con el mapa anterior y avisa si hay
- * valores NUEVOS o CAMBIADOS. Escribe `changed=0|1` en `$GITHUB_OUTPUT`.
+ * Recon ampliado: corre el mapeo completo contra el original y lo envía a
+ * `/api/monitor/map`, que lo compara con el anterior y avisa si hay valores
+ * NUEVOS o CAMBIADOS. Escribe `changed=0|1` en `$GITHUB_OUTPUT`.
  */
 import fs from "node:fs";
-import probes from "../monitor/probes.js";
-import battery from "../monitor/battery.js";
+import observe from "../monitor/observe.js";
 
-const { runProbes } = probes;
-const { hasInfra } = battery;
+const { runAll, hasInfra } = observe;
 
 const MONITOR_URL = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
 const MONITOR_TOKEN = process.env.MONITOR_TOKEN || "";
@@ -25,9 +23,8 @@ function out(k, v) {
     console.error("[recon] faltan URL_API_ENTRYPOINT / TOKEN_CAJA_NEGRA");
     process.exit(2);
   }
-  const map = await runProbes(URL, TOKEN, { abortOnInfra: true, sleepMs: 40 });
-  const n = Object.keys(map).length;
-  console.log(`[recon] ${n} sondas ejecutadas`);
+  const map = await runAll(URL, TOKEN, { abortOnInfra: true, sleepMs: 40 });
+  console.log(`[recon] ${Object.keys(map).length} sondas ejecutadas`);
 
   if (hasInfra(map)) {
     console.log("[recon] sin baseline: el original está rate-limited (429/infra)");
@@ -43,9 +40,7 @@ function out(k, v) {
   });
   const j = await res.json();
   console.log("[recon] " + JSON.stringify({
-    ok: j.ok,
-    baseline: j.baseline,
-    changed: j.changed,
+    ok: j.ok, baseline: j.baseline, changed: j.changed,
     added: j.added ? j.added.length : 0,
     changedLabels: j.changedLabels ? j.changedLabels.length : 0,
     total: j.total,

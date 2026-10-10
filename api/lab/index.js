@@ -14,6 +14,7 @@ const { Readable } = require("stream");
 const { Pool } = require("pg");
 const { createHandler } = require("../../reemplazo/src/server");
 const { createPostgresStorage } = require("../../reemplazo/src/storage");
+const { json, authorized, readJson } = require("../../monitor/serverless");
 
 let pool = null;
 let handler = null;
@@ -27,13 +28,9 @@ function init() {
 }
 
 async function ensureConfig() {
-  await pool.query(
-    `CREATE TABLE IF NOT EXISTS lab_config (id integer PRIMARY KEY, e506 text NOT NULL, new_command text)`
-  );
+  await pool.query(`CREATE TABLE IF NOT EXISTS lab_config (id integer PRIMARY KEY, e506 text NOT NULL, new_command text)`);
   await pool.query(`ALTER TABLE lab_config ADD COLUMN IF NOT EXISTS new_command text`);
-  await pool.query(
-    `INSERT INTO lab_config (id, e506) VALUES (1, 'límite excedido') ON CONFLICT (id) DO NOTHING`
-  );
+  await pool.query(`INSERT INTO lab_config (id, e506) VALUES (1, 'límite excedido') ON CONFLICT (id) DO NOTHING`);
 }
 
 async function readConfig() {
@@ -41,18 +38,7 @@ async function readConfig() {
   return rows[0] || { e506: "límite excedido", new_command: null };
 }
 
-function authorized(req) {
-  const token = process.env.TOKEN_API_ENTRYPOINT || "";
-  return token && (req.headers.authorization || "") === `Bearer ${token}`;
-}
-
-async function readBody(req) {
-  const chunks = [];
-  for await (const c of req) chunks.push(c);
-  return Buffer.concat(chunks).toString("utf8");
-}
-
-// Reinyecta un cuerpo ya leído para que el handler real lo vuelva a leer.
+// Reinyecta el cuerpo ya leído para que el handler real lo vuelva a leer.
 function fakeReq(req, buffer) {
   const r = Readable.from([buffer]);
   r.method = req.method;
@@ -66,49 +52,29 @@ module.exports = async (req, res) => {
   await storage.ensure();
   await ensureConfig();
 
+  const token = process.env.TOKEN_API_ENTRYPOINT || "";
   const pathname = new URL(req.url, "http://localhost").pathname;
 
   // --- gestión ---------------------------------------------------------
   if (pathname.endsWith("/__lab")) {
-    if (!authorized(req)) {
-      res.statusCode = 401;
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      return res.end(JSON.stringify({ error: "E001", mensaje: "no autorizado" }));
-    }
-    let payload = {};
-    try {
-      const raw = await readBody(req);
-      if (raw) payload = JSON.parse(raw);
-    } catch (_) {}
-    const e506 = typeof payload.e506 === "string" ? payload.e506 : undefined;
-    const newCommand = typeof payload.newCommand === "string" ? payload.newCommand : undefined;
-    await pool.query(
-      `UPDATE lab_config SET e506 = COALESCE($1, e506), new_command = $2 WHERE id = 1`,
-      [e506 ?? null, newCommand === undefined ? null : newCommand || null]
-    );
-    const cfg = await readConfig();
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    return res.end(JSON.stringify({ ok: true, ...cfg }));
+    if (!authorized(req, token)) return json(res, 401, { error: "E001", mensaje: "no autorizado" });
+    const payload = await readJson(req, {});
+    const e506 = typeof payload.e506 === "string" ? payload.e506 : null;
+    const newCommand = typeof payload.newCommand === "string" ? payload.newCommand : null;
+    await pool.query(`UPDATE lab_config SET e506 = COALESCE($1, e506), new_command = $2 WHERE id = 1`, [e506, newCommand]);
+    return json(res, 200, { ok: true, ...(await readConfig()) });
   }
 
   const cfg = await readConfig();
 
   // --- comando nuevo ---------------------------------------------------
   if (req.method === "POST" && pathname.endsWith("/msg")) {
-    const raw = await readBody(req);
-    let m = "";
-    try {
-      const p = JSON.parse(raw);
-      if (p && typeof p.m === "string") m = p.m;
-    } catch (_) {}
-    const first = m.split(";")[0].toUpperCase();
-    if (cfg.new_command && first === cfg.new_command.toUpperCase()) {
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      return res.end(JSON.stringify({ ok: true, comando: first, saldo: 0 }));
+    const payload = await readJson(req, {});
+    const m = payload && typeof payload.m === "string" ? payload.m : "";
+    if (cfg.new_command && m.split(";")[0].toUpperCase() === cfg.new_command.toUpperCase()) {
+      return json(res, 200, { ok: true, comando: cfg.new_command.toUpperCase(), saldo: 0 });
     }
-    req = fakeReq(req, Buffer.from(raw));
+    req = fakeReq(req, Buffer.from(JSON.stringify(payload)));
   }
 
   // --- override de E506 ------------------------------------------------
@@ -116,9 +82,7 @@ module.exports = async (req, res) => {
   res.end = (chunk, ...args) => {
     if (chunk && cfg.e506 !== "límite excedido") {
       const s = chunk.toString();
-      if (s.includes('"E506"')) {
-        chunk = s.replace(/"mensaje":\s*"[^"]*"/, `"mensaje":${JSON.stringify(cfg.e506)}`);
-      }
+      if (s.includes('"E506"')) chunk = s.replace(/"mensaje":\s*"[^"]*"/, `"mensaje":${JSON.stringify(cfg.e506)}`);
     }
     return originalEnd(chunk, ...args);
   };
