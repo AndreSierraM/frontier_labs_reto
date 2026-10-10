@@ -4,13 +4,17 @@
  */
 import { spawn } from "node:child_process";
 
+// Modelo fijo y explícito (no depende de la config local).
+const PROVIDER = process.env.SWARM_PROVIDER || "openrouter";
+const MODEL = process.env.SWARM_MODEL || "deepseek/deepseek-v4.1-flash";
+
 export function runPi({ system, task, cwd, label = "pi", env = process.env }) {
   return new Promise((resolve) => {
-    const child = spawn("pi", ["--print", "--append-system-prompt", system, task], {
-      cwd,
-      env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const child = spawn(
+      "pi",
+      ["--print", "--provider", PROVIDER, "--model", MODEL, "--append-system-prompt", system, task],
+      { cwd, env, stdio: ["ignore", "pipe", "pipe"] }
+    );
 
     const captured = { out: "", err: "" };
 

@@ -25,6 +25,7 @@ import { verifyAgainstOriginal } from "./lib/verify.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MONITOR_URL = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
 const MONITOR_TOKEN = process.env.MONITOR_TOKEN || "";
+const CHANGES_FILE = process.env.SWARM_CHANGES_FILE || "";
 const DRY = process.argv.includes("--dry-run");
 const MAX_SCOUTS = Number(process.env.MAX_SCOUTS || 4);
 const MAX_FIX_ROUNDS = Number(process.env.MAX_FIX_ROUNDS || 2);
@@ -62,6 +63,10 @@ function changeText(ch) {
 }
 
 async function ack(labels) {
+  if (CHANGES_FILE) {
+    log("modo local (SWARM_CHANGES_FILE): no se marca el evento en el monitor");
+    return;
+  }
   try {
     await monitorFetch("/api/monitor/ack", {
       method: "POST",
@@ -75,13 +80,18 @@ async function ack(labels) {
 }
 
 async function main() {
-  if (!MONITOR_TOKEN) {
-    console.error("[swarm] falta MONITOR_TOKEN");
-    process.exit(2);
+  let changes;
+  if (CHANGES_FILE) {
+    const raw = JSON.parse(fs.readFileSync(CHANGES_FILE, "utf8"));
+    changes = Array.isArray(raw) ? raw : [raw];
+  } else {
+    if (!MONITOR_TOKEN) {
+      console.error("[swarm] falta MONITOR_TOKEN (o usa SWARM_CHANGES_FILE)");
+      process.exit(2);
+    }
+    const st = await monitorFetch("/api/monitor/status");
+    changes = pendingChanges(st.events);
   }
-
-  const st = await monitorFetch("/api/monitor/status");
-  const changes = pendingChanges(st.events);
   if (!changes.length) {
     log("sin cambios pendientes");
     return;
