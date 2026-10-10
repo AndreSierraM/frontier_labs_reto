@@ -5,7 +5,7 @@ y **reemplazo funcional** que replica su comportamiento, errores y reglas de est
 
 - Especificación reimplementable: [`SPEC.md`](SPEC.md)
 - Bitácora (qué pasó y cómo reaccionar): [`BITACORA.md`](BITACORA.md)
-- Log de experimentos (formato oficial): [`experimentos.jsonl`](experimentos.jsonl) — 347 líneas
+- Log de experimentos (formato oficial): [`experimentos.jsonl`](experimentos.jsonl) — **366 líneas**
 - Fotos de estado para detectar el incidente: [`logs/snapshots/`](logs/snapshots)
 - Paquete ejecutable de entrega: [`../reemplazo/`](../reemplazo/README.md)
 - Adaptador desplegable: [`../reemplazo/src/server.js`](../reemplazo/src/server.js)

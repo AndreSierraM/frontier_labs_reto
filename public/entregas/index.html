@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entregas · Frontier Labs Reto 2</title>
+<style>
+:root{--ink:#0f172a;--muted:#64748b;--teal:#0d9488;--teal-2:#115e59;--paper:#ffffff;--line:#e2e8f0;--aqua:#f0fdfa;--sand:#fffbeb;--rose:#fef2f2;--shadow:0 1px 3px rgba(15,23,42,.08),0 4px 12px rgba(15,23,42,.06)}
+*{box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{margin:0;background:#f8fafc;color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+main{width:min(760px,100%);margin:28px auto;padding:28px;background:var(--paper);border-radius:16px;box-shadow:var(--shadow)}
+header{margin-bottom:28px}
+h1{font-size:26px;line-height:1.15;letter-spacing:-.6px;margin:0;font-weight:800}
+h1 small{display:block;font-size:13.5px;font-weight:400;color:var(--muted);letter-spacing:0;margin-top:7px}
+p.lead{color:var(--muted);margin:10px 0 0;font-size:13.5px}
+
+section{margin-bottom:26px}
+section h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+
+ul{list-style:none;padding:0;margin:0}
+li{margin:0 0 10px}
+a.item{display:flex;flex-direction:column;padding:14px 16px;background:var(--aqua);border-left:4px solid var(--teal);border-radius:0 10px 10px 0;text-decoration:none;color:var(--ink);font-weight:600;transition:transform .12s ease,box-shadow .12s ease}
+a.item:hover{transform:translateX(3px);box-shadow:0 2px 8px rgba(13,148,136,.12)}
+a.item .sub{display:block;font-size:12.5px;font-weight:400;color:var(--muted);margin-top:4px;line-height:1.45}
+a.item .meta{display:block;font-size:11px;color:var(--teal-2);margin-top:5px;font-weight:500}
+a.item.pdf{background:#f8fafc;border-left-color:#b45309}
+a.item.pdf:hover{box-shadow:0 2px 8px rgba(180,83,9,.12)}
+a.item.ext{background:#f8fafc;border-left-color:var(--muted)}
+a.item.ext:hover{box-shadow:0 2px 8px rgba(100,116,139,.12)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:10px}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;margin-left:6px}
+.badge.ok{background:var(--aqua);color:var(--teal-2)}
+.badge.warn{background:var(--sand);color:#92400e}
+
+.back{display:inline-block;margin-bottom:16px;padding:8px 14px;background:#f1f5f9;border-radius:8px;font-size:12.5px;color:var(--muted);text-decoration:none;font-weight:500}
+.back:hover{background:var(--line)}
+
+footer{border-top:1px solid var(--line);padding-top:14px;margin-top:28px;font-size:12px;color:var(--muted)}
+footer a{color:var(--teal-2);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+@media(max-width:600px){main{padding:18px;margin:14px;border-radius:12px}h1{font-size:22px}}
+</style>
+</head>
+<body><main>
+<a class="back" href="../">← Volver al proyecto</a>
+<header>
+<h1>Entregas · Reto 2<small>Todo el material de entrega en un solo lugar</small></h1>
+<p class="lead">Sustitución de un servicio heredado sin cambiar sus clientes. Especificación, implementación, arquitectura y verificación.</p>
+</header>
+
+<section>
+<h2>Entregables oficiales (Systems Design 30%)</h2>
+<div class="grid">
+<ul>
+<li><a class="item" href="01-diseno-sistemas.html">01 · Diseño de Sistemas<span class="sub">Máquina de estados extendida, decisiones de arquitectura, trade-offs y plan de aceptación</span><span class="meta">HTML · A4 vertical · 1 página</span></a></li>
+<li><a class="item" href="02-diagrama-arquitectura.html">02 · Diagrama de Arquitectura<span class="sub">Arquitectura hexagonal mínima, máquina de estados de cuenta/operación, topología desplegada y monitor</span><span class="meta">HTML · A4 horizontal · 1 página</span></a></li>
+</ul>
+<ul>
+<li><a class="item pdf" href="01-diseno-sistemas.pdf">01 · Diseño de Sistemas (PDF)<span class="sub">Versión imprimible del documento de diseño</span><span class="meta">PDF · A4 vertical</span></a></li>
+<li><a class="item pdf" href="02-diagrama-arquitectura.pdf">02 · Diagrama de Arquitectura (PDF)<span class="sub">Versión imprimible del diagrama con SVG vectorial</span><span class="meta">PDF · A4 horizontal</span></a></li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2>Especificación e investigación</h2>
+<ul>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/SPEC.md">SPEC.md<span class="sub">Comportamiento completo del servicio: 366 observaciones con IDs de log, precedencia de errores y transiciones de estado</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/BITACORA.md">BITACORA.md<span class="sub">Narrativa de investigación: hallazgos, reglas antifraude ocultas y correcciones post-evaluación</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/experimentos.jsonl">experimentos.jsonl<span class="sub">Log de 366 observaciones en formato JSONL con hipótesis, requests y conclusiones</span></a></li>
+</ul>
+</section>
+
+<section>
+<h2>Implementación</h2>
+<div class="grid">
+<ul>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/README.md">Reemplazo · README<span class="sub">Implementación actual: Node.js + PostgreSQL/Neon, dominio separado de HTTP, tests 21/21</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/src/server.js">server.js<span class="sub">Adaptador HTTP: autenticación, enrutamiento, parsing y emisión de respuestas exactas</span></a></li>
+</ul>
+<ul>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/src/domain.js">domain.js<span class="sub">Núcleo de estados: parser, guardas, transiciones y máquina de estados extendida</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/src/storage.js">storage.js<span class="sub">Adaptadores de persistencia: memoria (local/tests) y PostgreSQL JSONB (producción/Vercel)</span></a></li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2>Verificación</h2>
+<div class="grid">
+<ul>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/scripts/validar.py">validar.py<span class="sub">Validación local contra el original: 116/116 casos (20 ejemplos + 62 batería + 34 control)</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/scripts/vigilancia.py">vigilancia.py<span class="sub">Batería de 31 puntos para detectar drift entre original y reemplazo</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/scripts/prueba_diferencial.py">prueba_diferencial.py<span class="sub">Comparación diferencial: 75/78 con 3 divergencias conocidas por reintentos de infraestructura</span></a></li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2>Operación y vigilancia</h2>
+<ul>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/docs/observabilidad.md">Observabilidad<span class="sub">Sistema de monitoreo: sondas, dashboard, disparadores y tablas en Neon</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/agent/README.md">Enjambre de agentes<span class="sub">Roles, harness, workflow reutilizable y modelo de adaptación automática ante cambios del original</span></a></li>
+</ul>
+</section>
+
+<footer>
+<p>Repo: <a href="https://github.com/AndreSierraM/frontier_labs_reto">AndreSierraM/frontier_labs_reto</a> · Publicado con Vercel</p>
+<p>Estado: <span class="badge ok">366 observaciones</span> <span class="badge ok">21/21 tests</span> <span class="badge ok">116/116 validación</span> <span class="badge ok">Post-evaluación cerrada</span></p>
+</footer>
+</main></body>
+</html>

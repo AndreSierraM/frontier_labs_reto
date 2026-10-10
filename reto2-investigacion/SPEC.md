@@ -10,7 +10,7 @@ Secuencias del log: `integridad` (1–16), `aridad` (17–46), `alta` (47–57),
 `consulta` (58–64), `deposito` (65–86), `transfer` (87–100), `anula` (101–116),
 `estado` (117–121), `bordes` (122–163), `bloqueo` (164–239),
 `bloqueo3` (240–278), `max` (279–290), `sugerencia` (291–308),
-`bloqueo4` (309–336), `sugerencia2` (337–347).
+`bloqueo4` (309–336), `sugerencia2` (337–347), `gaps` (348–366).
 
 ---
 
@@ -34,7 +34,7 @@ Secuencias del log: `integridad` (1–16), `aridad` (17–46), `alta` (47–57),
 
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
-| C-01 | El último segmento `;`-separado es el **control**. | 1–347 | confirmado |
+| C-01 | El último segmento `;`-separado es el **control**. | 1–366 | confirmado |
 | C-02 | Sin separador `;` → `400 {"error":"E103","mensaje":"falta control"}`. | 1–16 | confirmado |
 | C-03 | Algún segmento vacío → `400 {"error":"E104","mensaje":"segmento vacío"}` (tiene prioridad sobre el control). | 1–16 | confirmado |
 | C-04 | Si el control no cumple `^\d{1,2}$` (3+ dígitos, signo, espacio, letras) → `400 {"error":"E201","mensaje":"control mal formado"}`. | 1–16 | confirmado |

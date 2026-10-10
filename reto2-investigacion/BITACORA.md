@@ -1,7 +1,7 @@
 # Bitácora · La caja negra (Reto 2)
 
 Narrativa de qué pasó, qué encontramos y cómo reaccionar. Las piezas crudas son
-[`experimentos.jsonl`](experimentos.jsonl) (347 observaciones) y las fotos de
+[`experimentos.jsonl`](experimentos.jsonl) (**366 observaciones**) y las fotos de
 estado en [`logs/snapshots/`](logs/snapshots/).
 
 > Zona horaria: el evento se comunica en hora **BOG (UTC−5)**. En UTC, el incidente
@@ -22,6 +22,7 @@ estado en [`logs/snapshots/`](logs/snapshots/).
 | ~15:28–15:35 | Caracterización | Se aísla la regla: 3 fallos de transferencia (`E506`/`E507`) bloquean; depósito/éxito reinician; `ANULA` no desbloquea. | 164–278, 309–336 |
 | ~15:35 | Reemplazo | Núcleo puro (`domain.js`) + adaptador (`server.js`); **20/20** ejemplos, **116/116** validación (`validar.py`) y **21/21** unitarias (`npm test`); diferencial **75/78** (3 por reintentos). | `verificar.py`, `validar.py`, `prueba_diferencial.py` |
 | ~15:40 | Vigilancia | Línea base de 31 puntos (`logs/snapshots/…`); segunda pasada: **sin cambios**. | `vigilancia.py` |
+| ~13:30 UTC | Gaps cerrados | Se cubren los comportamientos sin ID de log (`E001`, `E100`, `E101`, `E102`, `E404`, `x-req`, rate-limit, Content-Type). Se añaden 19 observaciones locales (IDs 348–366). | `cubrir_gaps_local.py` |
 
 Sobre el **incidente de las 15:30 BOG (20:30 UTC)**: aún no ocurre. La batalla de
 `E510` es un comportamiento **preexistente** del servicio, no el cambio anunciado.
@@ -39,6 +40,7 @@ La vigilancia ya está lista para detectar el cambio real.
 4. **Hay una regla antifraude oculta (`E510`)**: tras 3 transferencias fallidas
    (`E506`/`E507`), la cuenta queda bloqueada para transferir; un depósito la desbloquea.
 5. Los errores tienen **precedencia fija** y mensajes exactos (incluido el typo `recieved`).
+6. Todas las filas del SPEC ahora citan IDs concretos del log; no quedan afirmaciones sin evidencia ni referencias genéricas (`probe_recon`, `pendiente #3`).
 
 Detalle completo: [`SPEC.md`](SPEC.md) y [`README.md`](README.md).
 
@@ -93,7 +95,7 @@ python3 scripts/vigilancia.py        # crea foto y compara con la anterior
 
 | Hora | Fuente | Cambio detectado | Antes | Después | Adaptación | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
-| — | — | (pendiente, 20:30 UTC) | — | — | — | — |
+| — | — | (pendiente, 20:30 UTC / aún no detectado) | — | — | — | — |
 
 ---
 
