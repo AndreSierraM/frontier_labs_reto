@@ -50,3 +50,13 @@ export async function ack(labels) {
     body: JSON.stringify({ label: labels.join(",") }),
   });
 }
+
+/** Reporta la corrida del enjambre para que el panel la muestre. */
+export async function reportRun(payload) {
+  if (config.changesFile) return; // modo local: no toca el monitor
+  await api("/api/monitor/agent", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}

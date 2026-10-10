@@ -35,6 +35,31 @@ async function ensure(pool) {
        map jsonb NOT NULL
      )`
   );
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS agent_runs (
+       id serial PRIMARY KEY,
+       at timestamptz NOT NULL DEFAULT now(),
+       status text,
+       labels text,
+       review text,
+       detail jsonb
+     )`
+  );
+}
+
+async function saveAgentRun(pool, run) {
+  await pool.query(
+    `INSERT INTO agent_runs (status, labels, review, detail) VALUES ($1, $2, $3, $4)`,
+    [run.status || null, Array.isArray(run.labels) ? run.labels.join(",") : run.labels || null, run.review || null, JSON.stringify(run)]
+  );
+}
+
+async function listAgentRuns(pool, limit = 10) {
+  const { rows } = await pool.query(
+    `SELECT id, at, status, labels, review, detail FROM agent_runs ORDER BY id DESC LIMIT $1`,
+    [limit]
+  );
+  return rows;
 }
 
 async function lastMap(pool) {
@@ -145,4 +170,6 @@ module.exports = {
   runtimeSummary,
   lastMap,
   saveMap,
+  saveAgentRun,
+  listAgentRuns,
 };

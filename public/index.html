@@ -47,24 +47,30 @@ footer a:hover{text-decoration:underline}
 </header>
 
 <section>
-<h2>Entregables oficiales</h2>
+<h2>Entregables del reto</h2>
 <ul>
-<li><a class="item" href="entregas/01-diseno-sistemas.html">01 · Diseño de Sistemas<span class="sub">Máquina de estados extendida, decisiones de arquitectura, trade-offs y plan de aceptación</span><span class="meta">HTML · A4 vertical · 1 página</span></a></li>
-<li><a class="item" href="entregas/02-diagrama-arquitectura.html">02 · Diagrama de Arquitectura<span class="sub">Arquitectura hexagonal mínima, máquina de estados de cuenta/operación, topología desplegada y monitor</span><span class="meta">HTML · A4 horizontal · 1 página</span></a></li>
+<li><a class="item" href="https://frontier-labs-reto.vercel.app">Reemplazo desplegado<span class="sub">HTTP compatible: /health, /msg, /__reset · 116/116 (20 ejemplos + 34 control + 62 batería)</span><span class="meta">URL pública · Vercel + Neon</span></a></li>
+<li><a class="item" href="entregas/03-especificacion-servicio.html">Especificación del servicio<span class="sub">75 comportamientos con ID, evidencia (IDs exactos del log), precedencia y confianza · evidencia verificada</span><span class="meta">HTML/PDF · SPEC.md</span></a></li>
+<li><a class="item" href="entregas/04-log-experimentos.html">Log de experimentos<span class="sub">366 observaciones reales organizadas por secuencia y error · descarga JSONL</span><span class="meta">HTML/PDF · experimentos.jsonl</span></a></li>
 </ul>
 </section>
 
 <section>
-<h2>Especificación e implementación</h2>
-<div class="grid">
+<h2>Systems Design (30%)</h2>
 <ul>
-<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/SPEC.md">SPEC.md<span class="sub">Comportamiento completo del servicio: 366 observaciones con IDs de log, precedencia de errores y transiciones de estado</span></a></li>
-<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/BITACORA.md">BITACORA.md<span class="sub">Narrativa de investigación: hallazgos, reglas antifraude ocultas y correcciones post-evaluación</span></a></li>
-<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/experimentos.jsonl">experimentos.jsonl<span class="sub">Log de 366 observaciones en formato JSONL con hipótesis, requests y conclusiones</span></a></li>
+<li><a class="item" href="entregas/01-diseno-sistemas.html">01 · Diseño de Sistemas<span class="sub">Máquina de estados extendida, decisiones de arquitectura, trade-offs y plan de aceptación</span><span class="meta">HTML · A4 vertical · 2 páginas</span></a></li>
+<li><a class="item" href="entregas/02-diagrama-arquitectura.html">02 · Diagrama de Arquitectura<span class="sub">Runtime hexagonal y estados (página 1) + vigilancia, CI/CD y enjambre de agentes (página 2)</span><span class="meta">HTML · A4 horizontal · 2 páginas</span></a></li>
 </ul>
+</section>
+
+<section>
+<h2>Implementación</h2>
+<div class="grid">
 <ul>
 <li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/README.md">Reemplazo · README<span class="sub">Implementación actual: Node.js + PostgreSQL/Neon, dominio separado de HTTP, tests 21/21</span></a></li>
 <li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/src/server.js">server.js<span class="sub">Adaptador HTTP: autenticación, enrutamiento, parsing y emisión de respuestas exactas</span></a></li>
+</ul>
+<ul>
 <li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/src/domain.js">domain.js<span class="sub">Núcleo de estados: parser, guardas, transiciones y máquina de estados extendida</span></a></li>
 <li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reemplazo/src/storage.js">storage.js<span class="sub">Adaptadores de persistencia: memoria (local/tests) y PostgreSQL JSONB (producción/Vercel)</span></a></li>
 </ul>

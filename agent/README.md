@@ -19,7 +19,8 @@ monitor.yml (cron / bucle)
                    3. analista               diagnóstico (PATCH: yes|no)
                    4. fixer                  parche + tests
                    5. verificador (código)   local vs original → 0 divergencias
-                   6. reporter               cuerpo del PR
+                   6. revisor                gate: si pide cambios, vuelve al fixer
+                   7. reporter               cuerpo del PR
                    → PR (no toca main; merge → deploy en Vercel)
 ```
 
@@ -59,6 +60,7 @@ agent/
 | scout | `agent/roles/scout.md` | Explora una etiqueta contra el original | No edita código |
 | analyst | `agent/roles/analyst.md` | Diagnóstico y `PATCH: yes\n` | No edita código |
 | fixer | `agent/roles/fixer.md` | Parche + test + SPEC | No toca `.env`/monitor/agent |
+| reviewer | `agent/roles/reviewer.md` | Revisa el parche; `REVIEW: cambios` reintenta con el fixer | No edita código |
 | reporter | `agent/roles/reporter.md` | Cuerpo del PR | — |
 
 Entradas del diagnóstico: informes de scouts + **logs de Vercel** (errores de

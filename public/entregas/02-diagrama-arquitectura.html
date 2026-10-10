@@ -8,7 +8,7 @@
 *{box-sizing:border-box}
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{margin:0;background:#f8fafc;color:var(--ink);font:12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
-main{width:min(297mm,100%);margin:12px auto;padding:8mm 9mm;background:var(--paper);box-shadow:var(--shadow);border-radius:8px}
+main{width:min(297mm,100%);margin:12px auto;padding:6mm 9mm;background:var(--paper);box-shadow:var(--shadow);border-radius:8px}
 header{border-bottom:3px solid var(--teal);padding-bottom:10px;margin-bottom:12px}
 h1,h2,p{margin:0}
 h1{font-size:21px;letter-spacing:-.4px;line-height:1.1;font-weight:800}
@@ -26,19 +26,24 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 footer{border-top:1px solid var(--line);padding-top:6px;margin-top:8px;color:var(--muted);font-size:9px}
 a{color:var(--teal-2);text-decoration:none}a:hover{text-decoration:underline}
 a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.page2{break-before:page;page-break-before:always;margin-top:0;border-top:1px solid var(--line);padding-top:14px}
+.page2-title{font-size:16px;color:var(--teal-2);font-weight:800;margin:0 0 3px}
+.page2-sub{font-size:11px;color:var(--muted);margin:0 0 8px;line-height:1.45}
+ul.tight{margin:4px 0 0;padding-left:14px}
+ul.tight li{margin:3px 0;line-height:1.4}
 @page{size:A4 landscape;margin:0}
-@media print{body{background:#fff}main{margin:0;box-shadow:none;width:297mm;border-radius:0}a{color:inherit}}
+@media print{body{background:#fff}main{margin:0;box-shadow:none;width:297mm;border-radius:0;padding-bottom:2mm}a{color:inherit}.page2{border-top:none;padding-top:0}}
 @media screen and (max-width:820px){main{padding:16px;margin:0;border-radius:0}.bottom{display:block}.bottom section+section{margin-top:12px}body{font-size:13px}table{font-size:12px}}
 </style>
 </head>
 <body><main>
 <header><h1>Arquitectura del reemplazo · Un proceso, estado explícito</h1>
-<p class="meta">Frontier Labs · Reto 2 · Systems Design (30%) · cierre 12:00 · actual (Vercel + Neon) y topología de vigilancia</p></header>
+<p class="meta">Frontier Labs · Reto 2 · Systems Design (30%) · cierre 12:00 · runtime (Vercel + Neon) + vigilancia y enjambre (GitHub Actions)</p></header>
 
 <div class="diagram">
-<svg viewBox="0 0 1200 600" role="img" aria-labelledby="titulo descripcion">
+<svg viewBox="0 0 1200 470" role="img" aria-labelledby="titulo descripcion">
 <title id="titulo">Arquitectura hexagonal mínima, flujo HTTP, estados del reemplazo y topología desplegada</title>
-<desc id="descripcion">El cliente envía HTTP al adaptador Vercel. El adaptador autentica y enruta: health y errores de transporte responden directamente; mensaje y reset usan el núcleo. El núcleo lee y cambia estado en PostgreSQL/Neon (una fila JSONB con FOR UPDATE) y devuelve un resultado al adaptador, que emite HTTP al cliente. El monitor vigila cada 15 min contra el original con batería de 31 puntos. Al detectar cambio, el enjambre investiga, parchea, verifica (0 divergencias) y abre PR. E506 y E507 incrementan fallos; el tercer fallo devuelve 422 y la siguiente transferencia elegible 409. ANULA revierte una sola vez.</desc>
+<desc id="descripcion">El cliente envía HTTP al adaptador Vercel. El adaptador autentica y enruta: health y errores de transporte responden directamente; mensaje y reset usan el núcleo. El núcleo lee y cambia estado en PostgreSQL/Neon (una fila JSONB con FOR UPDATE) y devuelve un resultado al adaptador, que emite HTTP al cliente. E506 y E507 incrementan fallos; el tercer fallo devuelve 422 y la siguiente transferencia elegible 409. ANULA revierte una sola vez. La vigilancia y el enjambre se detallan en la página siguiente.</desc>
 <defs>
 <marker id="flecha" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#0d9488"/></marker>
 <marker id="futura" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#d97706"/></marker>
@@ -56,85 +61,85 @@ a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 </style></defs>
 
 <!-- Frontera y componentes implementados -->
-<rect class="boundary" x="180" y="24" width="1000" height="310" rx="6"/>
-<text class="heading" x="198" y="46">Reemplazo · Vercel + Node.js · sin llamadas al original ni a otro reemplazo</text>
+<rect class="boundary" x="180" y="8" width="1000" height="236" rx="6"/>
+<text class="heading" x="198" y="30">Reemplazo · Vercel + Node.js · sin llamadas al original ni a otro reemplazo</text>
 
-<rect class="box" x="18" y="100" width="138" height="110" rx="5"/>
-<text class="title" x="32" y="128">Cliente /</text><text class="title" x="32" y="150">evaluador</text>
-<text class="small" x="32" y="182">Bearer del equipo</text>
+<rect class="box" x="18" y="72" width="138" height="96" rx="5"/>
+<text class="title" x="32" y="98">Cliente /</text><text class="title" x="32" y="120">evaluador</text>
+<text class="small" x="32" y="150">Bearer del equipo</text>
 
-<rect class="box" x="210" y="74" width="260" height="152" rx="5"/>
-<text class="heading" x="226" y="99">Adaptador HTTP</text>
-<text class="small" x="226" y="118">src/server.js · Vercel</text>
-<text class="text" x="226" y="144">Auth → ruta → bytes → JSON</text>
-<text class="text" x="226" y="166">Health / error HTTP: directo</text>
-<text class="text" x="226" y="188">Emite status y cuerpo exactos</text>
-<path class="line" d="M156 143 H210"/><text class="label" x="162" y="130">HTTP</text>
-<path class="line" d="M210 196 H156"/>
-<text class="small" x="20" y="230">Respuesta HTTP</text>
+<rect class="box" x="210" y="48" width="260" height="140" rx="5"/>
+<text class="heading" x="226" y="72">Adaptador HTTP</text>
+<text class="small" x="226" y="90">src/server.js · Vercel</text>
+<text class="text" x="226" y="114">Auth → ruta → bytes → JSON</text>
+<text class="text" x="226" y="134">Health / error HTTP: directo</text>
+<text class="text" x="226" y="154">Emite status y cuerpo exactos</text>
+<path class="line" d="M156 120 H210"/><text class="label" x="162" y="108">HTTP</text>
+<path class="line" d="M210 170 H156"/>
+<text class="small" x="20" y="196">Respuesta HTTP</text>
 
-<rect class="core" x="540" y="74" width="284" height="152" rx="5"/>
-<text class="heading" x="556" y="99">Núcleo de estados</text>
-<text class="small" x="556" y="118">src/domain.js · sin HTTP ni E/S</text>
-<text class="text" x="556" y="144">Parser + dígito de control MOD 97</text>
-<text class="text" x="556" y="166">Guardas → δ(S, evento)</text>
-<text class="text" x="556" y="188">Reset: crear estado inicial</text>
-<path class="line" d="M470 143 H540"/>
-<text class="label" x="484" y="132">m / reset</text>
-<path class="line" d="M682 226 V270 H340 V226"/>
-<text class="label" x="451" y="262">Resultado → adaptador → cliente</text>
+<rect class="core" x="540" y="48" width="284" height="140" rx="5"/>
+<text class="heading" x="556" y="72">Núcleo de estados</text>
+<text class="small" x="556" y="90">src/domain.js · sin HTTP ni E/S</text>
+<text class="text" x="556" y="114">Parser + dígito de control MOD 97</text>
+<text class="text" x="556" y="134">Guardas → δ(S, evento)</text>
+<text class="text" x="556" y="154">Reset: crear estado inicial</text>
+<path class="line" d="M470 120 H540"/>
+<text class="label" x="484" y="109">m / reset</text>
+<path class="line" d="M682 188 V206 H340 V188"/>
+<text class="label" x="451" y="200">Resultado → adaptador → cliente</text>
 
-<rect class="db" x="902" y="74" width="254" height="152" rx="5"/>
-<text class="heading" x="918" y="99" fill="#b45309">PostgreSQL · Neon</text>
-<text class="text" x="918" y="124">Una fila JSONB (id=1)</text>
-<text class="text" x="918" y="148">SELECT ... FOR UPDATE</text>
-<text class="text" x="918" y="172">Transacción: leer → mutar → commit</text>
-<text class="small" x="918" y="197">Serializa escrituras; reset atómico</text>
-<path class="line" d="M824 132 H902"/><text class="label" x="842" y="120">cambia S</text>
-<path class="line" d="M902 188 H824"/><text class="label" x="846" y="210">lee S</text>
+<rect class="db" x="902" y="48" width="254" height="140" rx="5"/>
+<text class="heading" x="918" y="72" fill="#b45309">PostgreSQL · Neon</text>
+<text class="text" x="918" y="96">Una fila JSONB (id=1)</text>
+<text class="text" x="918" y="118">SELECT ... FOR UPDATE</text>
+<text class="text" x="918" y="140">Transacción: leer → mutar → commit</text>
+<text class="small" x="918" y="164">Serializa escrituras; reset atómico</text>
+<path class="line" d="M824 108 H902"/><text class="label" x="842" y="96">cambia S</text>
+<path class="line" d="M902 156 H824"/><text class="label" x="846" y="178">lee S</text>
 
-<text class="text" x="198" y="298">GET /health no muta. POST /__reset borra cuentas, OP y fallos; reinicia IDs a 1.</text>
-<text class="small" x="198" y="318">Token del equipo por entorno. Transacciones síncronas en memoria; PostgreSQL serializa en producción.</text>
+<text class="text" x="198" y="222">GET /health no muta. POST /__reset borra cuentas, OP y fallos; reinicia IDs a 1.</text>
+<text class="small" x="198" y="240">Token del equipo por entorno. Transacciones síncronas en memoria; PostgreSQL serializa en producción.</text>
 
 <!-- Estado observable · cuenta -->
-<text class="heading" x="18" y="360">Estado observable · errores también pueden ser transiciones</text>
-<rect class="boundary" x="18" y="374" width="432" height="164" rx="5"/>
-<text class="heading" x="34" y="396">Cuenta: bloqueo derivado de fallos ≥ 3</text>
-<rect class="core" x="34" y="414" width="118" height="42" rx="4"/>
-<text class="text" x="49" y="439">Activa (&lt;3)</text>
-<rect class="box" x="285" y="414" width="147" height="42" rx="4" style="fill:#fffbeb"/>
-<text class="text" x="301" y="439">Bloqueada (≥3)</text>
-<path class="line" d="M152 429 H285"/><text class="label" x="159" y="421">3.er fallo → 422</text>
-<path class="line" d="M285 449 H152"/><text class="label" x="166" y="468">depósito válido</text>
-<text class="small" x="34" y="490">Sólo E506/E507 suman: 0 → 1 → 2 → 3.</text>
-<text class="small" x="34" y="509">Siguiente TRANSFER elegible: 409 E510, sin mutar.</text>
-<text class="small" x="34" y="528">Éxito reinicia fallos; ANULA no los limpia.</text>
+<text class="heading" x="18" y="262">Estado observable · errores también pueden ser transiciones</text>
+<rect class="boundary" x="18" y="274" width="432" height="150" rx="5"/>
+<text class="heading" x="34" y="295">Cuenta: bloqueo derivado de fallos ≥ 3</text>
+<rect class="core" x="34" y="310" width="118" height="40" rx="4"/>
+<text class="text" x="49" y="334">Activa (&lt;3)</text>
+<rect class="box" x="285" y="310" width="147" height="40" rx="4" style="fill:#fffbeb"/>
+<text class="text" x="301" y="334">Bloqueada (≥3)</text>
+<path class="line" d="M152 324 H285"/><text class="label" x="159" y="316">3.er fallo → 422</text>
+<path class="line" d="M285 340 H152"/><text class="label" x="166" y="360">depósito válido</text>
+<text class="small" x="34" y="384">Sólo E506/E507 suman: 0 → 1 → 2 → 3.</text>
+<text class="small" x="34" y="401">Siguiente TRANSFER elegible: 409 E510, sin mutar.</text>
+<text class="small" x="34" y="418">Éxito reinicia fallos; ANULA no los limpia.</text>
 
 <!-- Estado observable · operación -->
-<rect class="boundary" x="470" y="374" width="404" height="164" rx="5"/>
-<text class="heading" x="486" y="396">Operación: una sola reversión</text>
-<rect class="box" x="490" y="414" width="112" height="42" rx="4"/>
-<text class="text" x="512" y="439">Vigente</text>
-<rect class="box" x="730" y="414" width="122" height="42" rx="4"/>
-<text class="text" x="753" y="439">Anulada</text>
-<path class="line" d="M602 433 H730"/><text class="label" x="643" y="420">ANULA</text>
-<text class="small" x="486" y="480">Primera ANULA revierte saldos y marca anulada.</text>
-<text class="small" x="486" y="500">Repetir: {"ok":false,"motivo":"ya anulada"}.</text>
-<text class="small" x="486" y="520">No se impone saldo no-negativo ni se duplica el efecto.</text>
+<rect class="boundary" x="470" y="274" width="404" height="150" rx="5"/>
+<text class="heading" x="486" y="295">Operación: una sola reversión</text>
+<rect class="box" x="490" y="310" width="112" height="40" rx="4"/>
+<text class="text" x="512" y="334">Vigente</text>
+<rect class="box" x="730" y="310" width="122" height="40" rx="4"/>
+<text class="text" x="753" y="334">Anulada</text>
+<path class="line" d="M602 330 H730"/><text class="label" x="643" y="316">ANULA</text>
+<text class="small" x="486" y="380">Primera ANULA revierte saldos y marca anulada.</text>
+<text class="small" x="486" y="398">Repetir: {"ok":false,"motivo":"ya anulada"}.</text>
+<text class="small" x="486" y="416">No se impone saldo no-negativo ni se duplica el efecto.</text>
 
 <!-- Topología desplegada -->
-<rect class="boundary" x="902" y="374" width="278" height="164" rx="5"/>
-<text class="heading" x="918" y="396">Topología desplegada</text>
-<text class="small" x="918" y="416">API + /api/monitor/* → Vercel</text>
-<text class="small" x="918" y="436">Estado → Neon (Postgres JSONB)</text>
-<text class="small" x="918" y="456">Reloj cada 15 min → GitHub Actions</text>
-<text class="small" x="918" y="476">Enjambre → swarm.yml (workflow_call)</text>
-<text class="small" x="918" y="496">Original falso (lab) → /api/lab</text>
-<text class="small" x="918" y="516">Monitor: 31 puntos + snapshots</text>
-<path class="proposal" d="M1030 226 V374"/>
-<text class="warn" x="1062" y="350" text-anchor="middle">Persistencia + vigilancia</text>
+<rect class="boundary" x="902" y="274" width="278" height="150" rx="5"/>
+<text class="heading" x="918" y="295">Topología desplegada</text>
+<text class="small" x="918" y="314">API + /api/monitor/* → Vercel</text>
+<text class="small" x="918" y="331">Estado → Neon (Postgres JSONB)</text>
+<text class="small" x="918" y="348">Reloj cada 15 min → GitHub Actions</text>
+<text class="small" x="918" y="365">Enjambre → swarm.yml (workflow_call)</text>
+<text class="small" x="918" y="382">Original falso (lab) → /api/lab</text>
+<text class="small" x="918" y="399">Monitor: 31 puntos + snapshots</text>
+<path class="proposal" d="M1030 188 V274"/>
+<text class="warn" x="1062" y="258" text-anchor="middle">Persistencia + vigilancia</text>
 
-<text class="small" x="18" y="558">Línea continua: flujo actual. Línea discontinua: monitor/enjambre. Monto, igualdad y existencia preceden al bloqueo; sus errores no suman fallos.</text>
+<text class="small" x="18" y="446">Línea continua: flujo actual. Línea discontinua: monitor/enjambre. Monto, igualdad y existencia preceden al bloqueo; sus errores no suman fallos.</text>
 </svg></div>
 
 <div class="bottom">
@@ -149,8 +154,206 @@ a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 <section><h2>Verificación por la superficie pública</h2>
 <p><b>Casos:</b> entradas y precedencia; secuencias de 2–5 y 6–12 pasos; tercer fallo y bloqueo; depósito desbloqueando; primera/segunda ANULA; reset completo.</p>
 <p><b>Aceptación:</b> 100% de status/cuerpos y efectos posteriores coincidentes, cero timeouts y <b>cada request &lt;5 s</b> en el endpoint público. Reset explícito por secuencia; no reintentar mutaciones a ciegas.</p>
-<p><b>Adaptabilidad:</b> transporte cambia en el adaptador; reglas en el núcleo; persistencia se adapta por <code>storage.js</code> sin rediseñar reglas. Monitor detecta drift en ≤15 min; enjambre abre PR con 0 divergencias.</p>
+<p><b>Adaptabilidad:</b> transporte cambia en el adaptador; reglas en el núcleo; persistencia se adapta por <code>storage.js</code> sin rediseñar reglas.</p>
 <p class="small">Dígito de control MOD 97; no firma criptográfica. Fuentes: contrato oficial + <code>reto2-investigacion/SPEC.md</code> (366 observaciones) y <code>experimentos.jsonl</code>.</p>
 </section></div>
-<footer>Complementa el <a href="01-diseno-sistemas.html">documento de diseño</a>. Implementación: <code>reemplazo/src/server.js</code>, <code>domain.js</code>, <code>storage.js</code>. Monitor/enjambre: <code>agent/README.md</code>.</footer>
+
+<!-- ===================== PÁGINA 2 · VIGILANCIA Y ADAPTACIÓN ===================== -->
+<section class="page2">
+<h2 class="page2-title">Vigilancia y adaptación autónoma · CI/CD + enjambre de agentes</h2>
+<p class="page2-sub">Además de responder igual, el reemplazo <b>detecta cuándo el original cambia y propone su propio parche</b>. Nada de esto
+corre dentro del servicio: vive en GitHub Actions, exige <b>cero divergencias</b> y abre un <b>PR</b> que un humano revisa.</p>
+
+<div class="diagram">
+<svg viewBox="0 0 1200 478" role="img" aria-labelledby="t2 d2">
+<title id="t2">Ciclo de vigilancia, CI/CD y enjambre de agentes</title>
+<desc id="d2">GitHub Actions ejecuta monitor.yml por cron cada 15 minutos o en bucle. Llama a /api/monitor/run en Vercel, que corre la batería de 31 puntos y el mapa de 101 sondas contra el original, guarda un snapshot en Neon y compara hashes. Si cambió, el mismo run invoca swarm.yml. El enjambre lee logs de Vercel, lanza scouts en paralelo, el analista decide PATCH yes o no, el fixer parchea y corre tests, el verificador determinista exige cero divergencias y el reporter redacta el PR. El PR no toca main; al mergear, Vercel despliega y el monitor reanuda. Un laboratorio con original falso prueba la cadena completa.</desc>
+<defs>
+<marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#64748b"/></marker>
+<marker id="ab" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#2563eb"/></marker>
+<marker id="av" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#7c3aed"/></marker>
+<marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#15803d"/></marker>
+<marker id="aa" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L0 6L8 3z" fill="#b45309"/></marker>
+<style>
+.zone{fill:#f8fafc;stroke:#94a3b8;stroke-width:1.3}
+.b2{fill:#fff;stroke:#94a3b8;stroke-width:1.3}
+.b2mon{fill:#eff6ff;stroke:#2563eb;stroke-width:1.6}
+.b2sw{fill:#f5f3ff;stroke:#7c3aed;stroke-width:1.6}
+.b2ok{fill:#f0fdf4;stroke:#15803d;stroke-width:1.5}
+.b2db{fill:#fffbeb;stroke:#d97706;stroke-width:1.5;stroke-dasharray:5 3}
+.b2lab{fill:#fffbeb;stroke:#d97706;stroke-width:1.5;stroke-dasharray:6 4}
+.h2s{font:700 13.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#0f172a}
+.h2m{font:700 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#1d4ed8}
+.h2v{font:700 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#6d28d9}
+.h2g{font:700 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#15803d}
+.h2a{font:700 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#b45309}
+.t2{font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#334155}
+.s2{font:10.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#64748b}
+.l2m{font:700 10px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#2563eb}
+.lbl{font:700 9.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:#475569}
+.line2{stroke:#64748b;stroke-width:1.6;fill:none;marker-end:url(#a2)}
+.lineb{stroke:#2563eb;stroke-width:1.6;fill:none;marker-end:url(#ab)}
+.linev{stroke:#7c3aed;stroke-width:1.6;fill:none;marker-end:url(#av)}
+.lineg{stroke:#15803d;stroke-width:1.6;fill:none;marker-end:url(#ag)}
+.linea{stroke:#b45309;stroke-width:1.6;fill:none;marker-end:url(#aa)}
+.dash2{stroke-dasharray:6 4}
+</style></defs>
+
+<!-- Zonas -->
+<rect class="zone" x="8" y="4" width="1184" height="150" rx="6"/>
+<text class="h2s" x="22" y="24">1 · Vigilancia · GitHub Actions → Vercel → Neon</text>
+<text class="s2" x="1180" y="24" text-anchor="end">429/infra se ignora (SPEC I-11)</text>
+<rect class="zone" x="8" y="164" width="1184" height="150" rx="6"/>
+<text class="h2s" x="22" y="184">2 · Enjambre de agentes · swarm.mjs (5 roles → 1 PR)</text>
+<rect class="zone" x="8" y="320" width="1184" height="124" rx="6"/>
+<text class="h2s" x="22" y="340">3 · Entrega CI/CD · PR → merge → deploy → vuelve a vigilar</text>
+
+<!-- Cajas -->
+<rect class="b2mon" x="22" y="38" width="196" height="100" rx="5"/>
+<text class="h2m" x="34" y="60">monitor.yml</text>
+<text class="s2" x="34" y="78">GitHub Actions · reloj</text>
+<text class="t2" x="34" y="100">cron */15 · bucle</text>
+<text class="t2" x="34" y="116">check · recon · watch</text>
+<text class="s2" x="34" y="132">workflow_dispatch · webhook</text>
+
+<rect class="b2mon" x="252" y="38" width="228" height="100" rx="5"/>
+<text class="h2m" x="264" y="60">Vercel · /api/monitor/*</text>
+<text class="s2" x="264" y="78">serverless · sin estado propio</text>
+<text class="t2" x="264" y="100">run: batería 31 puntos</text>
+<text class="t2" x="264" y="116">recon: mapa 101 sondas</text>
+<text class="s2" x="264" y="132">status · ack · dashboard</text>
+
+<rect class="b2db" x="514" y="38" width="196" height="100" rx="5"/>
+<text class="h2a" x="526" y="60">Neon (Postgres)</text>
+<text class="s2" x="526" y="78">snapshots y eventos</text>
+<text class="t2" x="526" y="100">monitor_snapshots</text>
+<text class="t2" x="526" y="116">monitor_events</text>
+<text class="s2" x="526" y="132">runtime_log · FOR UPDATE</text>
+
+<polygon class="b2mon" points="800,38 864,88 800,138 736,88"/>
+<text class="h2m" x="800" y="84" text-anchor="middle">¿cambio?</text>
+<text class="s2" x="800" y="101" text-anchor="middle">hash ≠ anterior</text>
+<text class="s2" x="800" y="151" text-anchor="middle">no → se marca atendido (ack)</text>
+
+<rect class="b2sw" x="890" y="38" width="196" height="100" rx="5"/>
+<text class="h2v" x="902" y="60">swarm.yml</text>
+<text class="s2" x="902" y="78">workflow_call · mismo run</text>
+<text class="t2" x="902" y="100">investiga · parchea</text>
+<text class="t2" x="902" y="116">verifica · abre PR</text>
+<text class="s2" x="902" y="132">runner ubuntu-latest · 45 min</text>
+
+<rect class="b2" x="22" y="202" width="170" height="102" rx="5"/>
+<text class="h2v" x="34" y="226">scouts ×N ∥</text>
+<text class="s2" x="34" y="244">investigan en paralelo</text>
+<text class="t2" x="34" y="266">reproducen la etiqueta</text>
+<text class="t2" x="34" y="284">aíslan la regla</text>
+<text class="s2" x="34" y="300">→ scout-*.md</text>
+
+<rect class="b2" x="213" y="202" width="160" height="102" rx="5"/>
+<text class="h2v" x="225" y="226">analista</text>
+<text class="s2" x="225" y="244">diagnóstico</text>
+<text class="t2" x="225" y="266">informes + logs Vercel</text>
+<text class="t2" x="225" y="284">decide el cambio</text>
+<text class="s2" x="225" y="300">→ PATCH: yes|no</text>
+
+<rect class="b2" x="394" y="202" width="160" height="102" rx="5"/>
+<text class="h2v" x="406" y="226">fixer</text>
+<text class="s2" x="406" y="244">parche + tests</text>
+<text class="t2" x="406" y="266">modifica domain.js</text>
+<text class="t2" x="406" y="284">añade regresión</text>
+<text class="s2" x="406" y="300">→ fixer-*.md</text>
+
+<rect class="b2ok" x="575" y="202" width="178" height="102" rx="5"/>
+<text class="h2g" x="587" y="226">verificador</text>
+<text class="s2" x="587" y="244">gate determinista</text>
+<text class="t2" x="587" y="266">local vs original</text>
+<text class="t2" x="587" y="284">exige 0 divergencias</text>
+<text class="s2" x="587" y="300">→ verification-*.json</text>
+
+<rect class="b2" x="774" y="202" width="150" height="102" rx="5"/>
+<text class="h2v" x="786" y="226">reporter</text>
+<text class="s2" x="786" y="244">cuerpo del PR</text>
+<text class="t2" x="786" y="266">cambio + diag.</text>
+<text class="t2" x="786" y="284">+ gate</text>
+<text class="s2" x="786" y="300">→ pr-body.md</text>
+
+<rect class="b2ok" x="945" y="202" width="225" height="102" rx="5"/>
+<text class="h2g" x="957" y="226">Pull Request</text>
+<text class="s2" x="957" y="244">no toca main · sin auto-merge</text>
+<text class="t2" x="957" y="266">rama swarm/adapt-&lt;UTC&gt;</text>
+<text class="t2" x="957" y="284">merge humano → deploy</text>
+<text class="s2" x="957" y="300">artefactos del run · 7 días</text>
+
+<rect class="b2" x="22" y="352" width="170" height="80" rx="5"/>
+<text class="h2s" x="34" y="372">PR abierto</text>
+<text class="s2" x="34" y="390">espera revisión humana</text>
+<text class="t2" x="34" y="410">sin auto-merge</text>
+
+<rect class="b2" x="220" y="352" width="180" height="80" rx="5"/>
+<text class="h2s" x="232" y="372">merge humano</text>
+<text class="s2" x="232" y="390">actualiza main</text>
+<text class="t2" x="232" y="410">dispara deploy</text>
+
+<rect class="b2mon" x="430" y="352" width="180" height="80" rx="5"/>
+<text class="h2m" x="442" y="372">Vercel deploy</text>
+<text class="s2" x="442" y="390">build + rollout</text>
+<text class="t2" x="442" y="410">nuevo servicio</text>
+
+<rect class="b2ok" x="640" y="352" width="200" height="80" rx="5"/>
+<text class="h2g" x="652" y="372">el monitor reanuda</text>
+<text class="s2" x="652" y="390">siguiente snapshot</text>
+<text class="t2" x="652" y="410">vuelve al estado 1</text>
+
+<rect class="b2lab" x="865" y="352" width="305" height="80" rx="5"/>
+<text class="h2a" x="877" y="368">Prueba E2E · original falso</text>
+<text class="s2" x="877" y="384">/api/lab cambia E506 en caliente</text>
+<text class="s2" x="877" y="399">monitor detecta → enjambre → verifica</text>
+<text class="s2" x="877" y="414">→ PR automático (run y PR reales)</text>
+
+<!-- Flechas -->
+<path class="line2" d="M218 88 H252"/>
+<path class="line2" d="M480 88 H514"/>
+<path class="line2" d="M710 88 H736"/>
+<path class="lineb" d="M864 88 H890"/>
+<text class="lbl" x="868" y="80">sí</text>
+<path class="linea dash2" d="M366 138 V162 H293 V202"/>
+<text class="lbl" x="300" y="158">logs Vercel</text>
+<path class="linev dash2" d="M988 138 V172 H107 V202"/>
+<path class="line2" d="M192 253 H213"/>
+<path class="line2" d="M373 253 H394"/>
+<path class="line2" d="M554 253 H575"/>
+<path class="line2" d="M753 253 H774"/>
+<path class="line2" d="M924 253 H945"/>
+<path class="lineg dash2" d="M1057 304 V328 H107 V352"/>
+<path class="line2" d="M192 392 H220"/>
+<path class="line2" d="M400 392 H430"/>
+<path class="line2" d="M610 392 H640"/>
+<path class="lineb dash2" d="M740 432 V442 H12 V98 H22"/>
+
+<!-- Leyenda -->
+<text class="l2m" x="22" y="460">ciclo continuo: el monitor vuelve a correr en el próximo cron o en el bucle de demo day</text>
+<text class="s2" x="22" y="474">Línea continua: flujo del run. Línea discontinua: disparo, gate y ciclo. El enjambre nunca escribe en main.</text>
+</svg></div>
+
+<div class="bottom">
+<section><h2>CI/CD y enjambre · decisiones</h2>
+<table><thead><tr><th>Elección</th><th>Alternativa descartada / razón</th><th>Coste aceptado</th></tr></thead><tbody>
+<tr><td>GitHub Actions como runner</td><td>Vercel Functions: efímeras, sin git ni filesystem; no pueden editar, testear y abrir PR.</td><td>Máquina efímera por evento; job de 45 min.</td></tr>
+<tr><td><code>workflow_call</code> en el mismo run</td><td><code>repository_dispatch</code> desde un workflow: <code>GITHUB_TOKEN</code> no encadena workflows.</td><td>Monitor y enjambre comparten run.</td></tr>
+<tr><td>Verificación determinista como gate</td><td>Confiar en el LLM del fixer: puede alucinar.</td><td>Si no hay 0 divergencias, no hay PR.</td></tr>
+<tr><td>El enjambre abre PR, no mergea</td><td>Auto-merge: un parche erróneo llegaría a producción.</td><td>Revisión humana; merge dispara deploy.</td></tr>
+</tbody></table></section>
+<section><h2>Cómo se prueba</h2>
+<ul class="tight">
+<li><b>Original falso</b> <code>/api/lab</code> cambia un comportamiento en caliente (p. ej. el límite de <code>E506</code>).</li>
+<li>El monitor lo detecta → <code>workflow_call</code> → el enjambre parchea, verifica y abre <b>PR real</b>.</li>
+<li>Verificación <b>no concluyente</b> (429/infra): no parchea ni falla el workflow; el evento queda pendiente.</li>
+<li>Artefactos por run: <code>changes.json</code>, <code>scout-*.md</code>, <code>diagnosis.md</code>, <code>fixer-*.md</code>, <code>verification-*.json</code>, <code>pr-body.md</code> (7 días).</li>
+<li>Límite asumido: un cambio en el <b>algoritmo de control</b> exigiría re-descifrarlo; el verificador lo detecta y el evento queda pendiente.</li>
+</ul>
+<p class="small">Detalle de roles, harness y configuración: <code>agent/README.md</code>. Disparadores y tablas: <code>docs/observabilidad.md</code>. Workflows: <code>.github/workflows/monitor.yml</code> y <code>swarm.yml</code>.</p>
+</section></div>
+</section>
+
+<footer>Complementa el <a href="01-diseno-sistemas.html">documento de diseño</a>. Implementación: <code>reemplazo/src/server.js</code>, <code>domain.js</code>, <code>storage.js</code>. Monitor/enjambre: <code>agent/README.md</code> y <code>docs/observabilidad.md</code>.</footer>
 </main></body></html>

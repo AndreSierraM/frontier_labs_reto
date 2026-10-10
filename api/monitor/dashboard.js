@@ -22,6 +22,10 @@ module.exports = async (req, res) => {
 
   const last = await store.lastSnapshot(pool);
   const events = await store.history(pool, 30);
+  let agentRuns = [];
+  try {
+    agentRuns = await store.listAgentRuns(pool, 12);
+  } catch (_) {}
 
   json(res, 200, {
     ok: true,
@@ -37,5 +41,6 @@ module.exports = async (req, res) => {
       runtime,
     },
     events,
+    agentRuns,
   });
 };

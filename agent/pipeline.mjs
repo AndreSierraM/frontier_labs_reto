@@ -1,11 +1,9 @@
 /**
- * Pipeline del enjambre: scouts → analista → fixer → verificación → reporter.
- *
- * Cada fase es una función independiente; `runSwarm` las orquesta y devuelve un
- * estado (`done`, `no-change`, `dry-run`, `no-patch`, `inconclusive`, `failed`).
+ * Pipeline del enjambre: scouts → analista → (fixer → verificación → revisor)*
+ * → reporter. Devuelve un estado y reporta la corrida al monitor.
  */
 import { config } from "./lib/config.mjs";
-import { fetchChanges, ack } from "./lib/monitorClient.mjs";
+import { fetchChanges, ack, reportRun } from "./lib/monitorClient.mjs";
 import { makeRunDir, save } from "./lib/runstate.mjs";
 import { runPhase } from "./lib/phase.mjs";
 import { runTests } from "./lib/tests.mjs";
@@ -17,6 +15,9 @@ const log = (...a) => console.log("[swarm]", ...a);
 
 const changeText = (ch) =>
   `## ${ch.label}\n- antes: ${JSON.stringify(ch.before)}\n- ahora: ${JSON.stringify(ch.after)}\n- detectado: ${ch.detected_at}`;
+
+const needsChanges = (review) => /^REVIEW:\s*cambios/im.test(review || "");
+const saysNoPatch = (diagnosis) => /^PATCH:\s*no\b/im.test(diagnosis || "");
 
 // ---- Fase 1: scouts en paralelo -----------------------------------------
 async function scoutsPhase(changes, runDir) {
@@ -32,8 +33,8 @@ async function scoutsPhase(changes, runDir) {
 }
 
 // ---- Fase 2: analista ----------------------------------------------------
-function analystTask(changes, scoutReports, vercelLogs) {
-  return [
+const analystTask = (changes, scoutReports, vercelLogs) =>
+  [
     "Diagnóstico para adaptar el reemplazo.",
     "",
     "## Cambios detectados por el monitor",
@@ -49,41 +50,8 @@ function analystTask(changes, scoutReports, vercelLogs) {
     "",
     "Spec vigente: `reto2-investigacion/SPEC.md`. Dominio: `reemplazo/src/domain.js`.",
   ].join("\n");
-}
 
-const saysNoPatch = (diagnosis) => /^PATCH:\s*no\b/im.test(diagnosis);
-
-// ---- Fase 3: fixer + verificación (con reintentos) -----------------------
-async function fixAndVerify(diagnosis, runDir) {
-  let verification = null;
-  let fixerOut = "";
-  for (let round = 1; round <= config.maxFixRounds; round++) {
-    const task = [
-      "Diagnóstico:",
-      diagnosis,
-      verification ? `\nLa verificación anterior falló:\n${verification.summary}\nCorrige el parche.` : "",
-    ].join("\n");
-    const fixer = await runPhase({ role: "fixer", task, label: `fixer#${round}`, runDir, file: `fixer-${round}.md` });
-    fixerOut = fixer.out;
-
-    const tests = runTests();
-    save(runDir, `tests-${round}.txt`, tests.out);
-    if (tests.code !== 0) {
-      verification = { ok: false, divergences: [], summary: "`npm test` falló:\n" + tests.out.slice(-2000) };
-      log(`ronda ${round}: tests rojos, reintentando`);
-      continue;
-    }
-
-    verification = await verifyAgainstOriginal({ root: config.root });
-    save(runDir, `verification-${round}.json`, verification);
-    log(`ronda ${round}: ${verification.summary}`);
-    if (verification.inconclusive) return { verification, fixerOut, inconclusive: true };
-    if (verification.ok) break;
-  }
-  return { verification, fixerOut, inconclusive: false };
-}
-
-// ---- Fase 4: revisión (antes del PR) -------------------------------------
+// ---- Fase 3: adaptación con gate de verificación + revisión --------------
 async function reviewPhase(diagnosis, fixerOut, verification, runDir) {
   const diff = gitDiff();
   save(runDir, "fixer.patch", diff);
@@ -104,13 +72,52 @@ async function reviewPhase(diagnosis, fixerOut, verification, runDir) {
     diff.slice(0, 12000),
     "```",
   ].join("\n");
-  const r = await runPhase({ role: "reviewer", task, label: "reviewer", runDir, file: "review.md" });
-  return r.out;
+  return (await runPhase({ role: "reviewer", task, label: "reviewer", runDir, file: "review.md" })).out;
 }
 
-// ---- Fase 5: reporter ----------------------------------------------------
-function reporterTask(changes, diagnosis, fixerOut, verification, review) {
-  return [
+async function adaptPhase(diagnosis, runDir) {
+  let verification = null;
+  let fixerOut = "";
+  let review = "";
+
+  for (let round = 1; round <= config.maxFixRounds; round++) {
+    const task = [
+      "Diagnóstico:",
+      diagnosis,
+      verification && !verification.ok ? `\nLa verificación anterior falló:\n${verification.summary}\nCorrige el parche.` : "",
+      needsChanges(review) ? `\nLa revisión pidió cambios:\n${review}\nAplica las correcciones.` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const fixer = await runPhase({ role: "fixer", task, label: `fixer#${round}`, runDir, file: `fixer-${round}.md` });
+    fixerOut = fixer.out;
+
+    const tests = runTests();
+    save(runDir, `tests-${round}.txt`, tests.out);
+    if (tests.code !== 0) {
+      verification = { ok: false, divergences: [], summary: "`npm test` falló:\n" + tests.out.slice(-2000) };
+      log(`ronda ${round}: tests rojos, reintentando`);
+      continue;
+    }
+
+    verification = await verifyAgainstOriginal({ root: config.root });
+    save(runDir, `verification-${round}.json`, verification);
+    log(`ronda ${round}: ${verification.summary}`);
+    if (verification.inconclusive) return { status: "inconclusive", verification, fixerOut, review };
+    if (!verification.ok) continue;
+
+    review = await reviewPhase(diagnosis, fixerOut, verification, runDir);
+    log(`ronda ${round}: revisión ${needsChanges(review) ? "pide cambios" : "aprobada"}`);
+    if (!needsChanges(review)) return { status: "ok", verification, fixerOut, review };
+  }
+
+  return { status: needsChanges(review) ? "needs-review" : "failed", verification, fixerOut, review };
+}
+
+// ---- Fase 4: reporter ----------------------------------------------------
+const reporterTask = (changes, diagnosis, fixerOut, verification, review) =>
+  [
     "Redacta el cuerpo del PR.",
     "",
     "## Cambios",
@@ -128,24 +135,35 @@ function reporterTask(changes, diagnosis, fixerOut, verification, review) {
     "## Revisión",
     review,
   ].join("\n");
-}
 
 // ---- Orquestador ---------------------------------------------------------
+async function finish(status, labels, runDir, extra = {}) {
+  const summary = { status, labels, ...extra, at: new Date().toISOString() };
+  if (runDir) save(runDir, "summary.json", summary);
+  try {
+    await reportRun(summary);
+  } catch (e) {
+    log("aviso: no se pudo reportar la corrida:", e.message);
+  }
+  return { status, ...extra };
+}
+
 export async function runSwarm() {
   const changes = await fetchChanges();
   if (!changes.length) {
     log("sin cambios pendientes");
-    return { status: "no-change" };
+    return finish("no-change", []);
   }
+  const labels = changes.map((c) => c.label);
 
   const runDir = makeRunDir(config.root);
   save(runDir, "changes.json", changes);
-  log(`${changes.length} cambios pendientes`, changes.map((c) => c.label).join(", "));
+  log(`${changes.length} cambios pendientes`, labels.join(", "));
 
   if (config.dryRun) {
     log("dry-run: no se invoca ningún agente");
     save(runDir, "plan.md", changes.map(changeText).join("\n\n"));
-    return { status: "dry-run" };
+    return finish("dry-run", labels, runDir);
   }
 
   const vercelLogs = fetchVercelLogs({ root: config.root });
@@ -165,33 +183,30 @@ export async function runSwarm() {
   if (saysNoPatch(analyst.out)) {
     log("el analista concluyó PATCH: no (sin cambio real que adaptar)");
     save(runDir, "pr-body.md", "No se requiere adaptación.\n\n" + analyst.out);
-    await ack(changes.map((c) => c.label));
-    return { status: "no-patch" };
+    await ack(labels);
+    return finish("no-patch", labels, runDir);
   }
 
-  const { verification, fixerOut, inconclusive } = await fixAndVerify(analyst.out, runDir);
-  if (inconclusive) {
+  const adapt = await adaptPhase(analyst.out, runDir);
+  if (adapt.status === "inconclusive") {
     log("verificación no concluyente (infra/rate-limit); evento queda pendiente, sin PR");
-    return { status: "inconclusive" };
+    return finish("inconclusive", labels, runDir, { review: adapt.review });
   }
-  if (!verification || !verification.ok) {
-    log("no se logró adaptar con verificación verde; no se marca el evento");
-    return { status: "failed", verification };
+  if (adapt.status !== "ok") {
+    log("sin parche aprobado (verificación + revisión); no se abre PR");
+    return finish(adapt.status, labels, runDir, { review: adapt.review });
   }
-
-  const review = await reviewPhase(analyst.out, fixerOut, verification, runDir);
-  log("revisión lista");
 
   await runPhase({
     role: "reporter",
-    task: reporterTask(changes, analyst.out, fixerOut, verification, review),
+    task: reporterTask(changes, analyst.out, adapt.fixerOut, adapt.verification, adapt.review),
     label: "reporter",
     runDir,
     file: "pr-body.md",
   });
 
-  await ack(changes.map((c) => c.label));
-  log("enjambre completo: parche aplicado, tests verdes y sin divergencias");
+  await ack(labels);
+  log("enjambre completo: parche aplicado, tests verdes, revisión y sin divergencias");
   log("artefactos en", runDir.slice(config.root.length + 1));
-  return { status: "done" };
+  return finish("done", labels, runDir, { review: adapt.review });
 }

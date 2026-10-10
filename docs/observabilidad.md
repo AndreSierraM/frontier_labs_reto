@@ -38,9 +38,11 @@ Endpoints (protegidos con `MONITOR_TOKEN`):
 - Cada request a la API se registra en `runtime_log` (método, ruta, status, ms)
   mediante un hook en `createHandler` (`reemplazo/src/server.js`). No altera el
   contrato y se poda a los 2 días.
-- El **dashboard** (`/monitor`) muestra: estado del original, totales de la
-  última hora (requests, 4xx/5xx, latencia media/máx), tabla por ruta,
-  transacciones recientes y errores recientes.
+- El **dashboard** (`/monitor`) es interactivo: pestañas (Nuestro servicio,
+  Original, Enjambre), auto-refresh, log en vivo de transacciones, errores,
+  eventos del monitor y **corridas del enjambre con su revisión**.
+- El enjambre reporta cada corrida (`status`, etiquetas, revisión) vía
+  `POST /api/monitor/agent`, y el panel lo muestra.
 - El enjambre además lee los **logs de Vercel** (`agent/lib/logs.mjs`) para ver
   errores de runtime de la API desplegada.
 

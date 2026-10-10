@@ -1,0 +1,45 @@
+name: ci
+
+# Integración continua: unitarias del reemplazo + validación de la evidencia
+# (log ↔ SPEC) + comprobación de que los entregables 03/04 están al día.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: Tests · evidencia · entregables
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: "Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: "Unitarias del reemplazo (sin red)"
+        run: npm --prefix reemplazo test
+
+      - name: "Validar log y evidencia del SPEC"
+        run: python3 reto2-investigacion/scripts/validar_spec.py
+
+      - name: "Regenerar entregables 03/04"
+        run: python3 tools/build-entregas.py
+
+      - name: "Los entregables están actualizados"
+        run: |
+          git diff --exit-code -- \
+            public/entregas/03-especificacion-servicio.html \
+            public/entregas/04-log-experimentos.html \
+            public/entregas/SPEC.md \
+            public/entregas/experimentos.jsonl

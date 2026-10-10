@@ -53,11 +53,28 @@ footer a:hover{text-decoration:underline}
 </header>
 
 <section>
-<h2>Entregables oficiales (Systems Design 30%)</h2>
+<h2>Entregables del reto</h2>
 <div class="grid">
 <ul>
-<li><a class="item" href="01-diseno-sistemas.html">01 · Diseño de Sistemas<span class="sub">Máquina de estados extendida, decisiones de arquitectura, trade-offs y plan de aceptación</span><span class="meta">HTML · A4 vertical · 1 página</span></a></li>
-<li><a class="item" href="02-diagrama-arquitectura.html">02 · Diagrama de Arquitectura<span class="sub">Arquitectura hexagonal mínima, máquina de estados de cuenta/operación, topología desplegada y monitor</span><span class="meta">HTML · A4 horizontal · 1 página</span></a></li>
+<li><a class="item" href="https://frontier-labs-reto.vercel.app">Reemplazo desplegado<span class="sub">HTTP compatible: /health, /msg, /__reset · 116/116 (20 ejemplos + 34 control + 62 batería)</span><span class="meta">URL pública · Vercel + Neon</span></a></li>
+<li><a class="item" href="03-especificacion-servicio.html">Especificación del servicio<span class="sub">75 comportamientos con ID, evidencia (IDs exactos del log), precedencia y confianza · evidencia verificada</span><span class="meta">HTML · A4 vertical · 4 páginas</span></a></li>
+<li><a class="item" href="04-log-experimentos.html">Log de experimentos<span class="sub">366 observaciones reales organizadas por secuencia y error · descarga JSONL</span><span class="meta">HTML · A4 vertical · 2 páginas</span></a></li>
+</ul>
+<ul>
+<li><a class="item pdf" href="03-especificacion-servicio.pdf">Especificación (PDF)<span class="sub">Versión imprimible de la especificación</span><span class="meta">PDF · A4 vertical</span></a></li>
+<li><a class="item pdf" href="04-log-experimentos.pdf">Log de experimentos (PDF)<span class="sub">Informe imprimible del log</span><span class="meta">PDF · A4 vertical</span></a></li>
+<li><a class="item ext" href="experimentos.jsonl">experimentos.jsonl<span class="sub">Log crudo en JSONL, 366 líneas · una por request al original</span><span class="meta">Datos · JSONL</span></a></li>
+<li><a class="item ext" href="SPEC.md">SPEC.md<span class="sub">Fuente de la especificación en Markdown</span><span class="meta">Fuente · Markdown</span></a></li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2>Systems Design (30%)</h2>
+<div class="grid">
+<ul>
+<li><a class="item" href="01-diseno-sistemas.html">01 · Diseño de Sistemas<span class="sub">Máquina de estados extendida, decisiones de arquitectura, trade-offs y plan de aceptación</span><span class="meta">HTML · A4 vertical · 2 páginas</span></a></li>
+<li><a class="item" href="02-diagrama-arquitectura.html">02 · Diagrama de Arquitectura<span class="sub">Runtime hexagonal y estados (página 1) + vigilancia, CI/CD y enjambre de agentes (página 2)</span><span class="meta">HTML · A4 horizontal · 2 páginas</span></a></li>
 </ul>
 <ul>
 <li><a class="item pdf" href="01-diseno-sistemas.pdf">01 · Diseño de Sistemas (PDF)<span class="sub">Versión imprimible del documento de diseño</span><span class="meta">PDF · A4 vertical</span></a></li>
@@ -67,11 +84,10 @@ footer a:hover{text-decoration:underline}
 </section>
 
 <section>
-<h2>Especificación e investigación</h2>
+<h2>Investigación y verificación</h2>
 <ul>
-<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/SPEC.md">SPEC.md<span class="sub">Comportamiento completo del servicio: 366 observaciones con IDs de log, precedencia de errores y transiciones de estado</span></a></li>
-<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/BITACORA.md">BITACORA.md<span class="sub">Narrativa de investigación: hallazgos, reglas antifraude ocultas y correcciones post-evaluación</span></a></li>
-<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/experimentos.jsonl">experimentos.jsonl<span class="sub">Log de 366 observaciones en formato JSONL con hipótesis, requests y conclusiones</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/BITACORA.md">BITACORA.md<span class="sub">Narrativa de investigación: hallazgos, regla antifraude oculta (E510) y corrección post-evaluación</span></a></li>
+<li><a class="item ext" href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/scripts/validar_spec.py">validar_spec.py<span class="sub">Valida el esquema del log y que cada evidencia del SPEC existe y corresponde · salida OK</span></a></li>
 </ul>
 </section>
 

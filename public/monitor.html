@@ -6,528 +6,239 @@
 <title>Monitor · Frontier Labs Reto 2</title>
 <style>
   :root{
-    --bg:#eef2f6;
-    --surface:#ffffff;
-    --ink:#0f2233;
-    --muted:#64788a;
-    --line:#dde6ee;
-    --line-soft:#eef3f8;
-    --accent:#0e7490;
-    --accent-soft:#e0f2f7;
-    --ok:#0f766e;
-    --ok-soft:#d9f2ee;
-    --warn:#b45309;
-    --warn-soft:#fdf0dd;
-    --bad:#b42318;
-    --bad-soft:#fde8e6;
-    --radius:14px;
-    --shadow:0 1px 2px rgba(15,34,51,.05), 0 8px 24px -12px rgba(15,34,51,.28);
+    --bg:#0e1621; --surface:#16212f; --surface2:#1c2a3a; --line:#26374a;
+    --ink:#e7eef6; --muted:#8aa0b6; --accent:#38bdf8; --teal:#2dd4bf;
+    --ok:#34d399; --warn:#fbbf24; --err:#f87171; --info:#a78bfa;
+    --radius:14px; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:var(--bg);
-    color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
-    font-size:15px;
-    line-height:1.45;
-    -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 64px}
-
-  header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
-  header.top h1{margin:0;font-size:22px;letter-spacing:-.4px;font-weight:700}
-  header.top p{margin:4px 0 0;color:var(--muted);font-size:13px}
-  .status-line{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 3px rgba(100,120,138,.12)}
-  .dot.live{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
-  .dot.err{background:var(--bad);box-shadow:0 0 0 3px var(--bad-soft)}
-
-  .bar{
-    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
-    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px;box-shadow:var(--shadow);margin-bottom:22px;
-  }
-  .bar label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-  .bar input{
-    flex:1 1 260px;min-width:0;padding:10px 12px;border:1px solid var(--line);
-    border-radius:10px;font:inherit;background:#f9fbfd;color:var(--ink);
-  }
-  .bar input:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
-  button{
-    font:inherit;font-weight:600;cursor:pointer;border:1px solid transparent;
-    padding:10px 18px;border-radius:10px;background:var(--accent);color:#fff;
-    transition:background .15s ease, transform .05s ease;
-  }
-  button:hover{background:#0b5d75}
-  button:active{transform:translateY(1px)}
-  button.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
-  button.ghost:hover{background:var(--line-soft)}
-
-  .banner{
-    display:none;margin-bottom:20px;padding:12px 16px;border-radius:12px;
-    font-size:13.5px;font-weight:600;
-  }
-  .banner.show{display:block}
-  .banner.bad{background:var(--bad-soft);color:var(--bad);border:1px solid #f4c7c3}
-  .banner.info{background:var(--accent-soft);color:var(--accent);border:1px solid #bfe3ee}
-
-  .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:22px}
-  .card{
-    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-    padding:18px;box-shadow:var(--shadow);
-  }
-  .card h2{margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-  .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line-soft)}
-  .kv:last-child{border-bottom:0}
-  .kv .k{color:var(--muted);font-size:13px}
-  .kv .v{font-weight:600;text-align:right;word-break:break-word}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
-
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px}
-  .stat{background:#f8fbfd;border:1px solid var(--line-soft);border-radius:11px;padding:12px 13px;min-width:0}
-  .stat .num{font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
-  .stat .lab{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
-  .stat.bad .num{color:var(--bad)}
-  .stat.warn .num{color:var(--warn)}
-  .stat.ok .num{color:var(--ok)}
-
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);color:var(--accent);
-    border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600}
-  .chip .c{background:rgba(255,255,255,.7);border-radius:999px;padding:0 7px;font-size:11.5px}
-  .chip.empty{background:var(--line-soft);color:var(--muted)}
-  .empty-note{color:var(--muted);font-size:13px;font-style:italic}
-
-  .panel{
-    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;
-  }
-  .panel h2{margin:0;padding:15px 18px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
-  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
-  th,td{padding:10px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line-soft)}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:#f7fafc;font-weight:700}
-  tbody tr:last-child td{border-bottom:0}
-  tbody tr:hover{background:#f9fbfd}
-  td.msg{white-space:normal;min-width:200px;color:var(--muted)}
-  .tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
-  .tag.k-change{background:var(--warn-soft);color:var(--warn)}
-  .tag.k-div{background:var(--bad-soft);color:var(--bad)}
-  .tag.k-ok{background:var(--ok-soft);color:var(--ok)}
-  .tag.k-default{background:var(--accent-soft);color:var(--accent)}
-  .s-ok{color:var(--ok);font-weight:700}
-  .s-redir{color:var(--accent);font-weight:700}
-  .s-client{color:var(--warn);font-weight:700}
-  .s-server{color:var(--bad);font-weight:700}
-  .placeholder{padding:22px 18px;color:var(--muted);font-size:13.5px}
-
-  @media(max-width:640px){
-    .wrap{padding:16px 12px 48px}
-    header.top h1{font-size:19px}
-    .bar{padding:12px}
-    .bar button{flex:1 1 auto}
-    .stat .num{font-size:21px}
-    th,td{padding:9px 11px}
-    .hide-sm{display:none}
-  }
+  body{margin:0;background:radial-gradient(1200px 600px at 90% -10%,#12304a 0,var(--bg) 55%);
+       color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  a{color:var(--accent)}
+  header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+         padding:18px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;
+         background:rgba(14,22,33,.85);backdrop-filter:blur(8px)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand h1{font-size:18px;margin:0;letter-spacing:-.2px}
+  .brand small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+  .dot.live{background:var(--ok);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}70%{box-shadow:0 0 0 10px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input,button{font:inherit;color:var(--ink);background:var(--surface2);border:1px solid var(--line);
+               border-radius:10px;padding:8px 12px}
+  input{min-width:220px}
+  button{cursor:pointer;transition:.15s}
+  button:hover{border-color:var(--accent)}
+  button.ghost{background:transparent}
+  main{padding:22px;max-width:1200px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .card{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--line);
+        border-radius:var(--radius);padding:16px}
+  .card h2{margin:0 0 10px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .metric{font-size:26px;font-weight:700;letter-spacing:-.5px}
+  .metric small{font-size:13px;color:var(--muted);font-weight:500}
+  .row{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin-top:6px}
+  .row b{color:var(--ink);font-weight:600}
+  .tabs{display:flex;gap:6px;margin:22px 0 12px;flex-wrap:wrap}
+  .tab{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;
+       color:var(--muted);cursor:pointer;font-size:13.5px}
+  .tab.active{background:var(--surface2);color:var(--ink);border-color:var(--accent)}
+  .panel{display:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .panel.active{display:block}
+  .panel h3{margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;
+            display:flex;justify-content:space-between;align-items:center}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:rgba(56,189,248,.05)}
+  .mono{font-family:var(--mono);font-size:12.5px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700}
+  .pill.ok{background:rgba(52,211,153,.15);color:var(--ok)}
+  .pill.warn{background:rgba(251,191,36,.15);color:var(--warn)}
+  .pill.err{background:rgba(248,113,113,.15);color:var(--err)}
+  .pill.info{background:rgba(167,139,250,.15);color:var(--info)}
+  .muted{color:var(--muted)}
+  pre{margin:0;padding:14px 16px;font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;color:#cfe3f3}
+  .empty{padding:22px 16px;color:var(--muted)}
+  .kpis{display:flex;gap:26px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .kpi b{display:block;font-size:22px;letter-spacing:-.4px}
+  .kpi small{color:var(--muted);font-size:12px}
+  @media(max-width:640px){input{min-width:150px}.card .metric{font-size:22px}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
+<header>
+  <div class="brand">
+    <span class="dot" id="livedot"></span>
     <div>
-      <h1>Monitor de servicio</h1>
-      <p>Original vs. nuestro reemplazo · eventos, transacciones y errores</p>
+      <h1>Monitor · La caja negra</h1>
+      <small id="subtitle">original + nuestro servicio + enjambre</small>
     </div>
-    <div class="status-line"><span class="dot" id="dot"></span><span id="statusText">Sin datos</span></div>
-  </header>
+  </div>
+  <div class="controls">
+    <input id="token" type="password" placeholder="MONITOR_TOKEN" autocomplete="off">
+    <button id="reload">Refrescar</button>
+    <button id="auto" class="ghost">▶ Auto</button>
+    <span class="muted" id="updated">—</span>
+  </div>
+</header>
 
-  <div class="bar">
-    <label for="token">Token</label>
-    <input id="token" type="password" placeholder="MONITOR_TOKEN" autocomplete="off" spellcheck="false">
-    <button id="loadBtn">Cargar</button>
-    <button id="clearBtn" class="ghost">Olvidar token</button>
+<main>
+  <section class="cards">
+    <div class="card">
+      <h2>Original</h2>
+      <div class="metric" id="origState">—</div>
+      <div class="row"><span>Último snapshot</span><b id="origSnap">—</b></div>
+      <div class="row"><span>Cambios recientes</span><b id="origChanges">—</b></div>
+    </div>
+    <div class="card">
+      <h2>Nuestro servicio · 1 h</h2>
+      <div class="metric" id="reqs">0 <small>requests</small></div>
+      <div class="row"><span>Errores 4xx / 5xx</span><b id="errs">0 / 0</b></div>
+      <div class="row"><span>Latencia media / máx</span><b id="lat">0 / 0 ms</b></div>
+    </div>
+    <div class="card">
+      <h2>Enjambre</h2>
+      <div class="metric" id="agentState">—</div>
+      <div class="row"><span>Última corrida</span><b id="agentAt">—</b></div>
+      <div class="row"><span>Etiquetas</span><b id="agentLabels">—</b></div>
+    </div>
+  </section>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="svc">Nuestro servicio</button>
+    <button class="tab" data-tab="orig">Original</button>
+    <button class="tab" data-tab="agent">Enjambre</button>
   </div>
 
-  <div id="banner" class="banner"></div>
-
-  <div class="grid">
-    <section class="card">
-      <h2>Estado del original</h2>
-      <div id="originalBody" class="placeholder">Carga los datos para ver el estado.</div>
-    </section>
-
-    <section class="card">
-      <h2>Nuestro servicio</h2>
-      <div id="serviceBody" class="placeholder">Carga los datos para ver el estado.</div>
-    </section>
-
-    <section class="card">
-      <h2>Contadores de eventos</h2>
-      <div id="countersBody" class="placeholder">Carga los datos para ver los contadores.</div>
-    </section>
-  </div>
-
-  <section class="panel">
-    <h2>Eventos recientes</h2>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>At</th><th>Kind</th><th>Label</th><th>Message</th></tr></thead>
-        <tbody id="eventsBody"><tr><td colspan="4" class="placeholder">Sin datos.</td></tr></tbody>
-      </table>
-    </div>
+  <section class="panel active" id="panel-svc">
+    <div class="kpis" id="svcKpis"></div>
+    <h3>Transacciones recientes <span class="muted">(log en vivo)</span></h3>
+    <table><thead><tr><th>Hora</th><th>Método</th><th>Ruta</th><th>Status</th><th>ms</th></tr></thead><tbody id="txs"></tbody></table>
+    <h3>Por ruta</h3>
+    <table><thead><tr><th>Ruta</th><th>Requests</th><th>Errores</th><th>Media</th></tr></thead><tbody id="paths"></tbody></table>
+    <h3>Errores recientes</h3>
+    <table><thead><tr><th>Hora</th><th>Método</th><th>Ruta</th><th>Status</th><th>ms</th></tr></thead><tbody id="errRows"></tbody></table>
   </section>
 
-  <section class="panel">
-    <h2>Transacciones recientes</h2>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>At</th><th>Method</th><th>Path</th><th>Status</th><th>ms</th></tr></thead>
-        <tbody id="txBody"><tr><td colspan="5" class="placeholder">Sin datos.</td></tr></tbody>
-      </table>
-    </div>
+  <section class="panel" id="panel-orig">
+    <h3>Eventos del monitor</h3>
+    <table><thead><tr><th>Hora</th><th>Tipo</th><th>Etiqueta</th><th>Detalle</th></tr></thead><tbody id="events"></tbody></table>
   </section>
 
-  <section class="panel">
-    <h2>Errores recientes</h2>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>At</th><th>Method</th><th>Path</th><th>Status</th><th>ms</th></tr></thead>
-        <tbody id="errorsBody"><tr><td colspan="5" class="placeholder">Sin datos.</td></tr></tbody>
-      </table>
-    </div>
+  <section class="panel" id="panel-agent">
+    <h3>Corridas del enjambre</h3>
+    <table><thead><tr><th>Hora</th><th>Estado</th><th>Etiquetas</th><th>Revisión</th></tr></thead><tbody id="runs"></tbody></table>
+    <h3>Última revisión</h3>
+    <pre id="lastReview">—</pre>
   </section>
-</div>
+</main>
 
 <script>
-(function () {
-  "use strict";
+const $ = (id) => document.getElementById(id);
+const fmt = (t) => t ? new Date(t).toLocaleTimeString([], {hour12:false}) : "—";
+const fmtAgo = (t) => { if(!t) return "—"; const s=Math.floor((Date.now()-new Date(t))/1000);
+  return s<60?s+"s":s<3600?Math.floor(s/60)+"m":Math.floor(s/3600)+"h"; };
+const pill = (status) => {
+  const s = String(status||"").toLowerCase();
+  const cls = ["done","ok"].includes(s)?"ok":["needs-review","failed","inconclusive"].includes(s)?"err":
+              ["no-patch","no-change","dry-run","map_value_changed","map_added"].includes(s)?"warn":"info";
+  return `<span class="pill ${cls}">${status||"—"}</span>`;
+};
+const statusPill = (st) => st>=500?`<span class="pill err">${st}</span>`:st>=400?`<span class="pill warn">${st}</span>`:`<span class="pill ok">${st}</span>`;
 
-  var ENDPOINT = "/api/monitor/dashboard";
-  var STORAGE_KEY = "monitor_token";
-  var REFRESH_MS = 15000;
+let TOKEN = localStorage.getItem("monitor_token") || "";
+let timer = null;
+$("token").value = TOKEN;
 
-  var els = {
-    token: document.getElementById("token"),
-    load: document.getElementById("loadBtn"),
-    clear: document.getElementById("clearBtn"),
-    banner: document.getElementById("banner"),
-    dot: document.getElementById("dot"),
-    statusText: document.getElementById("statusText"),
-    original: document.getElementById("originalBody"),
-    service: document.getElementById("serviceBody"),
-    counters: document.getElementById("countersBody"),
-    events: document.getElementById("eventsBody"),
-    tx: document.getElementById("txBody"),
-    errors: document.getElementById("errorsBody")
-  };
-
-  var timer = null;
-
-  function el(tag, cls, text) {
-    var n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text != null) n.textContent = text;
-    return n;
-  }
-
-  function fmtDate(iso) {
-    if (!iso) return "—";
-    var d = new Date(iso);
-    if (isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString("es-MX", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  }
-
-  function num(v) {
-    return v == null ? "—" : String(v);
-  }
-
-  function statusClass(status) {
-    if (status >= 500) return "s-server";
-    if (status >= 400) return "s-client";
-    if (status >= 300) return "s-redir";
-    if (status >= 200) return "s-ok";
-    return "";
-  }
-
-  function kindClass(kind) {
-    var k = String(kind || "").toLowerCase();
-    if (k.indexOf("div") !== -1 || k.indexOf("error") !== -1 || k.indexOf("fail") !== -1) return "k-div";
-    if (k.indexOf("change") !== -1 || k.indexOf("cambio") !== -1 || k.indexOf("drift") !== -1) return "k-change";
-    if (k.indexOf("ok") !== -1 || k.indexOf("recover") !== -1) return "k-ok";
-    return "k-default";
-  }
-
-  function showBanner(text, type) {
-    if (!text) { els.banner.className = "banner"; els.banner.textContent = ""; return; }
-    els.banner.className = "banner show " + (type || "info");
-    els.banner.textContent = text;
-  }
-
-  function setDot(state) {
-    els.dot.className = "dot" + (state ? " " + state : "");
-  }
-
-  function renderOriginal(original) {
-    var box = els.original;
-    box.className = "";
-    box.textContent = "";
-
-    var o = original || {};
-    var snap = o.lastSnapshot || null;
-
-    var rows = [
-      ["URL original", o.url || "—", true],
-      ["ID snapshot", snap ? num(snap.id) : "—", false],
-      ["Fecha snapshot", snap ? fmtDate(snap.taken_at) : "—", false]
-    ];
-    if (snap && snap.fingerprint) rows.push(["Fingerprint", snap.fingerprint, true]);
-
-    if (!snap) rows.push(["Estado", "Sin snapshots registrados", false]);
-
-    rows.forEach(function (r) {
-      var row = el("div", "kv");
-      row.appendChild(el("span", "k", r[0]));
-      var v = el("span", "v" + (r[2] ? " mono" : ""), r[1]);
-      row.appendChild(v);
-      box.appendChild(row);
-    });
-  }
-
-  function renderService(replacement) {
-    var box = els.service;
-    box.className = "";
-    box.textContent = "";
-
-    var rep = replacement || {};
-    var rt = rep.runtime || null;
-
-    var urlRow = el("div", "kv");
-    urlRow.appendChild(el("span", "k", "URL servicio"));
-    urlRow.appendChild(el("span", "v mono", rep.url || "—"));
-    box.appendChild(urlRow);
-
-    if (!rt) {
-      box.appendChild(el("div", "placeholder", "Sin métricas de runtime disponibles."));
-      return;
-    }
-
-    var t = rt.totals || {};
-    var windowRow = el("div", "kv");
-    windowRow.appendChild(el("span", "k", "Ventana"));
-    windowRow.appendChild(el("span", "v", num(rt.window_minutes) + " min"));
-    box.appendChild(windowRow);
-
-    var stats = el("div", "stats");
-    stats.style.marginTop = "12px";
-    [
-      ["Requests", t.n, "ok"],
-      ["Errores 4xx", t.errors4xx, t.errors4xx ? "warn" : "ok"],
-      ["Errores 5xx", t.errors5xx, t.errors5xx ? "bad" : "ok"],
-      ["Latencia media", num(t.avg_ms) + " ms", "ok"],
-      ["Latencia máx", num(t.max_ms) + " ms", ""]
-    ].forEach(function (s) {
-      var card = el("div", "stat" + (s[2] ? " " + s[2] : ""));
-      card.appendChild(el("div", "num", num(s[1])));
-      card.appendChild(el("div", "lab", s[0]));
-      stats.appendChild(card);
-    });
-    box.appendChild(stats);
-  }
-
-  function renderCounters(events) {
-    var box = els.counters;
-    box.className = "";
-    box.textContent = "";
-
-    var list = Array.isArray(events) ? events : [];
-    if (!list.length) {
-      box.className = "placeholder";
-      box.textContent = "Sin eventos registrados.";
-      return;
-    }
-
-    var counts = {};
-    list.forEach(function (e) {
-      var k = e && e.kind ? String(e.kind) : "desconocido";
-      counts[k] = (counts[k] || 0) + 1;
-    });
-
-    var total = el("div", "kv");
-    total.appendChild(el("span", "k", "Eventos listados"));
-    total.appendChild(el("span", "v", String(list.length)));
-    box.appendChild(total);
-
-    var chips = el("div", "chips");
-    chips.style.marginTop = "12px";
-    Object.keys(counts).sort().forEach(function (k) {
-      var chip = el("span", "chip");
-      chip.appendChild(document.createTextNode(k));
-      chip.appendChild(el("span", "c", String(counts[k])));
-      chips.appendChild(chip);
-    });
-    box.appendChild(chips);
-  }
-
-  function renderEvents(events) {
-    var list = Array.isArray(events) ? events : [];
-    els.events.textContent = "";
-    if (!list.length) {
-      var r = el("tr");
-      var c = el("td", "placeholder", "Sin eventos.");
-      c.colSpan = 4;
-      r.appendChild(c);
-      els.events.appendChild(r);
-      return;
-    }
-    list.forEach(function (e) {
-      var tr = el("tr");
-      tr.appendChild(el("td", "", fmtDate(e.detected_at)));
-      var tdKind = el("td");
-      tdKind.appendChild(el("span", "tag " + kindClass(e.kind), e.kind || "—"));
-      tr.appendChild(tdKind);
-      tr.appendChild(el("td", "", e.label || "—"));
-      tr.appendChild(el("td", "msg", e.message || "—"));
-      els.events.appendChild(tr);
-    });
-  }
-
-  function renderTx(rows) {
-    var list = Array.isArray(rows) ? rows : [];
-    els.tx.textContent = "";
-    if (!list.length) {
-      var r = el("tr");
-      var c = el("td", "placeholder", "Sin transacciones.");
-      c.colSpan = 5;
-      r.appendChild(c);
-      els.tx.appendChild(r);
-      return;
-    }
-    list.forEach(function (t) {
-      var tr = el("tr");
-      tr.appendChild(el("td", "", fmtDate(t.at)));
-      tr.appendChild(el("td mono", "", t.method || "—"));
-      tr.appendChild(el("td mono", "", t.path || "—"));
-      tr.appendChild(el("td", statusClass(t.status), num(t.status)));
-      tr.appendChild(el("td", "", num(t.ms)));
-      els.tx.appendChild(tr);
-    });
-  }
-
-  function renderErrors(rows) {
-    var list = Array.isArray(rows) ? rows : [];
-    els.errors.textContent = "";
-    if (!list.length) {
-      var r = el("tr");
-      var c = el("td", "placeholder", "Sin errores recientes.");
-      c.colSpan = 5;
-      r.appendChild(c);
-      els.errors.appendChild(r);
-      return;
-    }
-    list.forEach(function (t) {
-      var tr = el("tr");
-      tr.appendChild(el("td", "", fmtDate(t.at)));
-      tr.appendChild(el("td mono", "", t.method || "—"));
-      tr.appendChild(el("td mono", "", t.path || "—"));
-      tr.appendChild(el("td", statusClass(t.status), num(t.status)));
-      tr.appendChild(el("td", "", num(t.ms)));
-      els.errors.appendChild(tr);
-    });
-  }
-
-  function render(data) {
-    var rep = data.replacement || {};
-    renderOriginal(data.original);
-    renderService(rep);
-    renderCounters(data.events);
-    renderEvents(data.events);
-    var rt = rep.runtime || {};
-    renderTx(rt.recentTransactions);
-    renderErrors(rt.recentErrors);
-  }
-
-  function stopTimer() {
-    if (timer) { clearInterval(timer); timer = null; }
-  }
-
-  function scheduleRefresh() {
-    stopTimer();
-    timer = setInterval(function () {
-      var token = els.token.value.trim();
-      if (token) fetchDashboard(token, true);
-    }, REFRESH_MS);
-  }
-
-  function fetchDashboard(token, isAuto) {
-    if (!token) {
-      showBanner("Ingresa un token para cargar el panel.", "info");
-      return;
-    }
-    setDot("");
-    els.statusText.textContent = "Cargando…";
-
-    fetch(ENDPOINT + "?token=" + encodeURIComponent(token), {
-      headers: { "Accept": "application/json" }
-    }).then(function (res) {
-      if (res.status === 401) {
-        var err = new Error("unauthorized");
-        err.status = 401;
-        throw err;
-      }
-      if (!res.ok) {
-        var e2 = new Error("http " + res.status);
-        e2.status = res.status;
-        throw e2;
-      }
-      return res.json();
-    }).then(function (data) {
-      showBanner("");
-      render(data || {});
-      setDot("live");
-      els.statusText.textContent = "Actualizado " + new Date().toLocaleTimeString("es-MX");
-    }).catch(function (err) {
-      setDot("err");
-      if (err && err.status === 401) {
-        els.statusText.textContent = "No autorizado";
-        showBanner("token inválido", "bad");
-      } else {
-        els.statusText.textContent = "Error de conexión";
-        if (!isAuto) showBanner("No se pudo cargar el panel: " + (err && err.message ? err.message : "error desconocido"), "bad");
-      }
-    });
-  }
-
-  function load() {
-    var token = els.token.value.trim();
-    if (token) { try { localStorage.setItem(STORAGE_KEY, token); } catch (_) {} }
-    fetchDashboard(token, false);
-    scheduleRefresh();
-  }
-
-  els.load.addEventListener("click", load);
-  els.token.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") { e.preventDefault(); load(); }
-  });
-  els.clear.addEventListener("click", function () {
-    stopTimer();
-    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
-    els.token.value = "";
-    showBanner("Token olvidado.", "info");
-    setDot("");
-    els.statusText.textContent = "Sin datos";
-  });
-
+async function load() {
+  TOKEN = $("token").value.trim();
+  localStorage.setItem("monitor_token", TOKEN);
+  if (!TOKEN) { $("subtitle").textContent = "falta el token"; return; }
   try {
-    var saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      els.token.value = saved;
-      fetchDashboard(saved, false);
-      scheduleRefresh();
-    }
-  } catch (_) {}
-})();
+    const r = await fetch("/api/monitor/dashboard", { headers: { Authorization: "Bearer " + TOKEN } });
+    if (r.status === 401) { $("livedot").className = "dot"; $("subtitle").textContent = "token inválido"; return; }
+    render(await r.json());
+    $("livedot").className = "dot live";
+    $("updated").textContent = "actualizado " + fmt(new Date());
+  } catch (e) { $("subtitle").textContent = "error de red"; }
+}
+
+function render(d) {
+  const ev = d.events || [];
+  const changes = ev.filter(e => ["original_changed","new_command","new_route","map_value_changed","map_added"].includes(e.kind));
+  $("origState").textContent = d.original.lastSnapshot ? "observado" : "sin baseline";
+  $("origSnap").textContent = d.original.lastSnapshot ? "#" + d.original.lastSnapshot.id + " · " + fmtAgo(d.original.lastSnapshot.taken_at) : "—";
+  $("origChanges").textContent = changes.length;
+
+  const rt = (d.replacement && d.replacement.runtime) || {};
+  const t = rt.totals || {n:0,errors4xx:0,errors5xx:0,avg_ms:0,max_ms:0};
+  $("reqs").innerHTML = `${t.n||0} <small>requests</small>`;
+  $("errs").innerHTML = `<span style="color:${t.errors4xx?'var(--warn)':'inherit'}">${t.errors4xx||0}</span> / <span style="color:${t.errors5xx?'var(--err)':'inherit'}">${t.errors5xx||0}</span>`;
+  $("lat").textContent = `${t.avg_ms||0} / ${t.max_ms||0} ms`;
+
+  const runs = d.agentRuns || [];
+  const lastRun = runs[0];
+  $("agentState").innerHTML = lastRun ? pill(lastRun.status) : "—";
+  $("agentAt").textContent = lastRun ? fmtAgo(lastRun.at) : "—";
+  $("agentLabels").textContent = lastRun ? (lastRun.labels || "—") : "—";
+
+  $("svcKpis").innerHTML = `
+    <div class="kpi"><b>${t.avg_ms||0}</b><small>ms media</small></div>
+    <div class="kpi"><b>${t.max_ms||0}</b><small>ms máx</small></div>
+    <div class="kpi"><b>${(rt.byPath||[]).length}</b><small>rutas</small></div>
+    <div class="kpi"><b>${t.errors4xx||0}</b><small>4xx</small></div>
+    <div class="kpi"><b>${t.errors5xx||0}</b><small>5xx</small></div>`;
+
+  document.querySelector("#txs").innerHTML = rows(rt.recentTransactions, ["at:fmt","method","path","status:sp","ms"]);
+  document.querySelector("#paths").innerHTML = (rt.byPath||[]).map(p =>
+    `<tr><td class="mono">${esc(p.path)}</td><td>${p.n}</td><td>${p.errors||0}</td><td>${p.avg_ms} ms</td></tr>`).join("") || empty(4);
+  document.querySelector("#errRows").innerHTML = rows(rt.recentErrors, ["at:fmt","method","path","status:sp","ms"]);
+
+  document.querySelector("#events").innerHTML = ev.map(e =>
+    `<tr><td class="mono">${fmt(e.detected_at)}</td><td>${pill(e.kind)}</td><td class="mono">${esc(e.label||"—")}</td>
+         <td class="muted">${esc(detail(e))}</td></tr>`).join("") || empty(4);
+
+  document.querySelector("#runs").innerHTML = runs.map(r =>
+    `<tr><td class="mono">${fmt(r.at)}</td><td>${pill(r.status)}</td><td class="mono">${esc(r.labels||"—")}</td>
+         <td><button class="ghost" onclick="showReview(${r.id})">ver</button></td></tr>`).join("") || empty(4);
+  window.__runs = runs;
+  $("lastReview").textContent = (runs[0] && runs[0].review) || "—";
+}
+
+function detail(e) {
+  const after = e.after && e.after.response ? JSON.stringify(e.after.response) : (e.message || "");
+  return (after || "").slice(0, 90);
+}
+function rows(list, cols) {
+  if (!list || !list.length) return empty(cols.length);
+  return list.map(item => "<tr>" + cols.map(c => {
+    const [k, t] = c.split(":");
+    const v = item[k];
+    if (t === "fmt") return `<td class="mono">${fmt(v)}</td>`;
+    if (t === "sp") return `<td>${statusPill(v)}</td>`;
+    return `<td class="mono">${esc(v)}</td>`;
+  }).join("") + "</tr>").join("");
+}
+const empty = (n) => `<tr><td colspan="${n}" class="empty">Sin datos todavía.</td></tr>`;
+const esc = (s) => String(s==null?"":s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+window.showReview = (id) => { const r=(window.__runs||[]).find(x=>x.id===id); if(r) $("lastReview").textContent = r.review || "(sin revisión)"; };
+
+document.querySelectorAll(".tab").forEach(tab => tab.onclick = () => {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t === tab));
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + tab.dataset.tab));
+});
+$("reload").onclick = load;
+$("token").addEventListener("change", load);
+$("auto").onclick = () => {
+  const on = !timer;
+  $("auto").textContent = on ? "⏸ Auto" : "▶ Auto";
+  $("auto").classList.toggle("active", on);
+  if (on) { load(); timer = setInterval(load, 5000); } else { clearInterval(timer); timer = null; }
+};
+if (TOKEN) load();
 </script>
 </body>
 </html>
