@@ -1,0 +1,10 @@
+{
+  "name": "frontier-labs-reto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reemplazo de la caja negra (Reto 2) + entregables de diseño",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "pg": "^8.11.5"
+  }
+}

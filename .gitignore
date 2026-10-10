@@ -23,3 +23,6 @@ coverage/
 
 # Capturas crudas: pueden incluir credenciales
 reto2-investigacion/logs/*.jsonl
+
+# Vercel local link
+.vercel
