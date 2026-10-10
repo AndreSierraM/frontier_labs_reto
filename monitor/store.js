@@ -44,22 +44,25 @@ async function ensure(pool) {
        review text,
        run_url text,
        pr_url text,
+       logs jsonb,
        detail jsonb
      )`
   );
   await pool.query(`ALTER TABLE agent_runs ADD COLUMN IF NOT EXISTS run_url text`);
   await pool.query(`ALTER TABLE agent_runs ADD COLUMN IF NOT EXISTS pr_url text`);
+  await pool.query(`ALTER TABLE agent_runs ADD COLUMN IF NOT EXISTS logs jsonb`);
 }
 
 async function saveAgentRun(pool, run) {
   await pool.query(
-    `INSERT INTO agent_runs (status, labels, review, run_url, pr_url, detail) VALUES ($1, $2, $3, $4, $5, $6)`,
+    `INSERT INTO agent_runs (status, labels, review, run_url, pr_url, logs, detail) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
     [
       run.status || null,
       Array.isArray(run.labels) ? run.labels.join(",") : run.labels || null,
       run.review || null,
       run.runUrl || null,
       run.prUrl || null,
+      run.logs ? JSON.stringify(run.logs) : null,
       JSON.stringify(run),
     ]
   );
@@ -67,7 +70,7 @@ async function saveAgentRun(pool, run) {
 
 async function listAgentRuns(pool, limit = 10) {
   const { rows } = await pool.query(
-    `SELECT id, at, status, labels, review, run_url, pr_url FROM agent_runs ORDER BY id DESC LIMIT $1`,
+    `SELECT id, at, status, labels, review, run_url, pr_url, logs FROM agent_runs ORDER BY id DESC LIMIT $1`,
     [limit]
   );
   return rows;

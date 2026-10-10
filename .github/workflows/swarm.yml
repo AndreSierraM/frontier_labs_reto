@@ -133,10 +133,19 @@ jobs:
             status="$(jq -r '.status' "$dir/summary.json")"
             labels="$(jq -r '(.labels // []) | join(",")' "$dir/summary.json")"
           fi
-          review=""
-          if [ -n "$dir" ] && [ -f "$dir/review.md" ]; then review="$(cat "$dir/review.md")"; fi
+          cap() { [ -f "$1" ] && head -c 8000 "$1" || true; }
+          review="$(cap "$dir/review.md")"
+          if [ -z "$review" ] && [ -n "$dir" ] && [ -f "$dir/summary.json" ]; then
+            review="$(jq -r '.review // ""' "$dir/summary.json")"
+          fi
+          scout="$(cap "$(ls "$dir"/scout-*.md 2>/dev/null | head -1)")"
+          diagnosis="$(cap "$dir/diagnosis.md")"
+          fixer="$(cap "$(ls "$dir"/fixer-*.md 2>/dev/null | head -1)")"
+          prbody="$(cap "$dir/pr-body.md")"
           jq -n --arg s "$status" --arg l "$labels" --arg r "$review" --arg ru "$RUN_URL" --arg pu "$PR_URL" \
-            '{status:$s, labels:($l|split(",")|map(select(length>0))), review:$r, runUrl:$ru, prUrl:$pu}' \
+                --arg scout "$scout" --arg diagnosis "$diagnosis" --arg fixer "$fixer" --arg pr "$prbody" \
+            '{status:$s, labels:($l|split(",")|map(select(length>0))), review:$r, runUrl:$ru, prUrl:$pu,
+              logs:{scout:$scout, diagnosis:$diagnosis, fixer:$fixer, review:$r, pr:$pr}}' \
             > /tmp/agent.json
           curl -sS -X POST "https://frontier-labs-reto.vercel.app/api/monitor/agent" \
             -H "Authorization: Bearer ${MONITOR_TOKEN}" -H "Content-Type: application/json" \
