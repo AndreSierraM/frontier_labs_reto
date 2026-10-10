@@ -1,7 +1,7 @@
 name: swarm
 
-# Enjambre de adaptación. Se dispara cuando el monitor detecta un cambio del
-# original (repository_dispatch) o manualmente. NO empuja a main: abre un PR.
+# Enjambre de adaptación. Se dispara cuando el monitor detecta un cambio
+# (repository_dispatch) o manualmente. NO empuja a main: abre un PR.
 on:
   repository_dispatch:
     types: [original-changed]
@@ -13,26 +13,44 @@ permissions:
 
 jobs:
   swarm:
+    name: Enjambre
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      # ---- Fase 1 · Base ------------------------------------------------
+      - name: "Fase 1 · Checkout"
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: "Fase 1 · Node"
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - uses: actions/setup-python@v5
+      - name: "Fase 1 · Python"
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Instalar pi y dependencias
-        run: |
-          npm install -g @earendil-works/pi-coding-agent@1.1.0
-          npm install --no-audit --no-fund
-          python3 -m pip install --quiet requests
+      # ---- Fase 2 · Instalaciones (una por paso) ------------------------
+      - name: "Fase 2 · Instalar pi (agente)"
+        run: npm install -g @earendil-works/pi-coding-agent@1.1.0
 
-      - name: Correr el enjambre
+      - name: "Fase 2 · Dependencias Node"
+        run: npm install --no-audit --no-fund
+
+      - name: "Fase 2 · Dependencias Python"
+        run: python3 -m pip install --quiet requests
+
+      # ---- Fase 3 · Verificación del entorno ----------------------------
+      - name: "Fase 3 · Verificar herramientas"
+        run: |
+          echo "pi:     $(pi --version 2>/dev/null || echo FALTA)"
+          echo "node:   $(node --version)"
+          echo "python: $(python3 --version)"
+          test -f agent/swarm.mjs && echo "swarm.mjs: ok" || { echo "falta agent/swarm.mjs"; exit 1; }
+
+      # ---- Fase 4 · Ejecución del enjambre ------------------------------
+      - name: "Fase 4 · Correr el enjambre"
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           MONITOR_URL: https://frontier-labs-reto.vercel.app
@@ -46,7 +64,8 @@ jobs:
           PI_TELEMETRY: "0"
         run: node agent/swarm.mjs
 
-      - name: Subir artefactos del enjambre
+      # ---- Fase 5 · Evidencia -------------------------------------------
+      - name: "Fase 5 · Subir artefactos del enjambre"
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -55,7 +74,8 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Abrir PR con la adaptación
+      # ---- Fase 6 · PR ---------------------------------------------------
+      - name: "Fase 6 · Abrir PR con la adaptación"
         if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -74,13 +94,10 @@ jobs:
           git push origin "$branch"
           body_file="$(ls -t agent/state/*/pr-body.md 2>/dev/null | head -1 || true)"
           if [ -n "$body_file" ] && [ -s "$body_file" ]; then
-            gh pr create \
-              --title "auto(swarm): adaptación al cambio del original" \
-              --body-file "$body_file" \
-              --base main --head "$branch"
+            gh pr create --title "auto(swarm): adaptación al cambio del original" \
+              --body-file "$body_file" --base main --head "$branch"
           else
-            gh pr create \
-              --title "auto(swarm): adaptación al cambio del original" \
+            gh pr create --title "auto(swarm): adaptación al cambio del original" \
               --body "PR generado por el enjambre. Revisar diff y tests (merge dispara deploy en Vercel)." \
               --base main --head "$branch"
           fi

@@ -1,41 +1,84 @@
 name: monitor
 
-# Disparador gratuito y frecuente (Vercel Hobby limita sus crons a 1/día).
-# Llama al endpoint de monitorización desplegado, que corre la batería contra
-# el original, guarda snapshot y registra eventos si algo cambió.
+# Vigilancia del original. Dos modos:
+#  - `schedule`: una pasada cada 15 min (GitHub puede retrasarlo).
+#  - `workflow_dispatch` con loop_minutes>0: un job que vigila en bucle durante
+#    N minutos (más fiable para el demo day; un solo job, sin depender del cron).
 on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
+    inputs:
+      loop_minutes:
+        description: "Minutos a vigilar en bucle (0 = una sola pasada)"
+        required: false
+        default: "0"
 
 permissions:
   contents: write
 
 jobs:
-  run:
+  # ---------------------------------------------------------------- una pasada
+  pass:
+    name: Una pasada
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.loop_minutes == '0' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
-      - name: Disparar monitor
+      - name: "Fase 1 · Consultar el monitor"
         id: monitor
         env:
           MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
         run: |
           set -euo pipefail
+          echo "::group::GET /api/monitor/run"
           code=$(curl -sS -o /tmp/monitor.json -w "%{http_code}" \
             "https://frontier-labs-reto.vercel.app/api/monitor/run" \
             -H "Authorization: Bearer ${MONITOR_TOKEN}")
           echo "HTTP ${code}"
           cat /tmp/monitor.json
+          echo "::endgroup::"
           test "${code}" = "200"
-          changed=$(jq -r '.changes | length' /tmp/monitor.json)
-          echo "changed=${changed}" >> "$GITHUB_OUTPUT"
-          echo "Cambios detectados: ${changed}"
+          echo "changed=$(jq -r '.changes | length' /tmp/monitor.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Despertar al agente de adaptación
+      - name: "Fase 2 · Despertar al enjambre si cambió"
         if: steps.monitor.outputs.changed != '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api "repos/${{ github.repository }}/dispatches" -f event_type=original-changed
+
+  # ------------------------------------------------------ bucle (demo day)
+  watch:
+    name: Bucle de vigilancia
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.loop_minutes != '0' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: "Fase 1 · Vigilar en bucle cada 15 min"
+        env:
+          MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MINUTES: ${{ github.event.inputs.loop_minutes }}
         run: |
-          gh api "repos/${{ github.repository }}/dispatches" \
-            -f event_type=original-changed
+          set -euo pipefail
+          end=$(( SECONDS + MINUTES * 60 ))
+          tick=0
+          while [ $SECONDS -lt $end ]; do
+            tick=$((tick + 1))
+            echo "::group::tick ${tick} · $(date -u +%H:%M:%SZ)"
+            code=$(curl -sS -o /tmp/monitor.json -w "%{http_code}" \
+              "https://frontier-labs-reto.vercel.app/api/monitor/run" \
+              -H "Authorization: Bearer ${MONITOR_TOKEN}") || true
+            echo "HTTP ${code}"
+            cat /tmp/monitor.json 2>/dev/null || true
+            changed=$(jq -r '.changes | length' /tmp/monitor.json 2>/dev/null || echo 0)
+            if [ "$changed" != "0" ]; then
+              echo "cambio detectado (${changed}) -> despertando al enjambre"
+              gh api "repos/${{ github.repository }}/dispatches" -f event_type=original-changed || true
+            fi
+            echo "::endgroup::"
+            remaining=$(( end - SECONDS ))
+            [ "$remaining" -le 0 ] && break
+            sleep $(( remaining < 900 ? remaining : 900 ))
+          done
+          echo "bucle terminado tras ${tick} ticks"
