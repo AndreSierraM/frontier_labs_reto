@@ -39,8 +39,11 @@ jobs:
           MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
           URL_API_ENTRYPOINT: ${{ secrets.URL_API_ENTRYPOINT }}
           TOKEN_CAJA_NEGRA: ${{ secrets.TOKEN_CAJA_NEGRA }}
-          MAX_SCOUTS: "4"
+          MAX_SCOUTS: "2"
           MAX_FIX_ROUNDS: "2"
+          SWARM_AGENT_TIMEOUT_MS: "300000"
+          PI_SKIP_VERSION_CHECK: "1"
+          PI_TELEMETRY: "0"
         run: node agent/swarm.mjs
 
       - name: Subir artefactos del enjambre

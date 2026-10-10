@@ -1,12 +1,14 @@
 /**
  * Ejecuta `pi` en modo headless con un rol y una tarea.
  * Devuelve { code, out, err }; `out` es el informe del agente.
+ * Aplica un timeout duro: un agente no puede colgar el job entero.
  */
 import { spawn } from "node:child_process";
 
 // Modelo fijo y explícito (no depende de la config local).
 const PROVIDER = process.env.SWARM_PROVIDER || "openrouter";
 const MODEL = process.env.SWARM_MODEL || "deepseek/deepseek-v4.1-flash";
+const TIMEOUT_MS = Number(process.env.SWARM_AGENT_TIMEOUT_MS || 420000); // 7 min
 
 export function runPi({ system, task, cwd, label = "pi", env = process.env }) {
   return new Promise((resolve) => {
@@ -17,6 +19,7 @@ export function runPi({ system, task, cwd, label = "pi", env = process.env }) {
     );
 
     const captured = { out: "", err: "" };
+    let timedOut = false;
 
     const attach = (stream, key) => {
       let buf = "";
@@ -38,7 +41,20 @@ export function runPi({ system, task, cwd, label = "pi", env = process.env }) {
     attach(child.stdout, "out");
     attach(child.stderr, "err");
 
-    child.on("close", (code) => resolve({ code: code ?? 1, out: captured.out, err: captured.err }));
-    child.on("error", (e) => resolve({ code: 1, out: captured.out, err: String(e.message) }));
+    const timer = setTimeout(() => {
+      timedOut = true;
+      captured.err += `\n[timeout] agente ${label} superó ${TIMEOUT_MS} ms\n`;
+      process.stderr.write(`[${label}] timeout (${TIMEOUT_MS} ms), matando\n`);
+      child.kill("SIGKILL");
+    }, TIMEOUT_MS);
+
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ code: timedOut ? 124 : code ?? 1, out: captured.out, err: captured.err, timedOut });
+    });
+    child.on("error", (e) => {
+      clearTimeout(timer);
+      resolve({ code: 1, out: captured.out, err: String(e.message), timedOut });
+    });
   });
 }

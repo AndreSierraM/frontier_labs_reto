@@ -112,8 +112,9 @@ async function main() {
     changes.slice(0, MAX_SCOUTS).map(async (ch) => {
       const task = `Investiga la etiqueta "${ch.label}" del servicio original.\n\n${changeText(ch)}\n\nReproduce, aísla la regla y entrega el informe.`;
       const r = await runPi({ system: role("scout"), task, cwd: ROOT, label: `scout:${ch.label}` });
-      save(runDir, `scout-${ch.label}.md`, r.out);
-      return `### Informe scout · ${ch.label}\n\n${r.out}`;
+      if (r.timedOut) log(`aviso: scout ${ch.label} agotó el tiempo`);
+      save(runDir, `scout-${ch.label}.md`, r.out || "(sin salida)");
+      return `### Informe scout · ${ch.label}${r.timedOut ? " (TIMEOUT)" : ""}\n\n${r.out || "(sin salida)"}`;
     })
   );
 
