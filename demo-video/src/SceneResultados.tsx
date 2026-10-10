@@ -5,16 +5,16 @@ import { Icon } from "./Icons";
 
 const METRICS = [
   { value: "21/21", label: "Pruebas de dominio", color: COLORS.green, icon: "check-circle" as const },
-  { value: "116/116", label: "Validación registrada", color: COLORS.greenBright, icon: "check-circle" as const },
-  { value: "390", label: "Observaciones", color: COLORS.purple, icon: "microscope" as const },
-  { value: "78", label: "Reglas con evidencia", color: COLORS.cyan, icon: "target" as const },
+  { value: "116/116", label: "Validación histórica", color: COLORS.greenBright, icon: "check-circle" as const },
+  { value: "394", label: "Observaciones al corte", color: COLORS.purple, icon: "microscope" as const },
+  { value: "82", label: "Filas SPEC con evidencia", color: COLORS.cyan, icon: "target" as const },
 ];
 
 const DELIVERABLES = [
   { name: "Reemplazo del servicio HTTP", cat: "API", color: COLORS.green },
   { name: "Estado persistente en PostgreSQL", cat: "Datos", color: COLORS.blue },
-  { name: "Monitor de cambios", cat: "Vigilar", color: COLORS.cyan },
-  { name: "Agentes que proponen un PR", cat: "Adaptar", color: COLORS.purple },
+  { name: "Monitor de cambios", cat: "Monitor", color: COLORS.cyan },
+  { name: "Pipeline de cinco roles", cat: "Agentes", color: COLORS.purple },
   { name: "SPEC y log de experimentos", cat: "Evidencia", color: COLORS.orange },
 ];
 
@@ -23,14 +23,14 @@ const TESTS = [
   { text: "" },
   { text: "✓ Dominio: 21 pruebas OK", color: COLORS.green },
   { text: "✓ HTTP y aislamiento: 5 pruebas OK", color: COLORS.green },
-  { text: "✓ Log: 390 observaciones, IDs 1..390", color: COLORS.green },
-  { text: "✓ SPEC: 78 filas con evidencia", color: COLORS.green },
+  { text: "✓ Log: 394 observaciones, IDs 1..394", color: COLORS.green },
+  { text: "✓ SPEC: 82 filas con evidencia", color: COLORS.green },
   { text: "" },
   { text: "VALIDACIÓN REGISTRADA EN EL PROYECTO", color: COLORS.cyan },
   { text: "20 ejemplos + 34 controles + 62 casos", color: COLORS.textMuted },
   { text: "Total: 116/116 · fuente: README.md", color: COLORS.green },
   { text: "", color: COLORS.textMuted },
-  { text: "Resumen de evidencia; no es una sesión en vivo.", color: COLORS.textDim },
+  { text: "Corte de revisión: 10 oct 2026 · no es una sesión en vivo.", color: COLORS.textDim },
 ];
 
 export const SceneResultados: React.FC = () => {
@@ -54,7 +54,7 @@ export const SceneResultados: React.FC = () => {
       <GlowOrb color={COLORS.green} size={550} style={{ top: "12%", left: "50%", transform: "translateX(-50%)", opacity: 0.11 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "54px 90px 84px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="03 / Resultados" title="Qué entregamos y cómo lo comprobamos" subtitle="Pruebas locales y evidencia trazable. La validación de 116 casos es la registrada en el proyecto." color={COLORS.green} />
+        <SectionHeader label="03 / Validación" title="Pruebas y evidencia registrada" subtitle="Comprobaciones locales al 10 de octubre de 2026. Los 116 casos corresponden al registro histórico del proyecto." color={COLORS.green} />
 
         {/* Métricas */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 22, marginBottom: 28 }}>
@@ -94,7 +94,7 @@ export const SceneResultados: React.FC = () => {
             <Card style={{ height: "100%" }} padding="28px">
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, paddingBottom: 16, borderBottom: `1px solid ${COLORS.border}` }}>
                 <Icon name="layers" size={26} color={COLORS.cyan} />
-                <h3 style={{ fontFamily: FONTS.sans, fontSize: 24, fontWeight: 700, color: COLORS.text, margin: 0 }}>Qué quedó construido</h3>
+                <h3 style={{ fontFamily: FONTS.sans, fontSize: 24, fontWeight: 700, color: COLORS.text, margin: 0 }}>Componentes implementados</h3>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
                 {DELIVERABLES.map((s) => (

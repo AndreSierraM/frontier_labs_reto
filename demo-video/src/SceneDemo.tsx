@@ -23,7 +23,7 @@ export const SceneDemo: React.FC = () => {
     <AbsoluteFill style={{ backgroundColor: COLORS.bg }}>
       <GridBg />
       <div style={{ position: "relative", zIndex: 1, height: "100%", padding: "54px 100px 90px", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="02 / Demostración" title="De una entrada a un cambio de estado" subtitle="Secuencia ejecutada en el dominio local. Reproducimos sus respuestas y saldos; no es una sesión en vivo." />
+        <SectionHeader label="02 / Demostración local" title="Mensajes, respuestas y estado" subtitle="Reproducción de seis operaciones del dominio local: entrada, respuesta JSON y saldo posterior. No es una sesión en vivo." />
         <div style={{ display: "flex", gap: 32, flex: 1, minHeight: 0 }}>
           <div style={{ width: 470, display: "flex", flexDirection: "column", gap: 14 }}>
             {LABELS.map((label, i) => (

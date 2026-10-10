@@ -3,9 +3,9 @@ import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remo
 import { Card, COLORS, FONTS, GridBg, SectionHeader } from "./DesignSystem";
 
 const CHANGES = [
-  { title: "El saldo cambia de formato", before: '{ "saldo": 100 }', after: '{ "saldo": "1.00" }', note: "La respuesta pasa de un número a una cadena decimal de dos posiciones.", ids: "370 y 372", commit: "ce7aba2", label: "Saldo decimal" },
-  { title: "El bloqueo cambia su contrato", before: "HTTP 409 · E510", after: "HTTP 423 · E510\n+ intentos: N", note: "El reemplazo incorpora el nuevo status y el contador de intentos.", ids: "380 y 381", commit: "ce7aba2", label: "Cuenta bloqueada" },
-  { title: "HALT ahora conserva un estado", before: "HTTP 409 · E520\nSiempre", after: "HALT;1 → HTTP 503 · E599\nHasta ejecutar __reset", note: "El apagado afecta a los mensajes siguientes; un reset restaura el servicio.", ids: "387–390", commit: "46fa1fc", label: "Servicio detenido" },
+  { title: "Serialización del saldo", before: '{ "saldo": 100 }', after: '{ "saldo": "1.00" }', note: "Cambio de tipo: entero en centavos → cadena decimal con dos posiciones.", ids: "370 y 372", commit: "ce7aba2", label: "Saldo decimal" },
+  { title: "Respuesta de cuenta bloqueada", before: "HTTP 409 · E510", after: "HTTP 423 · E510\n+ intentos: N", note: "Cambio del código HTTP e incorporación del contador de intentos.", ids: "380 y 381", commit: "ce7aba2", label: "Cuenta bloqueada" },
+  { title: "Transición al estado de apagado", before: "HTTP 409 · E520\nSiempre", after: "HALT;1 → HTTP 503 · E599\nHasta ejecutar __reset", note: "Los mensajes posteriores reciben E599 hasta restablecer el estado con __reset.", ids: "387–390", commit: "46fa1fc", label: "Servicio detenido" },
 ];
 
 export const SceneAdaptacion: React.FC = () => {
@@ -17,7 +17,7 @@ export const SceneAdaptacion: React.FC = () => {
     <AbsoluteFill style={{ backgroundColor: COLORS.bg }}>
       <GridBg />
       <div style={{ position: "relative", zIndex: 1, padding: "54px 100px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="05 / Adaptación registrada" title="El servicio cambió. El reemplazo también." subtitle="Tres cambios documentados en la bitácora, con observaciones y commits identificables." color={COLORS.purple} />
+        <SectionHeader label="06 / Cambios registrados" title="Ajustes del contrato observado" subtitle="Tres cambios documentados en la bitácora, vinculados a observaciones y commits del reemplazo." color={COLORS.purple} />
         <div style={{ display: "flex", gap: 18, marginBottom: 32 }}>
           {CHANGES.map((item, i) => (
             <div key={item.label} style={{ flex: 1, padding: "17px 24px", borderRadius: 12, border: `1px solid ${i === active ? COLORS.purple : COLORS.border}`, backgroundColor: i === active ? "#ece5f1" : COLORS.bgCard, fontFamily: FONTS.sans, fontSize: 25, fontWeight: i === active ? 700 : 500, color: COLORS.text }}>

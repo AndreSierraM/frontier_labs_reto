@@ -26,7 +26,7 @@ export const SceneProblema: React.FC = () => {
       <GlowOrb color={COLORS.red} size={400} style={{ top: "8%", right: "5%", opacity: 0.1 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="01 / El reto" title="Recrear un servicio sin ver su código" subtitle="Descubrir su contrato HTTP, construir el reemplazo y detectar cambios de comportamiento." color={COLORS.red} />
+        <SectionHeader label="01 / Objetivo" title="Reconstrucción de un contrato HTTP" subtitle="Inferir el comportamiento observable del servicio y reproducir sus respuestas y transiciones de estado." color={COLORS.red} />
 
         <div style={{ flex: 1, display: "flex", gap: 36 }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
@@ -35,7 +35,7 @@ export const SceneProblema: React.FC = () => {
                 <div style={{ display: "flex", gap: 20 }}>
                   <div style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: `${COLORS.red}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `1px solid ${COLORS.red}25` }}><Icon name="dice" size={30} color={COLORS.red} /></div>
                   <div>
-                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>La Caja Negra</h3>
+                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>Servicio de referencia</h3>
                     <p style={{ fontFamily: FONTS.sans, fontSize: 20, color: COLORS.textMuted, lineHeight: 1.55, margin: 0 }}>
                       Sin código fuente ni documentación: solo peticiones HTTP y respuestas observables.
                     </p>
@@ -49,9 +49,9 @@ export const SceneProblema: React.FC = () => {
                 <div style={{ display: "flex", gap: 20 }}>
                   <div style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: `${COLORS.purple}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `1px solid ${COLORS.purple}25` }}><Icon name="target" size={30} color={COLORS.purple} /></div>
                   <div>
-                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>El Reto</h3>
+                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>Alcance de la implementación</h3>
                     <p style={{ fontFamily: FONTS.sans, fontSize: 20, color: COLORS.textMuted, lineHeight: 1.55, margin: 0 }}>
-                      Reproducir respuestas y estado; detectar diferencias y proponer adaptaciones verificables mediante pull requests.
+                      Implementar el reemplazo, registrar diferencias y preparar ajustes de código mediante pull requests.
                     </p>
                   </div>
                 </div>
@@ -61,9 +61,9 @@ export const SceneProblema: React.FC = () => {
             <div style={{ transform: `translateY(${a3.y}px)`, opacity: a3.o }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                 {[
-                  { icon: "clipboard" as IconName, label: "Observaciones", value: "390", c: COLORS.cyan },
-                  { icon: "flask" as IconName, label: "Validación", value: "116/116", c: COLORS.green },
-                  { icon: "microscope" as IconName, label: "Experimentos", value: "JSONL log", c: COLORS.purple },
+                  { icon: "clipboard" as IconName, label: "Registro local", value: "394 obs.", c: COLORS.cyan },
+                  { icon: "flask" as IconName, label: "Histórico", value: "116/116", c: COLORS.green },
+                  { icon: "microscope" as IconName, label: "Formato", value: "JSONL", c: COLORS.purple },
                 ].map((item) => (
                   <Card key={item.label} padding="18px">
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -81,11 +81,11 @@ export const SceneProblema: React.FC = () => {
 
           <div style={{ flex: 1.1, opacity: a2.o }}>
             <Card padding="36px" style={{ height: "100%", display: "flex", flexDirection: "column", gap: 30 }}>
-              <h3 style={{ fontFamily: FONTS.display, fontSize: 34, color: COLORS.text, margin: "0 0 8px" }}>Qué debe conservar el reemplazo</h3>
+              <h3 style={{ fontFamily: FONTS.display, fontSize: 34, color: COLORS.text, margin: "0 0 8px" }}>Criterios de comprobación</h3>
               {[
-                { title: "La respuesta", detail: "Mismo status HTTP y mismo cuerpo JSON.", color: COLORS.cyan },
-                { title: "El estado posterior", detail: "Saldos, operaciones, errores y contadores coherentes.", color: COLORS.purple },
-                { title: "La capacidad de adaptarse", detail: "Detectar cambios, verificar el ajuste y proponer un PR.", color: COLORS.green },
+                { title: "Respuesta HTTP", detail: "Código de estado y cuerpo JSON equivalentes.", color: COLORS.cyan },
+                { title: "Estado posterior", detail: "Saldos, operaciones y contadores tras cada mensaje.", color: COLORS.purple },
+                { title: "Cambios del contrato", detail: "Diferencias registradas, pruebas y revisión del ajuste.", color: COLORS.green },
               ].map((item, i) => (
                 <div key={item.title} style={{ borderLeft: `4px solid ${item.color}`, padding: "10px 24px" }}>
                   <div style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: item.color }}>{i + 1}. {item.title}</div>

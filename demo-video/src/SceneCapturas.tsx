@@ -10,8 +10,8 @@ const CAPTURES = [
 
 export const SceneCapturas: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const captureDuration = 5.8 * fps;
+  const { fps, durationInFrames } = useVideoConfig();
+  const captureDuration = durationInFrames / CAPTURES.length;
 
   const activeIdx = Math.min(CAPTURES.length - 1, Math.floor(frame / captureDuration));
   const active = CAPTURES[activeIdx];
@@ -25,7 +25,7 @@ export const SceneCapturas: React.FC = () => {
 
       <div style={{ position: "relative", zIndex: 1, padding: "60px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={{ opacity: headerOp }}>
-          <SectionHeader label="07 / Entregables" title="La evidencia también se entrega" subtitle="Capturas de los documentos: diseño, arquitectura, SPEC y log de experimentos." color={COLORS.cyan} />
+          <SectionHeader label="07 / Documentación" title="Diseño, arquitectura y registros" subtitle="Documentos del proyecto: decisiones de diseño, componentes, especificación y experimentos." color={COLORS.cyan} />
         </div>
 
         <div style={{ flex: 1, display: "flex", gap: 40, alignItems: "center" }}>

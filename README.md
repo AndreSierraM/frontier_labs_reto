@@ -83,7 +83,7 @@ npm --prefix reemplazo test
 # arrancar el reemplazo en local (token ficticio)
 TOKEN_API_ENTRYPOINT=local-test PORT=3111 node reemplazo/src/server.js
 
-# validación completa contra el local: 20 ejemplos + 34 control + 62 batería
+# validación completa contra el local: 34 control + 72 batería v2
 python3 -m venv .venv && .venv/bin/pip install -r reto2-investigacion/requirements.txt
 .venv/bin/python reto2-investigacion/scripts/validar.py \
   --url http://localhost:3111 --token local-test
@@ -137,14 +137,21 @@ No publicar `.env`, tokens, DB locales ni capturas con credenciales.
 
 ## Estado y límites
 
-- Validación local: **20/20** ejemplos, **34/34** control y **62/62** batería
-  (**116/116**) + **21/21** unitarias.
+- Validación local: **34/34** control, **72/72** batería v2 y **21/21**
+  unitarias. Los **8/20** ejemplos oficiales que fallan corresponden a la
+  versión original (v1); el servicio cambió a v2.
 - Log de experimentos: **394 observaciones** (IDs 1–394, JSONL válido); cada
   comportamiento del SPEC cita **IDs exactos** del log, verificados por
   `reto2-investigacion/scripts/validar_spec.py`.
-- Especificación: **78 comportamientos** con ID, evidencia y confianza;
+- Especificación: **82 comportamientos** con ID, evidencia y confianza;
   `validar_spec.py` comprueba esquema del log y correspondencia de la evidencia
   (**OK**). Entregables en `public/entregas/03-*` y `public/entregas/04-*`.
+  `validar_spec.py` comprueba esquema del log y correspondencia de la evidencia
+  (**OK**). Entregables en `public/entregas/03-*` y `public/entregas/04-*`.
+- **Cambio v2 detectado** (incidente #FR-0153): saldo como cadena decimal
+  `"S.DD"`, umbral `E506` bajó a 50000 (solo si nombres difieren), `E510` pasó
+  a 423 con `intentos`, comandos nuevos `HALT` (`409`/`503`) y `NOTAS`, match
+  ASCII-only. Adaptado en `reemplazo/src/domain.js` y reflejado en el SPEC.
 - El evaluador usa 100 tests, reset antes de cada test y máximo 5s por paso;
   compara status y cuerpo.
 - **Rate-limit del original:** cada token admite **10 req/s y 8.000/día**

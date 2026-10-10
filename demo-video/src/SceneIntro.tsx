@@ -39,14 +39,14 @@ export const SceneIntro: React.FC = () => {
         </div>
 
         <div style={{ transform: `translateY(${subY}px)`, opacity: subOp, marginTop: 28 }}>
-          <p style={{ fontFamily: FONTS.sans, fontSize: 38, color: COLORS.textMuted, margin: 0, fontWeight: 400 }}>Reto 2 · Resultados y evidencia</p>
+          <p style={{ fontFamily: FONTS.sans, fontSize: 38, color: COLORS.textMuted, margin: 0, fontWeight: 400 }}>Reto 2 · Implementación y validación</p>
         </div>
 
         <div style={{ marginTop: 56, display: "flex", gap: 16, justifyContent: "center" }}>
           {[
             { t: "Reemplazo HTTP", c: COLORS.cyan },
             { t: "Pruebas y evidencia", c: COLORS.purple },
-            { t: "Entregables", c: COLORS.green },
+            { t: "Orquestación de agentes", c: COLORS.green },
           ].map((tag, index) => {
             const anim = tagAnim(index);
             return <div key={tag.t} style={{

@@ -35,7 +35,7 @@ export const SceneCierre: React.FC = () => {
 
         <div style={{ opacity: contentOp, marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
           <div style={{ fontFamily: FONTS.mono, fontSize: 22, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: COLORS.cyan }}>
-            Código, demo y evidencia
+            Repositorio y documentación
           </div>
           <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
             {[
@@ -51,7 +51,7 @@ export const SceneCierre: React.FC = () => {
 
           <div style={{ marginTop: 28, padding: "20px 40px", borderRadius: 14, background: `linear-gradient(135deg, ${COLORS.cyan}0c, ${COLORS.purple}0c)`, border: `1px solid ${COLORS.cyan}20`, textAlign: "center" }}>
             <p style={{ fontFamily: FONTS.sans, fontSize: 21, color: COLORS.textMuted, margin: 0 }}>
-              Reemplazo HTTP · Pruebas locales · Especificación trazable
+              Implementación · Pruebas · Registro de experimentos
             </p>
           </div>
         </div>

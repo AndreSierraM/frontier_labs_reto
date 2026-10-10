@@ -12,26 +12,26 @@ const NH = 160;
 type N = { id: string; logo: LogoName; title: string; subtitle?: string; x: number; y: number; color: string };
 
 const NODES: N[] = [
-  { id: "cliente", logo: "user", title: "Cliente / Evaluador", subtitle: "100 tests · reset", x: 240, y: 100, color: COLORS.yellow },
-  { id: "vercel", logo: "vercel", title: "API Entrypoint", subtitle: "/health · /msg · /__reset", x: 640, y: 100, color: COLORS.cyan },
+  { id: "cliente", logo: "user", title: "Cliente / Evaluador", subtitle: "peticiones HTTP", x: 240, y: 100, color: COLORS.yellow },
+  { id: "vercel", logo: "vercel", title: "Adaptador HTTP", subtitle: "/health · /msg · /__reset", x: 640, y: 100, color: COLORS.cyan },
   { id: "domain", logo: "node", title: "domain.js", subtitle: "máquina de estados", x: 1040, y: 100, color: COLORS.green },
   { id: "neon", logo: "neon", title: "Neon · PostgreSQL", subtitle: "JSONB · FOR UPDATE", x: 1440, y: 100, color: COLORS.purple },
-  { id: "lab", logo: "lab", title: "Laboratorio", subtitle: "original falso · /api/lab", x: 640, y: 390, color: COLORS.orange },
+  { id: "lab", logo: "lab", title: "Servicio original", subtitle: "contrato observable", x: 640, y: 390, color: COLORS.orange },
   { id: "monitor", logo: "monitor", title: "Monitor", subtitle: "batería 31 puntos", x: 1040, y: 390, color: COLORS.greenBright },
-  { id: "actions", logo: "gactions", title: "GitHub Actions", subtitle: "cron 10 min · workflow", x: 1440, y: 390, color: COLORS.blue },
-  { id: "swarm", logo: "agents", title: "Enjambre", subtitle: "5 roles · 1 PR", x: 1440, y: 660, color: COLORS.pink },
+  { id: "actions", logo: "gactions", title: "GitHub Actions", subtitle: "workflow de monitor", x: 1440, y: 390, color: COLORS.blue },
+  { id: "swarm", logo: "agents", title: "Enjambre", subtitle: "5 roles · propuesta de PR", x: 1440, y: 660, color: COLORS.pink },
 ];
 
 type Edge = { from: string; to: string; label?: string; color: string; dashed?: boolean };
 
 const EDGES: Edge[] = [
   { from: "cliente", to: "vercel", label: "HTTP + Bearer", color: COLORS.yellow },
-  { from: "vercel", to: "domain", label: "m → {ok}", color: COLORS.cyan },
+  { from: "vercel", to: "domain", label: "mensaje", color: COLORS.cyan },
   { from: "domain", to: "neon", label: "estado", color: COLORS.purple },
-  { from: "lab", to: "monitor", label: "compara", color: COLORS.green },
-  { from: "monitor", to: "actions", label: "hash ≠", color: COLORS.blue },
-  { from: "domain", to: "monitor", label: "probe", color: COLORS.orange, dashed: true },
-  { from: "actions", to: "swarm", label: "trigger", color: COLORS.pink },
+  { from: "lab", to: "monitor", label: "respuesta", color: COLORS.green },
+  { from: "monitor", to: "actions", label: "changed=1", color: COLORS.blue },
+  { from: "monitor", to: "vercel", label: "health", color: COLORS.orange, dashed: true },
+  { from: "actions", to: "swarm", label: "workflow_call", color: COLORS.pink },
 ];
 
 const EdgeLine: React.FC<{ edge: Edge; opacity: number; frame: number; fps: number; index: number }> = ({ edge, opacity, frame, fps, index }) => {
@@ -99,7 +99,7 @@ export const SceneArquitectura: React.FC = () => {
       <GlowOrb color={COLORS.purple} size={500} style={{ bottom: "8%", right: "3%", opacity: 0.08 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "50px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="04 / La solución" title="Servicio, vigilancia y adaptación" subtitle="Reemplazo HTTP con persistencia; monitor de cambios y agentes que proponen un PR, sin merge automático." color={COLORS.cyan} />
+        <SectionHeader label="04 / Arquitectura" title="Componentes y flujo de datos" subtitle="Adaptador HTTP, dominio y persistencia. El monitor registra cambios; GitHub Actions coordina la adaptación." color={COLORS.cyan} />
 
         <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
           <div style={{ position: "relative", width: CW, height: CH }}>

@@ -30,9 +30,9 @@ const DUR = {
   arquitectura: 12 * fps,
   codigo: 13 * fps,
   monitor: 11 * fps,
-  enjambre: 12 * fps,
+  enjambre: 18 * fps,
   flujo: 10 * fps,
-  capturas: 18 * fps,
+  capturas: 12 * fps,
   resultados: 16 * fps,
   cierre: 8 * fps,
 };
@@ -54,7 +54,7 @@ const SCENES = [
 ];
 
 // Keep technical scenes editable separately; the submission leads with results.
-const RESULT_SCENES = [SCENES[0], SCENES[1], SCENES[10], SCENES[8], SCENES[2], SCENES[11], SCENES[12], SCENES[7], SCENES[9]];
+const RESULT_SCENES = [SCENES[0], SCENES[1], SCENES[10], SCENES[8], SCENES[2], SCENES[5], SCENES[11], SCENES[7], SCENES[9]];
 const DEMO_SCENES = RESULT_SCENES.map((scene, index) => ({
   ...scene,
   from: RESULT_SCENES.slice(0, index).reduce((total, preceding) => total + preceding.duration, 0),
@@ -63,11 +63,11 @@ const totalFrames = DEMO_SCENES.reduce((total, scene) => total + scene.duration,
 const closingFrame = DEMO_SCENES[DEMO_SCENES.length - 1].from;
 
 const CHAPTERS = [
-  { label: "El reto", from: DEMO_SCENES[1].from, color: COLORS.orange },
+  { label: "Objetivo", from: DEMO_SCENES[1].from, color: COLORS.orange },
   { label: "Demo local", from: DEMO_SCENES[2].from, color: COLORS.cyan },
   { label: "Resultados", from: DEMO_SCENES[3].from, color: COLORS.green },
-  { label: "Adaptación", from: DEMO_SCENES[5].from, color: COLORS.purple },
-  { label: "Evidencia", from: DEMO_SCENES[6].from, color: COLORS.blue },
+  { label: "Agentes y cambios", from: DEMO_SCENES[5].from, color: COLORS.purple },
+  { label: "Documentación", from: DEMO_SCENES[7].from, color: COLORS.blue },
 ];
 
 const ChapterGuide: React.FC = () => {
