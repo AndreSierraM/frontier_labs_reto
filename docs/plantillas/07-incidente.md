@@ -2,7 +2,13 @@
 
 **Forma parte de ejecución (40%). Estado:** cambio anunciado; contenido desconocido.
 
-La rúbrica valora detectar el cambio, adaptarse y explicarlo. No anticipar requisitos inexistentes ni añadir arquitectura preventiva sin necesidad.
+La rúbrica valora detectar el cambio, adaptarse y explicarlo.
+
+**Detección y adaptación ya automatizadas:** un monitor (GitHub Actions + Vercel
++ Neon) ejecuta la batería de 31 puntos cada 15 min y, ante un cambio, dispara un
+enjambre de agentes que investiga, parchea, verifica y **abre un PR**. Ver
+[`agent/README.md`](../../agent/README.md). La prueba de la cadena completa está
+en [`docs/lab-e2e/cadena-automatica.md`](../lab-e2e/cadena-automatica.md).
 
 ## Antes de las 15:30
 

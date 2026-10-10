@@ -1,29 +1,41 @@
 # Documentación
 
-## Vigente: diseño y entrega
+Índice de la documentación vigente. La vista general del sistema está en el
+[README principal](../README.md).
+
+## Diseño y entrega
 
 - [Diseño de la máquina de estados](01-diseno.md): objetivo, guardas, transiciones, persistencia y trade-offs.
-- [Arquitectura](02-arquitectura.md): núcleo, adapter HTTP, seam de estado y diagramas.
-- [Entregable HTML de diseño](entregables/01-diseno-sistemas.html): una página A4.
-- [Entregable HTML de diagrama](entregables/02-diagrama-arquitectura.html): una página A4 horizontal.
-- PDF listos para subir: [diseño](entregables/01-diseno-sistemas.pdf) y [diagrama](entregables/02-diagrama-arquitectura.pdf) (una página cada uno).
+- [Arquitectura](02-arquitectura.md): núcleo, adapters, topología desplegada, monitor y enjambre.
+- Entregables HTML/PDF (una página cada uno):
+  [diseño](entregables/01-diseno-sistemas.html) · [diagrama](entregables/02-diagrama-arquitectura.html)
+  ([PDF diseño](entregables/01-diseno-sistemas.pdf), [PDF diagrama](entregables/02-diagrama-arquitectura.pdf)).
 
-El diseño cubre explícitamente los tres criterios: entendimiento (supuestos, límites y exclusiones), arquitectura (decisiones, alternativas y costes) y medición (casos T1–T6 y aceptación). Distingue Map implementado, SQLite propuesto y resultados locales; no afirma validación pública ni del set oculto.
+## Operación (monitor y enjambre)
 
-## Evidencia y comportamiento
+- [Enjambre de agentes](../agent/README.md): roles, harness, workflow reutilizable, modelo y límites.
+- [Prueba E2E del enjambre](lab-e2e/README.md): detección → parche → verificación (original falso).
+- [Cadena automática](lab-e2e/cadena-automatica.md): monitor → enjambre → PR, con runs y PRs.
 
-La fuente activa es [SPEC](../reto2-investigacion/SPEC.md), respaldada por [experimentos.jsonl](../reto2-investigacion/experimentos.jsonl). Los ejemplos y reglas oficiales están en [frontier-reto-2](../frontier-reto-2/README.md). Ante una contradicción entre resumen y captura, revisar la captura y el contexto antes de afirmar una regla.
+El detalle de despliegue, secretos y contrato está en el [README principal](../README.md).
 
-## Plantillas e historial
+## Comportamiento y evidencia
 
-- [Plantillas](plantillas/README.md): preparación de ejecución, evaluación, demo, debrief e incidente. Sus campos pendientes no son evidencia de ejecución.
-- [Mapa inicial archivado](archivo/mapa-inicial/): snapshot anterior a la implementación. Se conserva como historial, no como descripción actual.
+La fuente activa es [SPEC](../reto2-investigacion/SPEC.md), respaldada por
+[experimentos.jsonl](../reto2-investigacion/experimentos.jsonl). Los ejemplos y
+reglas oficiales están en [frontier-reto-2](../frontier-reto-2/README.md). Ante
+una contradicción entre resumen y captura, revisar la captura y su contexto.
 
-Sólo los dos HTML de `entregables/` (y sus PDF equivalentes) son los archivos de Systems Design preparados para entregar. No enviar las plantillas ni el mapa inicial como documentación del comportamiento final.
+## Plantillas
+
+- [Plantillas](plantillas/README.md): preparación de ejecución, evaluación, demo,
+  debrief e incidente. Sus campos pendientes no son evidencia de ejecución.
 
 ## Regenerar los PDF
 
-Los PDF se generan desde los HTML respetando `@page` (A4 vertical y A4 horizontal), una página cada uno. Requiere Python con Playwright y Chrome; son herramientas de exportación, no dependencias del runtime. Desde la raíz:
+Los PDF se generan desde los HTML respetando `@page` (A4 vertical y A4
+horizontal), una página cada uno. Requiere Python con Playwright y Chrome; son
+herramientas de exportación, no dependencias del runtime. Desde la raíz:
 
 ```bash
 cd docs/entregables
@@ -40,4 +52,6 @@ for src,dst,land in [("01-diseno-sistemas.html","01-diseno-sistemas.pdf",False),
 PY
 ```
 
-Usar `prefer_css_page_size=True` para conservar A4 y `tagged=True` para etiquetas estructurales de accesibilidad. El texto es seleccionable/extraíble, incluido el SVG: el PDF no es una captura rasterizada. Comprobar después que ambos PDF tienen una sola página y el contenido completo.
+Usar `prefer_css_page_size=True` para conservar A4 y `tagged=True` para
+etiquetas estructurales de accesibilidad. El texto es seleccionable/extraíble,
+incluido el SVG: el PDF no es una captura rasterizada.

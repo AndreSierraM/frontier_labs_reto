@@ -6,7 +6,8 @@
 
 ```text
 src/domain.js        Máquina de estados, control, guardas y respuestas
-src/server.js        Adapter HTTP, auth, body y estado del proceso
+src/server.js        Adapter HTTP, auth, body; exporta createHandler(storage)
+src/storage.js       Estado: memoria (local/tests) o PostgreSQL de una fila (Neon)
 test/domain.test.js  21 pruebas del dominio, sin red
 test/http.test.js    Smoke HTTP con servidor local y token ficticio
 package.json        Entrypoint y comandos
@@ -15,7 +16,9 @@ Dockerfile          Imagen con sólo src/ y package.json
 .dockerignore       Lista permitida de archivos para la imagen
 ```
 
-JavaScript/CommonJS, Node ≥18, sin dependencias npm de producción. Docker conserva Node 20; SQLite/Node 24 son propuestas documentadas, no capacidades implementadas.
+JavaScript/CommonJS, Node ≥18. El paquete del reemplazo no tiene dependencias de
+producción; la composición desplegada en Vercel usa `pg` (raíz del repo) para
+PostgreSQL. Docker conserva Node 20.
 
 ## Arranque local
 
@@ -54,19 +57,31 @@ python3 reto2-investigacion/scripts/validar.py \
 
 Las dependencias de ese verificador están en `reto2-investigacion/requirements.txt`. Es una herramienta de desarrollo, no una dependencia del paquete entregado.
 
-## Docker / despliegue
+## Persistencia
 
-Desde la raíz del repo:
+El mismo dominio corre con dos adaptadores (`src/storage.js`):
 
-```bash
-docker build -t caja-negra-reemplazo reemplazo
-# Exportar TOKEN_API_ENTRYPOINT por el canal privado de configuración:
-docker run --rm -p 3000:3000 -e TOKEN_API_ENTRYPOINT caja-negra-reemplazo
-```
+- **Memoria**: local y tests (`createMemoryStorage`).
+- **PostgreSQL / Neon**: el despliegue (`createPostgresStorage`). Una fila JSONB
+  con transacciones (`SELECT ... FOR UPDATE`) que serializa las escrituras y
+  sobrevive a reinicios e instancias serverless.
 
-La imagen copia únicamente `package.json` y `src/`, ejecuta como usuario `node` y arranca `node src/server.js`. No incluye `.env`, tests, scripts, snapshots ni material del original.
+## Despliegue
 
-En el hosting, elegir **`reemplazo/` como directorio raíz/contexto de build**, configurar el token, el puerto proporcionado por la plataforma y **una sola instancia**. Registrar la URL base pública como entrypoint. El servicio debe permanecer disponible desde las 20:00 hasta terminar demo day.
+- **Producción (Vercel):** `api/index.js` es el entrypoint serverless; usa el
+  `pg.Pool` con `DATABASE_URL` de Neon. Alias estable:
+  `https://frontier-labs-reto.vercel.app`.
+- **Docker** (alternativa local):
+  ```bash
+  docker build -t caja-negra-reemplazo reemplazo
+  docker run --rm -p 3000:3000 -e TOKEN_API_ENTRYPOINT caja-negra-reemplazo
+  ```
+  La imagen copia `package.json` y `src/`, ejecuta como usuario `node` y arranca
+  `node src/server.js` (estado en memoria).
+
+Configurar el token del equipo y `DATABASE_URL` por el canal privado; no
+incluirlos en el repositorio. El servicio debe permanecer disponible desde las
+20:00 hasta terminar el demo day.
 
 ## Contrato y límites
 
@@ -75,7 +90,8 @@ En el hosting, elegir **`reemplazo/` como directorio raíz/contexto de build**, 
 - `POST /msg`: mensajes JSON con `m` string; status/body compatibles.
 - `POST /__reset`: restaura cuentas, operaciones, fallos e IDs.
 - Métodos/rutas desconocidos y entradas inválidas conservan los errores heredados.
-- Estado en memoria: reinicio pierde datos y varias réplicas no comparten estado.
+- En local el estado es por proceso (reinicio pierde datos); en el despliegue
+  vive en PostgreSQL y lo comparten las instancias.
 - Algunos errores cambian estado: E506/E507 incrementan fallos; no tratarlos como operaciones sin efecto.
 
-La spec y el log se entregan por separado: [SPEC](../reto2-investigacion/SPEC.md), [experimentos](../reto2-investigacion/experimentos.jsonl). Diseño/diagrama: [entregables](../docs/entregables/). No afirmar equivalencia completa hasta validar el entrypoint con la evaluación oficial; SQLite sigue pendiente.
+La spec y el log se entregan por separado: [SPEC](../reto2-investigacion/SPEC.md), [experimentos](../reto2-investigacion/experimentos.jsonl). Diseño/diagrama: [entregables](../docs/entregables/). No afirmar equivalencia completa hasta validar el entrypoint con la evaluación oficial.

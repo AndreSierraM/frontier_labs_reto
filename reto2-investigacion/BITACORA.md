@@ -48,6 +48,14 @@ Detalle completo: [`SPEC.md`](SPEC.md) y [`README.md`](README.md).
 
 ### 3.1 Detectar el cambio (incidente de las 20:30 UTC)
 
+**En producción**, la vigilancia ya corre en la nube: GitHub Actions llama cada
+15 min (o en bucle) al monitor en Vercel, que ejecuta esta misma batería contra
+el original y guarda snapshots y eventos en Neon. Si detecta un cambio, dispara
+al enjambre, que abre un PR. Ver [`agent/README.md`](../agent/README.md) y
+[`docs/lab-e2e/cadena-automatica.md`](../docs/lab-e2e/cadena-automatica.md).
+
+Para reproducirlo en local:
+
 ```bash
 cd reto2-investigacion
 python3 scripts/vigilancia.py        # crea foto y compara con la anterior
@@ -98,5 +106,7 @@ python3 scripts/vigilancia.py        # crea foto y compara con la anterior
 | Especificación | `SPEC.md` |
 | Informe/hallazgos | `README.md` |
 | Paquete ejecutable de entrega | `../reemplazo/README.md` |
-| Detector de cambios | `scripts/vigilancia.py` |
+| Detector de cambios (local) | `scripts/vigilancia.py` |
+| Monitor + enjambre (desplegado) | `../agent/README.md` |
+| Prueba E2E y cadena automática | `../docs/lab-e2e/` |
 | Plantilla de preparación del incidente | `../docs/plantillas/07-incidente.md` |

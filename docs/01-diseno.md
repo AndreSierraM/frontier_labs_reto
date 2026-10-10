@@ -15,7 +15,7 @@ El evaluador ejecuta 100 tests: 40 simples, 45 secuencias de 2–5 requests y 15
 ## Supuestos, límites y exclusiones
 
 - Un proceso y una instancia, token del equipo y estado no compartido entre réplicas. No se implementa multi-tenancy.
-- La entrega actual usa Map: un reinicio pierde estado. La durabilidad entre reinicios no es un requisito explícito del reto; SQLite se propone si se exige continuidad.
+- La ejecución local usa memoria; el despliegue usa PostgreSQL (Neon) de una fila JSONB, así que el estado sobrevive a reinicios e instancias serverless. La durabilidad no era requisito explícito, pero se implementó con el mismo seam.
 - Se excluyen comandos nuevos, correcciones de anomalías heredadas, invariantes bancarias añadidas, auditoría histórica general y escalado horizontal porque no ayudan a la compatibilidad requerida.
 - Desempates de sugerencias, efectos sobre fallos del destino y precisión acumulada siguen pendientes de confirmar; registrar defaults como supuestos y añadir casos discriminantes.
 
@@ -23,9 +23,9 @@ El evaluador ejecuta 100 tests: 40 simples, 45 secuencias de 2–5 requests y 15
 
 1. **Adaptador HTTP:** autentica/enruta, conserva los bytes relevantes y emite respuestas exactas. No hace reglas de saldo ni normaliza IDs.
 2. **Núcleo profundo:** concentra parser, control ISO 7064, guardas en orden, transiciones y resultados detrás de una interface de mensaje/reset. Las pruebas y el adaptador cruzan la misma seam.
-3. **Estado actual:** Map pasado al núcleo, con transiciones síncronas en un proceso. **Seam propuesta al migrar:** una ejecución transaccional conjunta para el contexto; no un repositorio CRUD público por tabla ni una interfaz por comando.
+3. **Estado actual:** dos adaptadores (`storage.js`): Map en local/tests y una fila JSONB transaccional en Vercel. El seam es `mutate(fn)`/`reset()`, no un repositorio CRUD por tabla ni una interfaz por comando.
 
-Implementación actual en `reemplazo/src/server.js` y `reemplazo/src/domain.js`. SQLite no está implementado; requiere adaptar acceso a estado, validar driver/runtime y probar la migración sin alterar reglas.
+Implementación actual en `reemplazo/src/server.js`, `reemplazo/src/domain.js` y `reemplazo/src/storage.js` (memoria o PostgreSQL).
 
 Guardas, cálculo del control y handlers viven como funciones internas. No hacen falta librería FSM, ORM, event sourcing, contenedor de dependencias ni microservicios.
 
@@ -52,24 +52,26 @@ Guardas, cálculo del control y handlers viven como funciones internas. No hacen
 
 No presumir que cualquier error sea una auto-transición: `E506/E507` cambian el estado. No inventar una restricción de saldo no-negativo; las anulaciones siguen la semántica observada.
 
-## Persistencia propuesta y operación
+## Persistencia implementada
 
-SQLite es condicional a una necesidad de durabilidad, no una capacidad de la entrega actual. Tres tablas concretas: **cuentas**, **operaciones** y **contadores**. Archivo en volumen local persistente, SQL parametrizado, transacciones, WAL y espera de lock acotada.
+Dos adaptadores detrás del mismo seam (`reemplazo/src/storage.js`): memoria (local/tests) y PostgreSQL de una fila JSONB (Vercel/Neon). En Postgres, cada mutación abre una transacción, lee con `SELECT ... FOR UPDATE`, aplica el dominio en memoria y hace `COMMIT`; `reset` reescribe el estado inicial. Así se serializan las escrituras y se evita estado parcial.
 
-- Commit de depósito/transferencia/reverso junto con saldos, operación y contador.
-- Commit del incremento de fallos en `E506/E507` aunque la respuesta sea 422.
-- Rollback de una transacción por fallo interno; no por cualquier resultado HTTP no-2xx.
-- Reset borra estado y reinicia secuencias de manera atómica.
-- Readiness sólo después de abrir/migrar la DB; se conserva el contrato público de health.
-- Sin caché de saldo, TTL, cola ni reintentos ciegos tras timeout de mutación.
+- El incremento de fallos en `E506/E507` se confirma aunque la respuesta sea 422.
+- `reset` vuelve al estado inicial de forma atómica.
+- El `ensure` de la tabla es idempotente y perezoso (primer request).
+- Sin caché de saldo, TTL, cola ni reintentos ciegos.
+
+## Vigilancia y adaptación
+
+El servicio desplegado se vigila con una batería de 31 puntos contra el original (Vercel + Neon + GitHub Actions). Si el original cambia, un enjambre de agentes investiga, parchea, verifica (0 divergencias) y abre un PR. Topología en [02-arquitectura.md](02-arquitectura.md); enjambre en [`agent/README.md`](../agent/README.md).
 
 ## Trade-offs
 
 | Decisión | Alternativa descartada | Coste aceptado |
 |---|---|---|
 | Máquina de estados en monolito | Framework FSM o microservicios | Concurrencia serializada; menor complejidad operativa. |
-| Map para la entrega actual | DB inmediata: operación/migraciones sin durabilidad exigida | Reinicio pierde estado; una sola instancia. |
-| SQLite si se requiere durabilidad | PostgreSQL inicial: servidor adicional sin escrituras distribuidas | Volumen, migración y locks; un escritor. |
+| Memoria en local/tests | DB para el desarrollo local | Reinicio pierde estado local; sin infraestructura en tests. |
+| PostgreSQL de una fila (Vercel) | SQLite con volumen | Una fila serializa escrituras; sirve a instancias serverless. |
 | Una instancia | PostgreSQL + réplicas desde el inicio | No escala horizontalmente. Revisar sólo con necesidad real de escritura distribuida. |
 | Conservar el estado necesario | Event sourcing / ledger ideal | Sin reconstrucción histórica general; sólo lo necesario para el contrato. |
 

@@ -2,7 +2,7 @@
 
 **Entregable visual:** [HTML con arquitectura y estados](entregables/02-diagrama-arquitectura.html).
 
-El diseño separa **adaptador de entrada**, **núcleo de dominio** y **estado**. Implementado: `reemplazo/src/server.js`, `reemplazo/src/domain.js` y Map en memoria, sin transacciones SQL. Propuesto: seam transaccional y SQLite sólo si se exige durabilidad. El núcleo concentra las reglas; transporte y persistencia no las redefinen.
+El diseño separa **adaptador de entrada**, **núcleo de dominio** y **estado**. Implementado: `reemplazo/src/server.js`, `reemplazo/src/domain.js` y dos adaptadores de estado en `reemplazo/src/storage.js` (memoria en local/tests, PostgreSQL de una fila JSONB en el despliegue). El núcleo concentra las reglas; transporte y persistencia no las redefinen.
 
 ## Módulos y flujo
 
@@ -50,16 +50,41 @@ stateDiagram-v2
 
 `ANULA` no limpia fallos de cuenta. `RESET` elimina las cuentas/operaciones de ambos diagramas y devuelve los contadores a 1. `PING`/`CONSULTA` no mutan el estado de negocio. Un HTTP 422 no implica ausencia de transición.
 
-## Persistencia propuesta y operación
+## Persistencia implementada
 
-SQLite no está implementado. Actualmente, reiniciar pierde el estado; varias réplicas no comparten Map. Si se exige durabilidad:
+Dos adaptadores detrás del mismo seam (`reemplazo/src/storage.js`):
 
-- Tres tablas: **cuentas**, **operaciones** y **contadores**, en un volumen local persistente; un proceso y un escritor.
-- Saldo, operación e ID se confirman juntos. `E506/E507` confirman su incremento de fallos aunque el resultado sea un error de negocio.
-- Reset comparte la misma exclusión y transacción. Rollback por fallo interno, no por el status HTTP.
-- No se impone saldo no-negativo ni se normalizan identificadores: se sigue el contrato observado.
-- Sin ORM, cola, caché, event sourcing ni framework FSM. Una instancia; PostgreSQL sólo se plantea con réplicas reales.
-- Sin cliente, URL ni credenciales del original en producción; sin proxy/fallback.
+- **Memoria** (`createMemoryStorage`): local y tests; el estado vive en el proceso.
+- **PostgreSQL / Neon** (`createPostgresStorage`): el despliegue. Una sola fila
+  `estado(id=1, data jsonb, xreq, updated_at)` con `SELECT ... FOR UPDATE` dentro
+  de una transacción: leer, mutar el dominio en memoria, escribir y `COMMIT`.
+  Serializa las escrituras y evita escrituras parciales; `reset` reescribe el
+  estado inicial.
+
+El estado se serializa con `toJSON`/`fromJSON` (Map ↔ arrays), así que el dominio
+sigue siendo puro y sin E/S. Sin ORM, cola, caché ni event sourcing. SQLite quedó
+descartado: PostgreSQL de una fila cubre la durabilidad exigida con la misma
+transacción. No hay cliente, URL ni credenciales del original en el runtime del
+reemplazo.
+
+## Sistema desplegado (topología)
+
+```
+API + /api/monitor/*   → Vercel           (entrypoint y endpoints del monitor)
+Estado                 → Neon (Postgres)  (reemplazo y laboratorio)
+Reloj cada 15 min      → GitHub Actions   (monitor.yml; también modo bucle)
+Enjambre de agentes    → GitHub Actions   (swarm.yml; workflow_call)
+Original falso (lab)   → Vercel /api/lab  (solo pruebas)
+```
+
+- El **monitor** corre la batería de 31 puntos contra el original, guarda
+  snapshots y emite eventos (`original_changed`, `original_ratelimited`).
+- Al detectar un cambio, `monitor.yml` llama a `swarm.yml` en el mismo run
+  (workflow reutilizable) porque `GITHUB_TOKEN` no encadena workflows.
+- El **enjambre** investiga, parchea, verifica contra el original (0 divergencias)
+  y abre un PR; no hace merge. Detalle en [`agent/README.md`](../agent/README.md).
+- El monitor ignora `429/infra` (SPEC I-11) abortando la sonda para no agotar el
+  tiempo de la función serverless.
 
 ## Verificación
 

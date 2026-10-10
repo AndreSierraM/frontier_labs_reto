@@ -19,16 +19,16 @@ Secuencias del log: `integridad` (1–16), `aridad` (17–46), `alta` (47–57),
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
 | I-01 | `GET /health` → `200 {"ok":true}` (con token). | 1–16 (health en probes) | confirmado |
-| I-02 | `POST /msg` recibe `{"m":"..."}`. | 1–347 | confirmado |
+| I-02 | `POST /msg` recibe `{"m":"..."}`. | 1–347, 348–366 (POST /msg) | confirmado |
 | I-03 | `POST /__reset` → `200 {"ok":true}` y limpia el estado (cuentas, operaciones y contadores). | 117–121 | confirmado |
-| I-04 | Cualquier otra ruta/método → `404 {"error":"E404","mensaje":"ruta desconocida"}` (`GET /__reset`, `POST /health`, `GET/PUT/DELETE/OPTIONS /msg`, `/msg/`, `/`). | probe_recon | confirmado |
-| I-05 | Todas las rutas exigen `Authorization: Bearer <token>`; ausente/incorrecto → `401 {"error":"E001","mensaje":"no autorizado"}`. El esquema `Bearer` es sensible a mayúsculas. | probe_recon | confirmado |
-| I-06 | La cabecera `Content-Type` se ignora: se parsea JSON igual. | probe_recon | confirmado |
-| I-07 | Cuerpo > 8191 bytes → `413 {"error":"E101","mensaje":"cuerpo demasiado grande"}`. | borde de tamaño | confirmado |
-| I-08 | JSON inválido / cuerpo vacío → `400 {"error":"E100","mensaje":"json inválido"}`. | probe_recon | confirmado |
-| I-09 | JSON válido sin `m` string (ausente, número, `null`) → `400 {"error":"E102","mensaje":"falta m"}`. Claves extra se ignoran. | probe_recon | confirmado |
-| I-10 | La respuesta incluye cabecera `x-req` (contador global monótono, **no** lo reinicia `__reset`). | probe_xreq | confirmado |
-| I-11 | El límite de infraestructura responde `429 {"infra":"rate-limit"}` con `X-Frontier-Infra`; no es comportamiento del servicio. | probe_recon | confirmado |
+| I-04 | Cualquier otra ruta/método → `404 {"error":"E404","mensaje":"ruta desconocida"}` (`GET /__reset`, `POST /health`, `GET/PUT/DELETE/OPTIONS /msg`, `/msg/`, `/`). | 352–354 | confirmado |
+| I-05 | Todas las rutas exigen `Authorization: Bearer <token>`; ausente/incorrecto → `401 {"error":"E001","mensaje":"no autorizado"}`. El esquema `Bearer` es sensible a mayúsculas. | 350, 351 | confirmado |
+| I-06 | La cabecera `Content-Type` se ignora: se parsea JSON igual. | 361 | confirmado |
+| I-07 | Cuerpo > 8191 bytes → `413 {"error":"E101","mensaje":"cuerpo demasiado grande"}`. | 366 | confirmado |
+| I-08 | JSON inválido / cuerpo vacío → `400 {"error":"E100","mensaje":"json inválido"}`. | 355, 356 | confirmado |
+| I-09 | JSON válido sin `m` string (ausente, número, `null`) → `400 {"error":"E102","mensaje":"falta m"}`. Claves extra se ignoran. | 357–359 | confirmado |
+| I-10 | La respuesta incluye cabecera `x-req` (contador global monótono, **no** lo reinicia `__reset`). | 349, 362–364 | confirmado |
+| I-11 | El límite de infraestructura responde `429 {"infra":"rate-limit"}` con `X-Frontier-Infra`; no es comportamiento del servicio. | 365 | confirmado |
 
 ## 2 · Integridad (dígito de control)
 
@@ -135,16 +135,16 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | M-01 | El estado es por proceso y por token: cuentas, saldos, operaciones y contadores. | 117–121 | confirmado |
 | M-02 | Contadores: `AC-%04d` y `OP-%04d` secuenciales; `__reset` los vuelve a 1 y borra el estado. | 117–121 | confirmado |
 | M-03 | **Bloqueo por fraude (oculto):** cada cuenta lleva un contador de fallos de transferencia. `E506` y `E507` lo incrementan; una transferencia exitosa o un depósito lo reinician; `E303`, `E304` y `E401` no lo tocan. Con **3 fallos**, el siguiente intento de transferencia desde esa cuenta (como origen) → `409 {"error":"E510","mensaje":"cuenta bloqueada"}`, comprobado tras validar monto/igualdad/cuentas y antes del límite/saldo. `CONSULTA`, `DEPOSITO` y `ANULA` siguen permitidos; un depósito desbloquea. | 164–239, 240–278, 309–336 | confirmado |
-| M-04 | `x-req` es un contador global que no reinicia `__reset`. | probe_xreq | confirmado |
+| M-04 | `x-req` es un contador global que no reinicia `__reset`. | 364 | confirmado |
 
 ## 5 · Errores
 
 | ID | Status | Cuerpo exacto | Cuándo | Evidencia | Confianza |
 | --- | --- | --- | --- | --- | --- |
-| E001 | 401 | `{"error":"E001","mensaje":"no autorizado"}` | token ausente/incorrecto | pendiente #3 (observado en probe_recon, sin id) | probable |
-| E100 | 400 | `{"error":"E100","mensaje":"json inválido"}` | JSON no parseable / cuerpo vacío | pendiente #3 (observado en probe_recon, sin id) | probable |
-| E101 | 413 | `{"error":"E101","mensaje":"cuerpo demasiado grande"}` | cuerpo > 8191 bytes | pendiente #3 (borde medido, sin id) | probable |
-| E102 | 400 | `{"error":"E102","mensaje":"falta m"}` | JSON sin `m` string | pendiente #3 (observado en probe_recon, sin id) | probable |
+| E001 | 401 | `{"error":"E001","mensaje":"no autorizado"}` | token ausente/incorrecto | 350, 351 | confirmado |
+| E100 | 400 | `{"error":"E100","mensaje":"json inválido"}` | JSON no parseable / cuerpo vacío | 355, 356 | confirmado |
+| E101 | 413 | `{"error":"E101","mensaje":"cuerpo demasiado grande"}` | cuerpo > 8191 bytes | 366 | confirmado |
+| E102 | 400 | `{"error":"E102","mensaje":"falta m"}` | JSON sin `m` string | 357–359 | confirmado |
 | E103 | 400 | `{"error":"E103","mensaje":"falta control"}` | mensaje sin `;` | 1–16 | confirmado |
 | E104 | 400 | `{"error":"E104","mensaje":"segmento vacío"}` | algún segmento vacío | 1–16 | confirmado |
 | E201 | 400 | `{"error":"E201","mensaje":"control mal formado"}` | control no `^\d{1,2}$` | 1–16 | confirmado |
@@ -155,7 +155,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | E304 | 400 | `{"error":"E304","mensaje":"origen y destino iguales"}` | transferencia al mismo id | 122–163 | confirmado |
 | E401 | 404 | `{"error":"E401","mensaje":"cuenta inexistente"}` | cuenta no existe | 58–64, 87–100 | confirmado |
 | E402 | 404 | `{"error":"E402","mensaje":"operación inexistente"}` | operación no existe | 101–116, 240–278 | confirmado |
-| E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos | pendiente #3 (observado en probe_recon, sin id) | probable |
+| E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos | 352–354 | confirmado |
 | E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 100000 | 87–100, 122–163 | confirmado |
 | E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo | 87–100, 122–163 | confirmado |
 | E510 | 409 | `{"error":"E510","mensaje":"cuenta bloqueada"}` | cuenta con 3 fallos de transferencia | 164–239, 240–278, 309–336 | confirmado |
@@ -181,4 +181,4 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 | R-03 | `ANULA` revierte saldos sin auditoría ni límites; permite "deshacer" transferencias. | Trazabilidad append-only y reversos como operación nueva. | 101–116 | confirmado |
 | R-04 | Estado en memoria de un solo proceso: `__reset` global y pérdida al reiniciar. | Persistencia transaccional por token. | 117–121 | confirmado |
 | R-05 | Contadores de id predecibles y sin control de concurrencia. | UUIDs/seq por token y transacciones. | 47–57, 117–121 | confirmado |
-| R-06 | `x-req` global y `__reset` no lo reinicia: fuga de información de actividad. | Contador por token y reinicio coherente. | pendiente #3 (observado en probe_xreq, sin id) | probable |
+| R-06 | `x-req` global y `__reset` no lo reinicia: fuga de información de actividad. | Contador por token y reinicio coherente. | 364 | confirmado |

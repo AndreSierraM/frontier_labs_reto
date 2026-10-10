@@ -75,7 +75,6 @@ function readBody(req, max) {
       size += c.length;
       if (size > max) {
         settle = true;
-        req.destroy();
         return reject("E101");
       }
       chunks.push(c);
