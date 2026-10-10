@@ -104,6 +104,8 @@ corrida a `/api/monitor/agent` (estado, etiquetas, revisión, run y PR).
 | 2026-10-10 21:51Z / 16:51 | `T-50001` / `T-100000` | `E506` solo si `monto > 100000` | `E506` si `monto > 50000` | 375, 376 | `domain.js` (umbral 50000) | `ce7aba2` | sí |
 | 2026-10-10 21:51Z / 16:51 | `E510` | `409 {"error":"E510","mensaje":"cuenta bloqueada"}` | `423 {...,"intentos":N}` | 380, 381 | `domain.js` (status + `intentos`) | `ce7aba2` | sí |
 | 2026-10-10 21:51Z / 16:51 | `HALT` / `NOTAS` / `E520` | `400 E301 comando desconocido` | `HALT`→`409 E520`; `NOTAS`→`200 {notas:[...]}` | 378, 379 | `domain.js` (comandos + error E520) | `ce7aba2` | sí |
+| 2026-10-10 22:44Z / 17:44 | `pıng` (i sin punto) | `200 {pong:true}` (lo tratábamos como PING) | `400 E201` / `400 E301 sugerencia PING` | 385, 386 | `domain.js` (match ASCII-only) | `46fa1fc` | sí |
+| 2026-10-10 22:44Z / 17:44 | `HALT;1` | `409 E520` (siempre) | `503 E599 "service halted"` y todo `/msg` 503 hasta `__reset` | 387–390 | `domain.js` (estado `halted`) | `46fa1fc` | sí |
 
 **Nota:** el cambio se anunció 20:30 UTC, pero no fue observable hasta las 21:51 UTC
 (el token anterior quedó en `429`); se detectó con el escáner diferencial

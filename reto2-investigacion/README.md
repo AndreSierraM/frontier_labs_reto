@@ -5,7 +5,7 @@ y **reemplazo funcional** que replica su comportamiento, errores y reglas de est
 
 - Especificación reimplementable: [`SPEC.md`](SPEC.md)
 - Bitácora (qué pasó y cómo reaccionar): [`BITACORA.md`](BITACORA.md)
-- Log de experimentos (formato oficial): [`experimentos.jsonl`](experimentos.jsonl) — **384 líneas**
+- Log de experimentos (formato oficial): [`experimentos.jsonl`](experimentos.jsonl) — **390 líneas**
 - Fotos de estado para detectar el incidente: [`logs/snapshots/`](logs/snapshots)
 - Paquete ejecutable de entrega: [`../reemplazo/`](../reemplazo/README.md)
 - Adaptador desplegable: [`../reemplazo/src/server.js`](../reemplazo/src/server.js)
@@ -89,7 +89,7 @@ conservan en `scripts/`. Ver [índice y requisitos de scripts](scripts/README.md
 ### Datos
 - `data/pares_control.jsonl` — 35 pares `(cuerpo, control)` (34 válidos + PING).
 - `data/control_cache.json` — escaneos completos por cuerpo (controles únicos).
-- `experimentos.jsonl` — 384 observaciones con hipótesis (evidencia de la spec).
+- `experimentos.jsonl` — 390 observaciones con hipótesis (evidencia de la spec).
 
 ---
 
@@ -231,7 +231,7 @@ reto2-investigacion/
 ├── README.md            # informe de hallazgos
 ├── SPEC.md              # especificación oficial
 ├── BITACORA.md          # qué pasó y cómo reaccionar
-├── experimentos.jsonl   # 384 observaciones (evidencia)
+├── experimentos.jsonl   # 390 observaciones (evidencia)
 ├── data/                # dataset de controles
 ├── logs/                # fingerprint + snapshots para detectar cambios
 ├── scripts/             # herramientas activas y legacy; ver scripts/README.md

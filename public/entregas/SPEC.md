@@ -75,6 +75,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
 | K-00 | Comandos válidos (insensibles a mayúsculas): `PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `ANULA` y, en v2, `HALT` y `NOTAS`. | 3, 5, 12, 66, 90, 104, 378, 379 | confirmado |
+| K-00B | El match de comando es insensible a mayúsculas pero **solo ASCII**: `ping`/`PING` funcionan; `pıng` (i sin punto, U+0131) **no** (→ `E301` con `sugerencia:"PING"` o `E201` si el control es mal formado). No se recortan espacios (` PING`, `PING ` → `E301`). | 385, 386 | confirmado |
 | K-01 | Aridad exacta (segmentos incluyendo control): `PING` 2, `ALTA` 3, `CONSULTA` 3, `DEPOSITO` 4, `TRANSFER` 5, `ANULA` 3, `HALT` 3, `NOTAS` 2. Si no coincide → `400 E302`. | 17–46, 378, 379 | confirmado |
 
 ### PING
@@ -167,6 +168,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo | 126, 127 | confirmado |
 | E510 | 423 | `{"error":"E510","mensaje":"cuenta bloqueada","intentos":N}` | cuenta con 3 fallos de transferencia (v2) | 134, 135, 380, 381 | confirmado |
 | E520 | 409 | `{"error":"E520","mensaje":"operación destructiva: detiene el servicio; reenvía con confirmación"}` | comando destructivo `HALT` (v2) | 378 | confirmado |
+| E599 | 503 | `{"error":"E599","mensaje":"service halted"}` | servicio apagado con `HALT;1`; todo `/msg` responde 503 hasta `__reset` | 387, 388 | confirmado |
 
 Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 `E201`/`E202` → `E301` → `E302` → `E303` → `E304` → `E401` → `E510` → `E506` → `E507`
@@ -183,7 +185,7 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 **Cambio del evento (15:30 BOG / 20:30 UTC).** Cuando el monitor lo detecte, añadir una fila con evidencia real (el validador exige que los IDs existan y correspondan):
 
 ```text
-| X-04 | **Cambio v2 (incidente #FR-0153, detectado 2026-10-10T21:51Z):** cuatro deltas reales — (a) `CONSULTA` devuelve `saldo` como cadena decimal `"S.DD"` (centavos), (b) umbral `E506` baja de `>100000` a `>50000`, (c) `E510` pasa a status `423` y añade `intentos`, (d) comandos nuevos `HALT` (`409 E520`) y `NOTAS` (200 con notas). Adaptado en `reemplazo/src/domain.js` (commit `ce7aba2`). | 370, 372, 374–379, 380, 381 | confirmado |
+| X-04 | **Cambio v2 (incidente #FR-0153, detectado 2026-10-10T21:51Z):** (a) `CONSULTA` devuelve `saldo` como cadena decimal `"S.DD"` (centavos), (b) umbral `E506` baja de `>100000` a `>50000`, (c) `E510` pasa a status `423` y añade `intentos`, (d) comandos nuevos `HALT` (`409 E520`) y `NOTAS` (200 con notas), (e) match de comando ASCII-only (`pıng` ≠ `PING`), (f) `HALT;1` apaga el servicio (`503 E599`) hasta `__reset`. Adaptado en `reemplazo/src/domain.js` (commit `46fa1fc`). | 370, 372, 374–379, 380, 381, 385–390 | confirmado |
 ```
 
 ## 7 · Riesgos
