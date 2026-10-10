@@ -10,18 +10,8 @@
 const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
 const observe = require("../../monitor/observe");
+const kinds = require("../../monitor/kinds");
 const { json, authorized, readJson } = require("../../monitor/serverless");
-
-const isUnknown = (s) => Boolean(s) && s.response && s.response.error === "E301";
-const notFound = (s) => Boolean(s) && s.status === 404;
-
-/** Clasifica una diferencia del mapa en un evento concreto. */
-function classify(prev, next, label) {
-  if (!(label in prev)) return label.startsWith("cmd:") ? "new_command" : label.startsWith("route:") ? "new_route" : "map_added";
-  if (label.startsWith("cmd:") && isUnknown(prev[label]) && !isUnknown(next[label])) return "new_command";
-  if (label.startsWith("route:") && notFound(prev[label]) && !notFound(next[label])) return "new_route";
-  return "map_value_changed";
-}
 
 module.exports = async (req, res) => {
   const secret = process.env.MONITOR_TOKEN || process.env.CRON_SECRET;
@@ -47,7 +37,7 @@ module.exports = async (req, res) => {
 
   // Un mapa con rate-limit no es válido: no se guarda ni compara.
   if (observe.hasInfra(map)) {
-    await store.recordEvent(pool, "map_ratelimited", null, null, null, "recon topó con 429/infra");
+    await store.recordEvent(pool, kinds.KIND.MAP_RATELIMITED, null, null, null, "recon topó con 429/infra");
     return json(res, 200, { ok: true, skipped: "rate-limited", changed: false, added: [], changedLabels: [] });
   }
 
@@ -56,11 +46,11 @@ module.exports = async (req, res) => {
   const saved = await store.saveMap(pool, observe.fingerprint(map), map);
 
   if (prev && (d.added.length || d.changed.length)) {
-    await store.recordEvent(pool, "map_changed", null, null, null,
+    await store.recordEvent(pool, kinds.KIND.MAP_CHANGED, null, null, null,
       `nuevos: ${d.added.length}, cambiados: ${d.changed.length}, removidos: ${d.removed.length}`);
     for (const diff of d.diffs) {
-      const kind = classify(prev.map, map, diff.label);
-      await store.recordEvent(pool, kind, diff.label, diff.before, diff.after, kind === "new_command" ? "comando nuevo" : kind === "new_route" ? "ruta nueva" : "respuesta cambiada");
+      const kind = kinds.classify(prev.map, map, diff.label);
+      await store.recordEvent(pool, kind, diff.label, diff.before, diff.after, kind === kinds.KIND.NEW_COMMAND ? "comando nuevo" : kind === kinds.KIND.NEW_ROUTE ? "ruta nueva" : "respuesta cambiada");
     }
   }
 

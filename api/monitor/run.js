@@ -12,6 +12,7 @@
 const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
 const observe = require("../../monitor/observe");
+const kinds = require("../../monitor/kinds");
 const { json, authorized } = require("../../monitor/serverless");
 
 const normalize = (url) => String(url || "").replace(/\/$/, "");
@@ -67,7 +68,7 @@ module.exports = async (req, res) => {
   result.original.samples = Object.keys(foto).length;
   result.original.rateLimited = observe.hasInfra(foto);
   if (result.original.rateLimited) {
-    await store.recordEvent(pool, "original_ratelimited", null, null, null, "la sonda topó con 429/infra; detección omitida");
+    await store.recordEvent(pool, kinds.KIND.ORIGINAL_RATELIMITED, null, null, null, "la sonda topó con 429/infra; detección omitida");
     return json(res, 200, { ok: true, ...result, omitted: true });
   }
 
@@ -81,7 +82,7 @@ module.exports = async (req, res) => {
   result.original.takenAt = snap.taken_at;
   result.original.baseline = prev ? prev.id : null;
   if (result.changes.length) {
-    await store.recordEvents(pool, "original_changed", result.changes, prev ? `vs snapshot #${prev.id}` : null);
+    await store.recordEvents(pool, kinds.KIND.ORIGINAL_CHANGED, result.changes, prev ? `vs snapshot #${prev.id}` : null);
   }
 
   // 2) Reemplazo: salud siempre; diferencial solo bajo demanda.
@@ -99,13 +100,13 @@ module.exports = async (req, res) => {
     result.divergences = observe.diff(foto, replFoto).diffs;
     result.replacement.divergences = result.divergences.length;
     if (result.divergences.length) {
-      await store.recordEvents(pool, "replacement_divergent", result.divergences, "original vs reemplazo");
+      await store.recordEvents(pool, kinds.KIND.REPLACEMENT_DIVERGENT, result.divergences, "original vs reemplazo");
     }
   } else {
     result.replacement.differentialSkipped = true;
   }
   if (!replHealth.ok) {
-    await store.recordEvent(pool, "replacement_unhealthy", null, null, null, `health status ${replHealth.status}`);
+    await store.recordEvent(pool, kinds.KIND.REPLACEMENT_UNHEALTHY, null, null, null, `health status ${replHealth.status}`);
   }
 
   result.alerted = await alert(result);

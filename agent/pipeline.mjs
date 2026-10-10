@@ -178,9 +178,11 @@ export async function runSwarm() {
 
   if (saysNoPatch(analyst.out)) {
     log("el analista concluyó PATCH: no (sin cambio real que adaptar)");
+    const review = "PATCH: no (sin cambio real que adaptar)\n\n" + analyst.out;
     save(runDir, "pr-body.md", "No se requiere adaptación.\n\n" + analyst.out);
+    save(runDir, "review.md", review);
     await ack(labels);
-    return finish("no-patch", labels, runDir);
+    return finish("no-patch", labels, runDir, { review });
   }
 
   const adapt = await adaptPhase(analyst.out, runDir);

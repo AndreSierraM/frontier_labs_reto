@@ -108,8 +108,14 @@ def load_log(path: Path):
 def parse_spec(path: Path):
     """Devuelve filas (id, texto) de las tablas con columna 'Evidencia'."""
     lines = path.read_text(encoding="utf-8").splitlines()
-    rows, header, evid_idx = [], None, None
+    rows, header, evid_idx, in_code = [], None, None, False
     for line in lines:
+        if line.strip().startswith("```"):
+            in_code = not in_code
+            header = None
+            continue
+        if in_code:
+            continue
         if not line.strip().startswith("|"):
             header = None
             continue

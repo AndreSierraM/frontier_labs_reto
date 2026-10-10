@@ -10,10 +10,8 @@
 
 const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
+const kinds = require("../../monitor/kinds");
 const { json } = require("../../monitor/serverless");
-
-const CHANGE_KINDS = ["original_changed", "new_command", "new_route", "map_value_changed", "map_added", "replacement_divergent"];
-const INFRA_KINDS = ["original_ratelimited", "map_ratelimited"];
 
 const eventDetail = (e) => (e.after && e.after.response ? JSON.stringify(e.after.response) : e.message || "");
 
@@ -21,7 +19,7 @@ const eventDetail = (e) => (e.after && e.after.response ? JSON.stringify(e.after
 function buildTimeline(events, runs) {
   const items = [];
   for (const e of events || []) {
-    const type = CHANGE_KINDS.includes(e.kind) ? "change" : e.kind === "adaptation_applied" ? "ack" : INFRA_KINDS.includes(e.kind) ? "infra" : "event";
+    const type = kinds.timelineType(e.kind);
     items.push({ at: e.detected_at, type, kind: e.kind, label: e.label || null, detail: eventDetail(e) });
   }
   for (const r of runs || []) {

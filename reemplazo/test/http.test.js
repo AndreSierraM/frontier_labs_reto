@@ -2,10 +2,14 @@
 
 const assert = require("node:assert/strict");
 const test = require("node:test");
-
-process.env.TOKEN_API_ENTRYPOINT = "local-http-test";
-const { server } = require("../src/server");
+const http = require("node:http");
+const { createMemoryStorage } = require("../src/storage");
+const { createHandler } = require("../src/server");
 const { control } = require("../src/domain");
+
+const server = http.createServer(
+  createHandler(createMemoryStorage(), { token: "local-http-test" })
+);
 
 test("contrato HTTP local: auth, rutas, mensajes y reset", async (t) => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -46,7 +50,6 @@ test("contrato HTTP local: auth, rutas, mensajes y reset", async (t) => {
   assert.equal(await head.text(), "");
   // fetch oculta el cuerpo en HEAD: comprobar a nivel TCP que son 0 bytes,
   // como el original (HEAD /health -> 404 sin cuerpo).
-  const http = require("node:http");
   const rawHead = await new Promise((resolve, reject) => {
     let bytes = 0;
     const req = http.request(

@@ -50,6 +50,8 @@ api/                        Funciones serverless de Vercel
 monitor/                    Batería de vigilancia y capa de Postgres del monitor
 agent/                      Enjambre de agentes (roles, harness, orquestador)
 tools/                      Generadores de entregables (build-entregas.py, render-entregas.py)
+demo-video/                 Video demo (Remotion): escenas, guion (GUION_VOZ.md) y render
+public/                     Sitio estático: entregas, panel de monitor y demo.mp4
 docs/                       Observabilidad y evidencia
 ```
 
@@ -89,6 +91,17 @@ python3 -m venv .venv && .venv/bin/pip install -r reto2-investigacion/requiremen
 
 Docker: `docker build -t caja-negra-reemplazo reemplazo`.
 
+## Video demo (2 min)
+
+`public/demo.mp4` (servido en `https://frontier-labs-reto.vercel.app/demo.mp4`).
+Guion y timestamps: [`demo-video/GUION_VOZ.md`](demo-video/GUION_VOZ.md).
+
+```bash
+cd demo-video && npm i
+npx remotion render la-caja-negra-demo out/demo.mp4
+cd .. && tools/publish-demo.sh     # copia el último render a public/demo.mp4
+```
+
 ## Configuración (secretos)
 
 | Variable | Dónde | Uso |
@@ -106,6 +119,7 @@ No publicar `.env`, tokens, DB locales ni capturas con credenciales.
 
 | Necesidad | Fuente |
 | --- | --- |
+| Video demo (2 min) | [MP4](public/demo.mp4) · [guion](demo-video/GUION_VOZ.md) · [fuente](demo-video) |
 | Especificación del servicio (entregable) | [HTML](public/entregas/03-especificacion-servicio.html) · [PDF](public/entregas/03-especificacion-servicio.pdf) · [SPEC.md](reto2-investigacion/SPEC.md) |
 | Log de experimentos (entregable) | [Markdown](public/entregas/04-log-experimentos.md) · [JSONL](reto2-investigacion/experimentos.jsonl) |
 | Diseño para entregar | [HTML](public/entregas/01-diseno-sistemas.html) · [PDF](public/entregas/01-diseno-sistemas.pdf) |

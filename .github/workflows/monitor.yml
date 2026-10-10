@@ -5,12 +5,15 @@ name: monitor
 # workflow dispare a otro con el GITHUB_TOKEN.
 #
 # Modos:
-#  - `schedule`: una pasada cada 15 min.
+#  - `schedule`: `check` (batería) cada 15 min y `recon` (mapa ampliado) cada 2 h.
+#    Presupuesto: 96×32 + 12×101 ≈ 4.284 req/día (el original admite 8.000/día
+#    y 10 req/s por token; ver frontier-reto-2/README.md).
 #  - `workflow_dispatch` con loop_minutes>0: tick inmediato + bucle cada 15 min
 #    hasta detectar un cambio (o agotar los minutos) y acto seguido adapta.
 on:
   schedule:
     - cron: "*/15 * * * *"
+    - cron: "5 */2 * * *"
   workflow_dispatch:
     inputs:
       loop_minutes:
@@ -26,7 +29,7 @@ jobs:
   # ------------------------------------------------------------- una pasada
   check:
     name: Una pasada
-    if: ${{ github.event_name == 'schedule' || github.event.inputs.loop_minutes == '0' }}
+    if: ${{ (github.event_name == 'schedule' && github.event.schedule == '*/15 * * * *') || github.event.inputs.loop_minutes == '0' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -57,7 +60,7 @@ jobs:
   # ------------------------------------------------- recon (mapa ampliado)
   recon:
     name: Recon (mapa ampliado)
-    if: ${{ github.event_name == 'schedule' || github.event.inputs.loop_minutes == '0' }}
+    if: ${{ (github.event_name == 'schedule' && github.event.schedule == '5 */2 * * *') || github.event.inputs.loop_minutes == '0' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:

@@ -27,8 +27,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: "Unitarias del reemplazo (sin red)"
-        run: npm --prefix reemplazo test
+      - name: "Unitarias del reemplazo, monitor y verificación (sin red)"
+        run: npm test
 
       - name: "Validar log y evidencia del SPEC"
         run: python3 reto2-investigacion/scripts/validar_spec.py

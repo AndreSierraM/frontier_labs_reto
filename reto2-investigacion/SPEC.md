@@ -177,7 +177,13 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 | --- | --- | --- | --- |
 | X-01 | `E510 "cuenta bloqueada"` no aparece en los 20 ejemplos de la mañana ni en el material; se descubrió por experimentación. Es un comportamiento de estado **preexistente**, no el cambio anunciado. | 122–163, 164–278, 309–336 | confirmado |
 | X-02 | El algoritmo de control **no cambió** durante la sesión: los controles de los ejemplos siguen vigentes y el dataset propio valida 34/34. | `data/pares_control.jsonl` (34/34), 3, 5, 12 | confirmado |
-| X-03 | El cambio anunciado (15:30 BOG / 20:30 UTC) **no se observó** en la ventana vigilada: las dos fotos `logs/snapshots/20261010T154017Z.json` y `…T154053Z.json` son idénticas (`sin cambios`). El `429` de infraestructura (365) se excluye y no se cuenta como cambio. | `logs/snapshots/*.json`, 365 | confirmado (no cambio) |
+| X-03 | El cambio anunciado (15:30 BOG / 20:30 UTC) **no se observó** en la ventana vigilada hasta la redacción de esta spec: las dos fotos `logs/snapshots/20261010T154017Z.json` y `…T154053Z.json` son idénticas (`sin cambios`). El `429` de infraestructura (365) se excluye y no se cuenta como cambio. | `logs/snapshots/*.json`, 365 | confirmado (no cambio) |
+
+**Cambio del evento (15:30 BOG / 20:30 UTC).** Cuando el monitor lo detecte, añadir una fila con evidencia real (el validador exige que los IDs existan y correspondan):
+
+```text
+| X-04 | <qué cambió> (`<etiqueta>`): antes `<...>`, después `<...>`; detectado `<hora UTC>`, adaptado en <#PR>/<commit>. | <id-log>, <id-log> | confirmado |
+```
 
 ## 7 · Riesgos
 

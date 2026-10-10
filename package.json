@@ -7,7 +7,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "lint": "oxlint ."
+    "lint": "oxlint .",
+    "test": "npm --prefix reemplazo test && node --test monitor/probes.test.js monitor/compare.test.js monitor/kinds.test.js monitor/observe.test.js agent/test/verify.test.mjs"
   },
   "dependencies": {
     "pg": "^8.11.5"

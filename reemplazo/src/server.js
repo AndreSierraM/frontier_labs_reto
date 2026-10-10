@@ -42,11 +42,6 @@ function loadEnv() {
     } catch (_) {}
   }
 }
-loadEnv();
-
-const TEAM_TOKEN = process.env.TOKEN_API_ENTRYPOINT || process.env.TEAM_TOKEN || "";
-const PORT = Number(process.env.PORT || 3000);
-const MAX_BODY = 8191; // bytes; >= 8192 -> E101
 
 // ---------- utilidades HTTP ----------
 // Con HEAD se responde mismo status y headers pero sin cuerpo,
@@ -95,11 +90,11 @@ function readBody(req, max) {
 }
 
 // ---------- manejo de POST /msg ----------
-async function handleMsg(req, res, storage) {
+async function handleMsg(req, res, storage, maxBody) {
   const head = req.method === "HEAD";
   let raw;
   try {
-    raw = await readBody(req, MAX_BODY);
+    raw = await readBody(req, maxBody);
   } catch (code) {
     return send(res, code, {}, head);
   }
@@ -132,8 +127,7 @@ async function handleMsg(req, res, storage) {
 // ---------- aplicación HTTP (reutilizable por local y Vercel) ----------
 // `hooks.onRequest({method, path, status, ms})` permite observar cada request
 // (instrumentación del propio servicio) sin tocar el contrato.
-function createHandler(storage, hooks = {}) {
-  const onRequest = hooks.onRequest || null;
+function createHandler(storage, { token = "", maxBody = 8191, onRequest = null } = {}) {
   return async function handler(req, res) {
     const started = Date.now();
     let path = req.url;
@@ -151,7 +145,7 @@ function createHandler(storage, hooks = {}) {
       const routePath = path;
       const auth = req.headers["authorization"] || "";
       const head = req.method === "HEAD";
-      if (TEAM_TOKEN === "" || auth !== `Bearer ${TEAM_TOKEN}`) {
+      if (token === "" || auth !== `Bearer ${token}`) {
         return send(res, "E001", {}, head);
       }
 
@@ -163,7 +157,7 @@ function createHandler(storage, hooks = {}) {
         return json(res, 200, { ok: true }, {}, head);
       }
       if (req.method === "POST" && routePath === "/msg") {
-        return handleMsg(req, res, storage);
+        return handleMsg(req, res, storage, maxBody);
       }
 
       return send(res, "E404", {}, head);
@@ -176,15 +170,20 @@ function createHandler(storage, hooks = {}) {
 }
 
 // ---------- servidor local ----------
-const server = http.createServer(createHandler(createMemoryStorage()));
-
 if (require.main === module) {
-  server.listen(PORT, () => console.log(`caja-negra-jemela escuchando en :${PORT}`));
+  loadEnv();
+  const port = Number(process.env.PORT || 3000);
+  const server = http.createServer(
+    createHandler(createMemoryStorage(), {
+      token: process.env.TOKEN_API_ENTRYPOINT || process.env.TEAM_TOKEN || "",
+    })
+  );
+  server.listen(port, () => console.log(`caja-negra-jemela escuchando en :${port}`));
 }
 
 module.exports = {
-  server,
   createHandler,
+  loadEnv,
   control: dominio.control,
   processMessage: dominio.processMessage,
   freshState: dominio.freshState,

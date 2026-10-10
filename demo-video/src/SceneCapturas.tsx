@@ -25,7 +25,7 @@ export const SceneCapturas: React.FC = () => {
 
       <div style={{ padding: "60px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={{ opacity: headerOp }}>
-          <SectionHeader label="08 / Evidencia" title="Documentación y diagramas" subtitle="Entregables verificables: diseño, arquitectura y especificación completa." color={COLORS.cyan} />
+          <SectionHeader label="07 / Evidencia" title="Documentación y diagramas" subtitle="Entregables verificables: diseño, arquitectura y especificación completa." color={COLORS.cyan} />
         </div>
 
         <div style={{ flex: 1, display: "flex", gap: 40, alignItems: "center" }}>

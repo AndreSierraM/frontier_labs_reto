@@ -1,0 +1,1510 @@
+{
+  "battery": [
+    {
+      "label": "reset",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "PING",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING;64"
+      }
+    },
+    {
+      "label": "PING-ignore",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING;abc"
+      }
+    },
+    {
+      "label": "E103",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING"
+      }
+    },
+    {
+      "label": "E104",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING;"
+      }
+    },
+    {
+      "label": "E201",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;003"
+      }
+    },
+    {
+      "label": "E202",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;03"
+      }
+    },
+    {
+      "label": "E301",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SALDOS;x;91"
+      }
+    },
+    {
+      "label": "E301-sug",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFERIR;x;72"
+      }
+    },
+    {
+      "label": "ALTA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "ALTA2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;B;59"
+      }
+    },
+    {
+      "label": "CONSULTA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CONSULTA;AC-0001;14"
+      }
+    },
+    {
+      "label": "DEPOSITO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;100;82"
+      }
+    },
+    {
+      "label": "SALDO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CONSULTA;AC-0001;14"
+      }
+    },
+    {
+      "label": "T-ok",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;50;87"
+      }
+    },
+    {
+      "label": "T-limite",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;100001;9"
+      }
+    },
+    {
+      "label": "T-saldo",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "T-mismo",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0001;10;22"
+      }
+    },
+    {
+      "label": "T-inexistente",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-9999;10;56"
+      }
+    },
+    {
+      "label": "T-monto",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;0;44"
+      }
+    },
+    {
+      "label": "ANULA-op",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1;28"
+      }
+    },
+    {
+      "label": "ANULA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ANULA;OP-0001;72"
+      }
+    },
+    {
+      "label": "E402",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ANULA;OP-9999;51"
+      }
+    },
+    {
+      "label": "reset2",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "bloqueo-1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "bloqueo-2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;B;59"
+      }
+    },
+    {
+      "label": "bloqueo-3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;100;82"
+      }
+    },
+    {
+      "label": "falta1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "falta2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "falta3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "E510",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    }
+  ],
+  "discovery": [
+    {
+      "label": "cmd:SALDO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SALDO;x;40"
+      }
+    },
+    {
+      "label": "cmd:SALDOS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SALDOS;x;91"
+      }
+    },
+    {
+      "label": "cmd:EXTRACTO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "EXTRACTO;x;72"
+      }
+    },
+    {
+      "label": "cmd:MOVIMIENTOS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "MOVIMIENTOS;x;63"
+      }
+    },
+    {
+      "label": "cmd:LISTA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "LISTA;x;50"
+      }
+    },
+    {
+      "label": "cmd:BAJA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "BAJA;x;43"
+      }
+    },
+    {
+      "label": "cmd:CIERRA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CIERRA;x;89"
+      }
+    },
+    {
+      "label": "cmd:RETIRA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "RETIRA;x;26"
+      }
+    },
+    {
+      "label": "cmd:RETIRO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "RETIRO;x;78"
+      }
+    },
+    {
+      "label": "cmd:DEPOSITAR",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITAR;x;64"
+      }
+    },
+    {
+      "label": "cmd:TRANSFERIR",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFERIR;x;72"
+      }
+    },
+    {
+      "label": "cmd:CANCELA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CANCELA;x;11"
+      }
+    },
+    {
+      "label": "cmd:REVERSA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "REVERSA;x;21"
+      }
+    },
+    {
+      "label": "cmd:ANULAR",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ANULAR;x;66"
+      }
+    },
+    {
+      "label": "cmd:HISTORIAL",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HISTORIAL;x;62"
+      }
+    },
+    {
+      "label": "cmd:INFO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "INFO;x;8"
+      }
+    },
+    {
+      "label": "cmd:STATUS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "STATUS;x;47"
+      }
+    },
+    {
+      "label": "cmd:AYUDA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "AYUDA;x;23"
+      }
+    },
+    {
+      "label": "cmd:HELP",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HELP;x;45"
+      }
+    },
+    {
+      "label": "cmd:VERSION",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "VERSION;x;87"
+      }
+    },
+    {
+      "label": "cmd:ECO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ECO;x;12"
+      }
+    },
+    {
+      "label": "cmd:PING2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING2;x;55"
+      }
+    },
+    {
+      "label": "cmd:SET",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SET;x;13"
+      }
+    },
+    {
+      "label": "cmd:GET",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "GET;x;52"
+      }
+    },
+    {
+      "label": "cmd:QUERY",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "QUERY;x;51"
+      }
+    },
+    {
+      "label": "cmd:ORDEN",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ORDEN;x;81"
+      }
+    },
+    {
+      "label": "cmd:PAGO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PAGO;x;76"
+      }
+    },
+    {
+      "label": "cmd:COBRO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "COBRO;x;76"
+      }
+    },
+    {
+      "label": "monto:0",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;0;31"
+      }
+    },
+    {
+      "label": "monto:1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1;28"
+      }
+    },
+    {
+      "label": "monto:9",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;9;4"
+      }
+    },
+    {
+      "label": "monto:10",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;10;77"
+      }
+    },
+    {
+      "label": "monto:999999999",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;999999999;4"
+      }
+    },
+    {
+      "label": "monto:1000000000",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000000;46"
+      }
+    },
+    {
+      "label": "monto:10000000000",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;10000000000;63"
+      }
+    },
+    {
+      "label": "monto:0001",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;0001;25"
+      }
+    },
+    {
+      "label": "monto:+1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;+1;28"
+      }
+    },
+    {
+      "label": "monto:1.5",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1.5;62"
+      }
+    },
+    {
+      "label": "monto:-1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;-1;28"
+      }
+    },
+    {
+      "label": "monto:1e3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1e3;20"
+      }
+    },
+    {
+      "label": "monto: 1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001; 1;28"
+      }
+    },
+    {
+      "label": "monto:1 ",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1 ;28"
+      }
+    },
+    {
+      "label": "monto:99999999999999999999",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;99999999999999999999;4"
+      }
+    },
+    {
+      "label": "ctl:0",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;0"
+      }
+    },
+    {
+      "label": "ctl:00",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;00"
+      }
+    },
+    {
+      "label": "ctl:2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;2"
+      }
+    },
+    {
+      "label": "ctl:98",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;98"
+      }
+    },
+    {
+      "label": "ctl:003",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;003"
+      }
+    },
+    {
+      "label": "ctl:+3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;+3"
+      }
+    },
+    {
+      "label": "ctl:3abc",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;3abc"
+      }
+    },
+    {
+      "label": "ctl: ",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo; "
+      }
+    },
+    {
+      "label": "ctl:999",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;999"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "label": "route:GET:/",
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "label": "route:GET:/favicon.ico",
+      "method": "GET",
+      "path": "/favicon.ico"
+    },
+    {
+      "label": "route:GET:/robots.txt",
+      "method": "GET",
+      "path": "/robots.txt"
+    },
+    {
+      "label": "route:GET:/metrics",
+      "method": "GET",
+      "path": "/metrics"
+    },
+    {
+      "label": "route:GET:/debug",
+      "method": "GET",
+      "path": "/debug"
+    },
+    {
+      "label": "route:GET:/admin",
+      "method": "GET",
+      "path": "/admin"
+    },
+    {
+      "label": "route:GET:/status",
+      "method": "GET",
+      "path": "/status"
+    },
+    {
+      "label": "route:GET:/version",
+      "method": "GET",
+      "path": "/version"
+    },
+    {
+      "label": "route:GET:/api",
+      "method": "GET",
+      "path": "/api"
+    },
+    {
+      "label": "route:GET:/openapi.json",
+      "method": "GET",
+      "path": "/openapi.json"
+    },
+    {
+      "label": "route:GET:/msg/",
+      "method": "GET",
+      "path": "/msg/"
+    },
+    {
+      "label": "route:GET:/health/",
+      "method": "GET",
+      "path": "/health/"
+    },
+    {
+      "label": "route:GET:/__reset/",
+      "method": "GET",
+      "path": "/__reset/"
+    },
+    {
+      "label": "route:PUT:/msg",
+      "method": "PUT",
+      "path": "/msg"
+    },
+    {
+      "label": "route:DELETE:/msg",
+      "method": "DELETE",
+      "path": "/msg"
+    },
+    {
+      "label": "route:PATCH:/msg",
+      "method": "PATCH",
+      "path": "/msg"
+    },
+    {
+      "label": "route:OPTIONS:/msg",
+      "method": "OPTIONS",
+      "path": "/msg"
+    },
+    {
+      "label": "route:POST:/health",
+      "method": "POST",
+      "path": "/health"
+    }
+  ],
+  "all": [
+    {
+      "label": "reset",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "PING",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING;64"
+      }
+    },
+    {
+      "label": "PING-ignore",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING;abc"
+      }
+    },
+    {
+      "label": "E103",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING"
+      }
+    },
+    {
+      "label": "E104",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING;"
+      }
+    },
+    {
+      "label": "E201",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;003"
+      }
+    },
+    {
+      "label": "E202",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;03"
+      }
+    },
+    {
+      "label": "E301",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SALDOS;x;91"
+      }
+    },
+    {
+      "label": "E301-sug",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFERIR;x;72"
+      }
+    },
+    {
+      "label": "ALTA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "ALTA2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;B;59"
+      }
+    },
+    {
+      "label": "CONSULTA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CONSULTA;AC-0001;14"
+      }
+    },
+    {
+      "label": "DEPOSITO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;100;82"
+      }
+    },
+    {
+      "label": "SALDO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CONSULTA;AC-0001;14"
+      }
+    },
+    {
+      "label": "T-ok",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;50;87"
+      }
+    },
+    {
+      "label": "T-limite",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;100001;9"
+      }
+    },
+    {
+      "label": "T-saldo",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "T-mismo",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0001;10;22"
+      }
+    },
+    {
+      "label": "T-inexistente",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-9999;10;56"
+      }
+    },
+    {
+      "label": "T-monto",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;0;44"
+      }
+    },
+    {
+      "label": "ANULA-op",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1;28"
+      }
+    },
+    {
+      "label": "ANULA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ANULA;OP-0001;72"
+      }
+    },
+    {
+      "label": "E402",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ANULA;OP-9999;51"
+      }
+    },
+    {
+      "label": "reset2",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "bloqueo-1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "bloqueo-2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;B;59"
+      }
+    },
+    {
+      "label": "bloqueo-3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;100;82"
+      }
+    },
+    {
+      "label": "falta1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "falta2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "falta3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "E510",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "cmd:SALDO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SALDO;x;40"
+      }
+    },
+    {
+      "label": "cmd:SALDOS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SALDOS;x;91"
+      }
+    },
+    {
+      "label": "cmd:EXTRACTO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "EXTRACTO;x;72"
+      }
+    },
+    {
+      "label": "cmd:MOVIMIENTOS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "MOVIMIENTOS;x;63"
+      }
+    },
+    {
+      "label": "cmd:LISTA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "LISTA;x;50"
+      }
+    },
+    {
+      "label": "cmd:BAJA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "BAJA;x;43"
+      }
+    },
+    {
+      "label": "cmd:CIERRA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CIERRA;x;89"
+      }
+    },
+    {
+      "label": "cmd:RETIRA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "RETIRA;x;26"
+      }
+    },
+    {
+      "label": "cmd:RETIRO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "RETIRO;x;78"
+      }
+    },
+    {
+      "label": "cmd:DEPOSITAR",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITAR;x;64"
+      }
+    },
+    {
+      "label": "cmd:TRANSFERIR",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFERIR;x;72"
+      }
+    },
+    {
+      "label": "cmd:CANCELA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CANCELA;x;11"
+      }
+    },
+    {
+      "label": "cmd:REVERSA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "REVERSA;x;21"
+      }
+    },
+    {
+      "label": "cmd:ANULAR",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ANULAR;x;66"
+      }
+    },
+    {
+      "label": "cmd:HISTORIAL",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HISTORIAL;x;62"
+      }
+    },
+    {
+      "label": "cmd:INFO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "INFO;x;8"
+      }
+    },
+    {
+      "label": "cmd:STATUS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "STATUS;x;47"
+      }
+    },
+    {
+      "label": "cmd:AYUDA",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "AYUDA;x;23"
+      }
+    },
+    {
+      "label": "cmd:HELP",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HELP;x;45"
+      }
+    },
+    {
+      "label": "cmd:VERSION",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "VERSION;x;87"
+      }
+    },
+    {
+      "label": "cmd:ECO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ECO;x;12"
+      }
+    },
+    {
+      "label": "cmd:PING2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PING2;x;55"
+      }
+    },
+    {
+      "label": "cmd:SET",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "SET;x;13"
+      }
+    },
+    {
+      "label": "cmd:GET",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "GET;x;52"
+      }
+    },
+    {
+      "label": "cmd:QUERY",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "QUERY;x;51"
+      }
+    },
+    {
+      "label": "cmd:ORDEN",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ORDEN;x;81"
+      }
+    },
+    {
+      "label": "cmd:PAGO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "PAGO;x;76"
+      }
+    },
+    {
+      "label": "cmd:COBRO",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "COBRO;x;76"
+      }
+    },
+    {
+      "label": "monto:0",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;0;31"
+      }
+    },
+    {
+      "label": "monto:1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1;28"
+      }
+    },
+    {
+      "label": "monto:9",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;9;4"
+      }
+    },
+    {
+      "label": "monto:10",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;10;77"
+      }
+    },
+    {
+      "label": "monto:999999999",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;999999999;4"
+      }
+    },
+    {
+      "label": "monto:1000000000",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000000;46"
+      }
+    },
+    {
+      "label": "monto:10000000000",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;10000000000;63"
+      }
+    },
+    {
+      "label": "monto:0001",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;0001;25"
+      }
+    },
+    {
+      "label": "monto:+1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;+1;28"
+      }
+    },
+    {
+      "label": "monto:1.5",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1.5;62"
+      }
+    },
+    {
+      "label": "monto:-1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;-1;28"
+      }
+    },
+    {
+      "label": "monto:1e3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1e3;20"
+      }
+    },
+    {
+      "label": "monto: 1",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001; 1;28"
+      }
+    },
+    {
+      "label": "monto:1 ",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1 ;28"
+      }
+    },
+    {
+      "label": "monto:99999999999999999999",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;99999999999999999999;4"
+      }
+    },
+    {
+      "label": "ctl:0",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;0"
+      }
+    },
+    {
+      "label": "ctl:00",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;00"
+      }
+    },
+    {
+      "label": "ctl:2",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;2"
+      }
+    },
+    {
+      "label": "ctl:98",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;98"
+      }
+    },
+    {
+      "label": "ctl:003",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;003"
+      }
+    },
+    {
+      "label": "ctl:+3",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;+3"
+      }
+    },
+    {
+      "label": "ctl:3abc",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;3abc"
+      }
+    },
+    {
+      "label": "ctl: ",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo; "
+      }
+    },
+    {
+      "label": "ctl:999",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;Mateo;999"
+      }
+    },
+    {
+      "label": "route:GET:/",
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "label": "route:GET:/favicon.ico",
+      "method": "GET",
+      "path": "/favicon.ico"
+    },
+    {
+      "label": "route:GET:/robots.txt",
+      "method": "GET",
+      "path": "/robots.txt"
+    },
+    {
+      "label": "route:GET:/metrics",
+      "method": "GET",
+      "path": "/metrics"
+    },
+    {
+      "label": "route:GET:/debug",
+      "method": "GET",
+      "path": "/debug"
+    },
+    {
+      "label": "route:GET:/admin",
+      "method": "GET",
+      "path": "/admin"
+    },
+    {
+      "label": "route:GET:/status",
+      "method": "GET",
+      "path": "/status"
+    },
+    {
+      "label": "route:GET:/version",
+      "method": "GET",
+      "path": "/version"
+    },
+    {
+      "label": "route:GET:/api",
+      "method": "GET",
+      "path": "/api"
+    },
+    {
+      "label": "route:GET:/openapi.json",
+      "method": "GET",
+      "path": "/openapi.json"
+    },
+    {
+      "label": "route:GET:/msg/",
+      "method": "GET",
+      "path": "/msg/"
+    },
+    {
+      "label": "route:GET:/health/",
+      "method": "GET",
+      "path": "/health/"
+    },
+    {
+      "label": "route:GET:/__reset/",
+      "method": "GET",
+      "path": "/__reset/"
+    },
+    {
+      "label": "route:PUT:/msg",
+      "method": "PUT",
+      "path": "/msg"
+    },
+    {
+      "label": "route:DELETE:/msg",
+      "method": "DELETE",
+      "path": "/msg"
+    },
+    {
+      "label": "route:PATCH:/msg",
+      "method": "PATCH",
+      "path": "/msg"
+    },
+    {
+      "label": "route:OPTIONS:/msg",
+      "method": "OPTIONS",
+      "path": "/msg"
+    },
+    {
+      "label": "route:POST:/health",
+      "method": "POST",
+      "path": "/health"
+    }
+  ]
+}

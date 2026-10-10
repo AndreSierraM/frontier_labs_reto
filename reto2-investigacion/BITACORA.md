@@ -91,11 +91,26 @@ python3 scripts/vigilancia.py        # crea foto y compara con la anterior
 
 ---
 
-## 4 · Registro del incidente (a completar cuando ocurra)
+## 4 · Registro del incidente (15:30 BOG / 20:30 UTC)
 
-| Hora | Fuente | Cambio detectado | Antes | Después | Adaptación | Commit |
-| --- | --- | --- | --- | --- | --- | --- |
-| — | — | (pendiente, 20:30 UTC / aún no detectado) | — | — | — | — |
+Fuente del cambio: `GET /api/monitor/dashboard` → `events` (kinds `original_changed`,
+`new_command`, `new_route`, `map_value_changed`) y la línea de tiempo en
+[`/monitor`](https://frontier-labs-reto.vercel.app/monitor). El enjambre reporta cada
+corrida a `/api/monitor/agent` (estado, etiquetas, revisión, run y PR).
+
+| Hora (UTC / BOG) | Etiqueta | Antes | Después | id log | Adaptación (PR) | Commit merge | Desplegado |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| — pendiente | — | — | — | — | — | — | — |
+
+**Al detectarlo, añadir una fila con este formato:**
+
+```text
+| 2026-10-10 20:3XZ / 15:3X | `T-<algo>` | `{"error":"…"}` | `{"error":"…"}` | <id-log> | [#<n>](<pr-url>) | <sha> | sí |
+```
+
+Pasos: (1) confirmar el evento en el panel; (2) **mergear el PR del enjambre antes de
+las 20:00**; (3) añadir `X-04` en [`SPEC.md`](SPEC.md) con el `id` del log; (4) re-correr
+`validar.py` contra el entrypoint y guardar `logs/validacion-entrypoint.json`.
 
 ---
 

@@ -13,7 +13,7 @@
 "use strict";
 
 const { Pool } = require("pg");
-const { createHandler } = require("../reemplazo/src/server");
+const { createHandler, loadEnv } = require("../reemplazo/src/server");
 const { createPostgresStorage } = require("../reemplazo/src/storage");
 
 const pool = new Pool({
@@ -38,7 +38,11 @@ function recordRequest(r) {
   }
 }
 
-const handler = createHandler(storage, { onRequest: recordRequest });
+loadEnv(); // el entry lee el entorno; el handler recibe la config explícita
+const handler = createHandler(storage, {
+  token: process.env.TOKEN_API_ENTRYPOINT || process.env.TEAM_TOKEN || "",
+  onRequest: recordRequest,
+});
 
 let ready = null;
 function ensureReady() {

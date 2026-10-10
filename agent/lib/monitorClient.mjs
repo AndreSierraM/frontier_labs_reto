@@ -3,15 +3,7 @@
  */
 import fs from "node:fs";
 import { config } from "./config.mjs";
-
-// Eventos que despiertan al enjambre (la batería, el mapa y los descubrimientos).
-const CHANGE_KINDS = new Set([
-  "original_changed",
-  "map_added",
-  "map_value_changed",
-  "new_command",
-  "new_route",
-]);
+import kinds from "../../monitor/kinds.js";
 
 async function api(pathname, options = {}) {
   const res = await fetch(config.monitorUrl + pathname, {
@@ -28,7 +20,7 @@ async function api(pathname, options = {}) {
 export function pendingChanges(events) {
   const acks = (events || []).filter((e) => e.kind === "adaptation_applied").map((e) => e.id);
   const lastAck = acks.length ? Math.max(...acks) : 0;
-  return (events || []).filter((e) => CHANGE_KINDS.has(e.kind) && e.id > lastAck);
+  return (events || []).filter((e) => kinds.wakesSwarm(e.kind) && e.id > lastAck);
 }
 
 /** Cambios a adaptar: de un archivo local (pruebas) o del monitor. */

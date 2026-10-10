@@ -7,12 +7,25 @@
  *   routes    -> métodos y rutas inexistentes
  *   all       -> todo (para el recon en GitHub Actions)
  *
- * El control ISO 7064 se calcula con el dominio del reemplazo.
+ * El control ISO 7064 se calcula aquí con una referencia propia y congelada,
+ * sin depender del dominio del reemplazo (si no, la sonda se auto-validaría).
  */
 "use strict";
 
-const dominio = require("../reemplazo/src/domain");
-const c = (body) => `${body};${dominio.control(body)}`;
+// Referencia congelada ISO 7064 MOD 97-10 (verificador tipo IBAN).
+function refControl(cuerpo) {
+  let n = "";
+  for (const ch of cuerpo) {
+    if (ch >= "0" && ch <= "9") n += ch;
+    else if ((ch >= "A" && ch <= "Z") || (ch >= "a" && ch <= "z"))
+      n += String(ch.toUpperCase().charCodeAt(0) - 64);
+  }
+  let r = 0;
+  for (const d of n) r = (r * 10 + Number(d)) % 97;
+  return String(98 - ((r * 100) % 97));
+}
+
+const c = (body) => `${body};${refControl(body)}`;
 
 // --- Batería de contrato y estado (secuencia con resets implícitos) --------
 const BATERIA = [
@@ -91,4 +104,4 @@ function catalog() {
   return { battery, discovery, routes, all: [...battery, ...discovery, ...routes] };
 }
 
-module.exports = { BATERIA, COMANDOS, MONTOS, CONTROLES, RUTAS, catalog };
+module.exports = { BATERIA, COMANDOS, MONTOS, CONTROLES, RUTAS, catalog, refControl };

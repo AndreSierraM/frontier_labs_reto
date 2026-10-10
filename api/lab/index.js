@@ -12,7 +12,7 @@
 
 const { Readable } = require("stream");
 const { Pool } = require("pg");
-const { createHandler } = require("../../reemplazo/src/server");
+const { createHandler, loadEnv } = require("../../reemplazo/src/server");
 const { createPostgresStorage } = require("../../reemplazo/src/storage");
 const { json, authorized, readJson } = require("../../monitor/serverless");
 
@@ -22,9 +22,10 @@ let storage = null;
 
 function init() {
   if (handler) return;
+  loadEnv(); // el entry lee el entorno; el handler recibe la config explícita
   pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 3, ssl: { rejectUnauthorized: false } });
   storage = createPostgresStorage(pool, "lab_estado");
-  handler = createHandler(storage);
+  handler = createHandler(storage, { token: process.env.TOKEN_API_ENTRYPOINT || process.env.TEAM_TOKEN || "" });
 }
 
 async function ensureConfig() {

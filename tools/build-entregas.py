@@ -139,7 +139,7 @@ def render_markdown(md: str) -> str:
 
 
 def render_table(rows: list[str]) -> str:
-    cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
+    cells = [[c.strip().replace("\\|", "|") for c in re.split(r"(?<!\\)\|", r.strip().strip("|"))] for r in rows]
     body = [c for c in cells if not set("".join(c)) <= set("-: ")]
     if not body:
         return ""
@@ -274,9 +274,9 @@ def build_spec() -> str:
     body = f"""
 <header><h1>La caja negra · Especificación del servicio</h1>
 <p class="meta">Frontier Labs · Reto 2 · Especificación reimplementable · {len(spec_rows)} comportamientos · {len(rows)} observaciones · <span class="ok">evidencia verificada</span></p></header>
-<p class="lead">Permite reimplementar el servicio <b>sin tocar el original</b>. Cada comportamiento cita <b>IDs exactos</b> del <a href="04-log-experimentos.md">log de experimentos</a>; <code>reto2-investigacion/scripts/validar_spec.py</code> comprueba que la evidencia existe y corresponde. Importa preservar <b>respuesta + estado posterior</b>, incluidas las anomalías (typo <code>recieved</code>, espacio final de <code>E301</code>).</p>
+<p class="lead">Permite reimplementar el servicio <b>sin tocar el original</b>. Cada comportamiento cita <b>IDs exactos</b> del <a href="md.html?f=04-log-experimentos.md">log de experimentos</a>; <code>reto2-investigacion/scripts/validar_spec.py</code> comprueba que la evidencia existe y corresponde. Importa preservar <b>respuesta + estado posterior</b>, incluidas las anomalías (typo <code>recieved</code>, espacio final de <code>E301</code>).</p>
 {render_markdown(md)}
-<footer>Fuente: <code>reto2-investigacion/SPEC.md</code> · generado por <code>tools/build-entregas.py</code> · log y evidencia en <a href="04-log-experimentos.md">04 · Log de experimentos</a>.</footer>
+<footer>Fuente: <code>reto2-investigacion/SPEC.md</code> · generado por <code>tools/build-entregas.py</code> · log y evidencia en <a href="md.html?f=04-log-experimentos.md">04 · Log de experimentos</a>.</footer>
 """
     return page("Reto 2 · Especificación del servicio", body)
 

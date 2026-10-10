@@ -7,16 +7,45 @@
  */
 "use strict";
 
-const crypto = require("crypto");
 const probes = require("./probes");
+const compare = require("./compare");
+const { hasInfra } = compare;
 
 const PROBES = probes.catalog();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// ---------------------------------------------------------------- rate limit
+// Material oficial (`frontier-reto-2/README.md`): cada token admite 10 req/s y
+// 8.000/día. Si se supera, el original responde 429 con `X-Frontier-Infra`.
+// Serializamos TODAS las peticiones con un limitador global por debajo del
+// límite (8 rps por defecto) para no autobloquearnos.
+const RPS = Math.max(1, Number(process.env.MONITOR_RPS || 8));
+const MIN_GAP_MS = Math.ceil(1000 / RPS);
+const BACKOFF_MS = Math.max(0, Number(process.env.MONITOR_BACKOFF_MS || 2000));
+let nextSlot = 0;
+
+/** Reserva el siguiente hueco del limitador y espera si aún no toca. */
+async function acquire() {
+  const now = Date.now();
+  const at = Math.max(now, nextSlot);
+  nextSlot = at + MIN_GAP_MS;
+  if (at > now) await sleep(at - now);
+}
+
+const limiter = {
+  rps: RPS,
+  minGapMs: MIN_GAP_MS,
+  acquire,
+  reset: () => {
+    nextSlot = 0;
+  },
+};
+
 // ---------------------------------------------------------------- HTTP
-async function requestRaw(base, token, method, path, body, timeoutMs = 15000, tries = 2) {
+async function requestRaw(base, token, method, path, body, timeoutMs = 15000, tries = 3, throttle = true) {
   let lastErr = "";
   for (let i = 0; i < tries; i++) {
+    if (throttle) await acquire();
     try {
       const res = await fetch(base + path, {
         method,
@@ -31,23 +60,24 @@ async function requestRaw(base, token, method, path, body, timeoutMs = 15000, tr
       } catch (_) {
         parsed = text;
       }
-      if (res.status === 429 && i < tries - 1) {
-        await sleep(1000 * (i + 1));
+      const infra = res.status === 429 || res.headers.get("x-frontier-infra") === "rate-limit";
+      if (infra && i < tries - 1) {
+        await sleep(BACKOFF_MS * (i + 1));
         continue;
       }
       return { status: res.status, response: parsed };
     } catch (e) {
       lastErr = String(e && e.message);
-      await sleep(1000 * (i + 1));
+      await sleep(BACKOFF_MS * (i + 1));
     }
   }
   return { status: 0, response: "unreachable", error: lastErr };
 }
-const request = (base, token, path, body, timeoutMs, tries) =>
-  requestRaw(base, token, "POST", path, body, timeoutMs, tries);
+const request = (base, token, path, body, timeoutMs, tries, throttle) =>
+  requestRaw(base, token, "POST", path, body, timeoutMs, tries, throttle);
 
 // ---------------------------------------------------------------- runner
-async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries = 2, abortOnInfra = false, concurrency = 1 } = {}) {
+async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries = 2, abortOnInfra = false, concurrency = 1, throttle = true } = {}) {
   const map = {};
   const record = (p, raw) => {
     map[p.label] = p.path === "/__reset" && raw.status === 200 ? { status: 200, response: "reset" } : raw;
@@ -57,7 +87,7 @@ async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries =
   // Secuencial: obligatorio para la batería (tiene estado).
   if (concurrency <= 1) {
     for (const p of list) {
-      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries);
+      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries, throttle);
       record(p, raw);
       if (infra(raw)) return map; // al primer 429 la muestra ya no sirve
       if (sleepMs) await sleep(sleepMs);
@@ -71,7 +101,7 @@ async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries =
   const worker = async () => {
     while (next < list.length && !aborted) {
       const p = list[next++];
-      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries);
+      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries, throttle);
       record(p, raw);
       if (infra(raw)) aborted = true;
     }
@@ -89,7 +119,7 @@ async function runAll(base, token, opts = {}) {
   const rest = await run(base, token, [...PROBES.discovery, ...PROBES.routes], {
     sleepMs: 0,
     ...opts,
-    concurrency: opts.concurrency || 6,
+    concurrency: opts.concurrency || 1,
   });
   return { ...battery, ...rest };
 }
@@ -106,41 +136,4 @@ async function health(base, token, timeoutMs = 15000) {
   }
 }
 
-// -------------------------------------------------- comparación / hashing
-// Postgres jsonb no preserva el orden de claves: comparar/hashear exige una
-// forma canónica para no reportar falsos cambios.
-function canonical(value) {
-  if (Array.isArray(value)) return value.map(canonical);
-  if (value && typeof value === "object") {
-    const out = {};
-    for (const k of Object.keys(value).sort()) out[k] = canonical(value[k]);
-    return out;
-  }
-  return value;
-}
-const stable = (value) => JSON.stringify(canonical(value));
-const fingerprint = (map) => crypto.createHash("sha256").update(stable(map)).digest("hex");
-
-function hasInfra(map) {
-  return Object.values(map || {}).some((s) => s && (s.status === 429 || s.status === 0));
-}
-
-/** Diferencia dos mapas: agregados, cambiados, removidos y la lista de diffs. */
-function diff(prev, next) {
-  const added = [];
-  const changed = [];
-  const diffs = [];
-  for (const label of Object.keys(next || {})) {
-    if (!(label in (prev || {}))) {
-      added.push(label);
-      diffs.push({ label, before: null, after: next[label] });
-    } else if (stable(prev[label]) !== stable(next[label])) {
-      changed.push(label);
-      diffs.push({ label, before: prev[label], after: next[label] });
-    }
-  }
-  const removed = Object.keys(prev || {}).filter((l) => !(l in (next || {})));
-  return { added, changed, removed, diffs };
-}
-
-module.exports = { PROBES, request, requestRaw, run, runBattery, runAll, health, canonical, stable, fingerprint, hasInfra, diff };
+module.exports = { PROBES, request, requestRaw, run, runBattery, runAll, health, limiter, ...compare };
