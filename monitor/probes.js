@@ -1,0 +1,94 @@
+/**
+ * Catálogo de sondas del original (datos, sin lógica).
+ *
+ * `catalog()` devuelve listas uniformes `{label, method, path, body}`:
+ *   battery   -> contrato y estado en secuencia (31, una sola pasada rápida)
+ *   discovery -> comandos/rutas/montos/controles candidatos (descubren novedades)
+ *   routes    -> métodos y rutas inexistentes
+ *   all       -> todo (para el recon en GitHub Actions)
+ *
+ * El control ISO 7064 se calcula con el dominio del reemplazo.
+ */
+"use strict";
+
+const dominio = require("../reemplazo/src/domain");
+const c = (body) => `${body};${dominio.control(body)}`;
+
+// --- Batería de contrato y estado (secuencia con resets implícitos) --------
+const BATERIA = [
+  ["reset", null],
+  ["PING", "PING;64"],
+  ["PING-ignore", "PING;abc"],
+  ["E103", "PING"],
+  ["E104", "PING;"],
+  ["E201", "ALTA;Mateo;003"],
+  ["E202", "ALTA;Mateo;03"],
+  ["E301", c("SALDOS;x")],
+  ["E301-sug", c("TRANSFERIR;x")],
+  ["ALTA", c("ALTA;A")],
+  ["ALTA2", c("ALTA;B")],
+  ["CONSULTA", c("CONSULTA;AC-0001")],
+  ["DEPOSITO", c("DEPOSITO;AC-0001;100")],
+  ["SALDO", c("CONSULTA;AC-0001")],
+  ["T-ok", c("TRANSFER;AC-0001;AC-0002;50")],
+  ["T-limite", c("TRANSFER;AC-0001;AC-0002;100001")],
+  ["T-saldo", c("TRANSFER;AC-0001;AC-0002;101")],
+  ["T-mismo", c("TRANSFER;AC-0001;AC-0001;10")],
+  ["T-inexistente", c("TRANSFER;AC-0001;AC-9999;10")],
+  ["T-monto", c("TRANSFER;AC-0001;AC-0002;0")],
+  ["ANULA-op", c("DEPOSITO;AC-0001;1")],
+  ["ANULA", c("ANULA;OP-0001")],
+  ["E402", c("ANULA;OP-9999")],
+  ["reset2", null],
+  ["bloqueo-1", c("ALTA;A")],
+  ["bloqueo-2", c("ALTA;B")],
+  ["bloqueo-3", c("DEPOSITO;AC-0001;100")],
+  ["falta1", c("TRANSFER;AC-0001;AC-0002;101")],
+  ["falta2", c("TRANSFER;AC-0001;AC-0002;101")],
+  ["falta3", c("TRANSFER;AC-0001;AC-0002;101")],
+  ["E510", c("TRANSFER;AC-0001;AC-0002;101")],
+];
+
+// --- Descubrimiento -------------------------------------------------------
+// Un comando candidato que NO responda E301 es un comando nuevo.
+const COMANDOS = [
+  "SALDO", "SALDOS", "EXTRACTO", "MOVIMIENTOS", "LISTA", "BAJA", "CIERRA",
+  "RETIRA", "RETIRO", "DEPOSITAR", "TRANSFERIR", "CANCELA", "REVERSA",
+  "ANULAR", "HISTORIAL", "INFO", "STATUS", "AYUDA", "HELP", "VERSION",
+  "ECO", "PING2", "SET", "GET", "QUERY", "ORDEN", "PAGO", "COBRO",
+];
+// Montos de borde (válidos e inválidos).
+const MONTOS = [
+  "0", "1", "9", "10", "999999999", "1000000000", "10000000000",
+  "0001", "+1", "1.5", "-1", "1e3", " 1", "1 ", "99999999999999999999",
+];
+// Valores de control de borde.
+const CONTROLES = ["0", "00", "2", "98", "003", "+3", "3abc", " ", "999"];
+// Rutas y métodos candidatos (descubren endpoints nuevos).
+const RUTAS = [
+  ["GET", "/"], ["GET", "/favicon.ico"], ["GET", "/robots.txt"],
+  ["GET", "/metrics"], ["GET", "/debug"], ["GET", "/admin"],
+  ["GET", "/status"], ["GET", "/version"], ["GET", "/api"],
+  ["GET", "/openapi.json"], ["GET", "/msg/"], ["GET", "/health/"],
+  ["GET", "/__reset/"], ["PUT", "/msg"], ["DELETE", "/msg"],
+  ["PATCH", "/msg"], ["OPTIONS", "/msg"], ["POST", "/health"],
+];
+
+// --- Catálogo uniforme ----------------------------------------------------
+function catalog() {
+  const battery = BATERIA.map(([label, m]) => ({
+    label,
+    method: "POST",
+    path: m === null ? "/__reset" : "/msg",
+    body: m === null ? null : { m },
+  }));
+  const discovery = [
+    ...COMANDOS.map((cmd) => ({ label: `cmd:${cmd}`, method: "POST", path: "/msg", body: { m: c(`${cmd};x`) } })),
+    ...MONTOS.map((m) => ({ label: `monto:${m}`, method: "POST", path: "/msg", body: { m: c(`DEPOSITO;AC-0001;${m}`) } })),
+    ...CONTROLES.map((ctl) => ({ label: `ctl:${ctl}`, method: "POST", path: "/msg", body: { m: `ALTA;Mateo;${ctl}` } })),
+  ];
+  const routes = RUTAS.map(([method, path]) => ({ label: `route:${method}:${path}`, method, path }));
+  return { battery, discovery, routes, all: [...battery, ...discovery, ...routes] };
+}
+
+module.exports = { BATERIA, COMANDOS, MONTOS, CONTROLES, RUTAS, catalog };

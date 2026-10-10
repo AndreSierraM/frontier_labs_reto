@@ -11,6 +11,7 @@ import { runPhase } from "./lib/phase.mjs";
 import { runTests } from "./lib/tests.mjs";
 import { verifyAgainstOriginal } from "./lib/verify.mjs";
 import { fetchVercelLogs } from "./lib/logs.mjs";
+import { gitDiff } from "./lib/git.mjs";
 
 const log = (...a) => console.log("[swarm]", ...a);
 
@@ -82,8 +83,33 @@ async function fixAndVerify(diagnosis, runDir) {
   return { verification, fixerOut, inconclusive: false };
 }
 
-// ---- Fase 4: reporter ----------------------------------------------------
-function reporterTask(changes, diagnosis, fixerOut, verification) {
+// ---- Fase 4: revisión (antes del PR) -------------------------------------
+async function reviewPhase(diagnosis, fixerOut, verification, runDir) {
+  const diff = gitDiff();
+  save(runDir, "fixer.patch", diff);
+  const task = [
+    "Revisa el parche antes de proponerlo.",
+    "",
+    "## Diagnóstico",
+    diagnosis,
+    "",
+    "## Resumen del fixer",
+    fixerOut,
+    "",
+    "## Verificación",
+    JSON.stringify(verification, null, 2),
+    "",
+    "## Diff (git diff)",
+    "```diff",
+    diff.slice(0, 12000),
+    "```",
+  ].join("\n");
+  const r = await runPhase({ role: "reviewer", task, label: "reviewer", runDir, file: "review.md" });
+  return r.out;
+}
+
+// ---- Fase 5: reporter ----------------------------------------------------
+function reporterTask(changes, diagnosis, fixerOut, verification, review) {
   return [
     "Redacta el cuerpo del PR.",
     "",
@@ -98,6 +124,9 @@ function reporterTask(changes, diagnosis, fixerOut, verification) {
     "",
     "## Verificación",
     JSON.stringify(verification, null, 2),
+    "",
+    "## Revisión",
+    review,
   ].join("\n");
 }
 
@@ -150,9 +179,12 @@ export async function runSwarm() {
     return { status: "failed", verification };
   }
 
+  const review = await reviewPhase(analyst.out, fixerOut, verification, runDir);
+  log("revisión lista");
+
   await runPhase({
     role: "reporter",
-    task: reporterTask(changes, analyst.out, fixerOut, verification),
+    task: reporterTask(changes, analyst.out, fixerOut, verification, review),
     label: "reporter",
     runDir,
     file: "pr-body.md",

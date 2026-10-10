@@ -7,15 +7,18 @@ detectar cambios) y **nuestro** servicio (para ver cómo funciona y auto-corregi
 
 | Sonda | Qué cubre | Dónde corre |
 | --- | --- | --- |
-| Batería (`monitor/observe.js` · `PROBES.battery`) | 31 puntos: contrato, comandos, límites, bloqueo, anulaciones | Función serverless (`/api/monitor/run`), rápido |
-| Mapa ampliado (`monitor/observe.js` · `PROBES.all`) | 101 sondas: batería + **descubrimiento** de comandos, rutas, montos y controles nuevos | GitHub Actions (`agent/recon.mjs`), sin límite de 60s |
+| Batería (`monitor/probes.js` · `PROBES.battery`) | 31 puntos: contrato, comandos, límites, bloqueo, anulaciones | Función serverless (`/api/monitor/run`), rápido |
+| Mapa ampliado (`monitor/probes.js` · `PROBES.all`) | 101 sondas: batería + **descubrimiento** de comandos, rutas, montos y controles nuevos | GitHub Actions (`agent/recon.mjs`), sin límite de 60s |
+
+Datos vs lógica: `monitor/probes.js` es el **catálogo** (editable, auto-ensanchable);
+`monitor/observe.js` es el **runner** (HTTP, ejecución, diff).
 
 - Cada corrida guarda un **snapshot** o un **mapa** en Neon y lo compara con el
   anterior. Un valor **nuevo** o **cambiado** registra un evento y despierta al
   enjambre. Un comando candidato que deja de ser `E301` se marca `new_command`;
   una ruta que deja de ser 404, `new_route`.
 - **Auto-ensanche:** cuando el enjambre adapta un comando/ruta nuevo, el fixer
-  añade además una **sonda de regresión** a `monitor/observe.js` (`PROBES`), de modo que el
+  añade además una **sonda de regresión** a `monitor/probes.js`, de modo que el
   mapa sigue vigilando el comportamiento nuevo y la verificación lo cubre.
 - La verificación exige 0 divergencias contra el original en **batería + mapa**.
 - Se ignora `429/infra` (SPEC I-11): no es comportamiento del servicio.

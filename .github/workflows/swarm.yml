@@ -104,10 +104,15 @@ jobs:
           git push origin "$branch"
           body_file="$(ls -t agent/state/*/pr-body.md 2>/dev/null | head -1 || true)"
           if [ -n "$body_file" ] && [ -s "$body_file" ]; then
-            gh pr create --title "auto(swarm): adaptación al cambio del original" \
-              --body-file "$body_file" --base main --head "$branch"
+            pr_url=$(gh pr create --title "auto(swarm): adaptación al cambio del original" \
+              --body-file "$body_file" --base main --head "$branch")
           else
-            gh pr create --title "auto(swarm): adaptación al cambio del original" \
+            pr_url=$(gh pr create --title "auto(swarm): adaptación al cambio del original" \
               --body "PR generado por el enjambre. Revisar diff y tests (merge dispara deploy en Vercel)." \
-              --base main --head "$branch"
+              --base main --head "$branch")
+          fi
+          echo "PR: ${pr_url}"
+          review_file="$(ls -t agent/state/*/review.md 2>/dev/null | head -1 || true)"
+          if [ -n "$review_file" ] && [ -s "$review_file" ]; then
+            gh pr comment "$pr_url" --body-file "$review_file" || true
           fi
