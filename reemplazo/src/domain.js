@@ -28,6 +28,7 @@ const ERRORES = {
   E507: [422, { error: "E507", mensaje: "saldo insuficiente" }],
   E510: [423, { error: "E510", mensaje: "cuenta bloqueada" }],
   E520: [409, { error: "E520", mensaje: "operación destructiva: detiene el servicio; reenvía con confirmación" }],
+  E599: [503, { error: "E599", mensaje: "service halted" }],
 };
 
 // ---------- dígito de control: ISO 7064 MOD 97-10 (verificador IBAN) ----------
@@ -78,12 +79,18 @@ function sugerencia(cmd) {
 }
 
 // ---------- estado ----------
+// Upper solo de ASCII (A-Z/a-z). No pliega Unicode: "pıng" (i sin punto) NO
+// es PING, igual que el original (match de comando insensible a mayúsculas pero
+// solo ASCII).
+const asciiUpper = (s) => s.replace(/[a-z]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 32));
+
 function freshState() {
   return {
-    cuentas: new Map(),      // id -> { saldo, fallos, nombre }
+    cuentas: new Map(),      // id -> { saldo, fallos, intentos, nombre }
     operaciones: new Map(),  // id -> { tipo, origen, destino, monto, anulada }
     nextCuenta: 1,
     nextOperacion: 1,
+    halted: false,           // v2: HALT;1 apaga el servicio (503 E599)
   };
 }
 
@@ -107,6 +114,9 @@ const MONTO = /^[1-9][0-9]{0,9}$/;
 // ---------- procesamiento ----------
 /** @returns {{code:string, sugerencia?:string}|{ok:object, status?:number}} */
 function processMessage(state, m) {
+  // v2: si el servicio está apagado, TODO /msg responde 503 E599 (antes de
+  // cualquier validación de integridad/arity).
+  if (state.halted) return { code: "E599" };
   if (m.split(";").length < 2) return { code: "E103" };
 
   const idx = m.lastIndexOf(";");
@@ -116,7 +126,7 @@ function processMessage(state, m) {
 
   if (segs.some((s) => s === "")) return { code: "E104" };
 
-  const cmd = segs[0].toUpperCase();
+  const cmd = asciiUpper(segs[0]);
 
   // control (PING lo ignora) — E201/E202 antes que aridad y despacho
   if (cmd !== "PING") {
@@ -209,9 +219,14 @@ function processMessage(state, m) {
       return { ok: { ok: true, anulada: segs[1] } };
     }
 
-    // v2 · comando nuevo: HALT (destructivo) -> 409 E520
+    // v2 · comando nuevo: HALT (destructivo) -> 409 E520; con confirmación
+    // exacta `<1>` apaga el servicio (503 E599).
     case "HALT":
       if (segs.length !== 3) return { code: "E302" };
+      if (segs[1] === "1") {
+        state.halted = true;
+        return { code: "E599" };
+      }
       return { code: "E520" };
 
     // v2 · comando nuevo: NOTAS -> 200 con la nota de migración

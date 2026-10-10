@@ -142,4 +142,16 @@ test("v2: saldo decimal, E510 423+intentos, HALT (E520) y NOTAS", async (t) => {
     { status: "recieved", operacionId: "OP-0002" });
   await message("TRANSFER;AC-0001;AC-0002;50001", 422,
     { error: "E506", mensaje: "límite excedido" });
+  // v2: match de comando ASCII-only (pıng con i sin punto NO es PING).
+  await check("/msg", { method: "POST", body: JSON.stringify({ m: "pıng;XX" }) }, 400,
+    { error: "E201", mensaje: "control mal formado" });
+  await check("/msg", { method: "POST", body: JSON.stringify({ m: `pıng;${control("pıng")}` }) }, 400,
+    { error: "E301", mensaje: "comando desconocido ", sugerencia: "PING" });
+  // v2: HALT;1 apaga el servicio (503 E599) hasta __reset.
+  await check("/__reset", { method: "POST" }, 200, { ok: true });
+  await message("ALTA;A", 201, { cuentaId: "AC-0001" });
+  await message("HALT;1", 503, { error: "E599", mensaje: "service halted" });
+  await message("PING", 503, { error: "E599", mensaje: "service halted" });
+  await check("/__reset", { method: "POST" }, 200, { ok: true });
+  await message("PING", 200, { pong: true });
 });
