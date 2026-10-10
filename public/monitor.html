@@ -92,7 +92,6 @@
     </div>
   </div>
   <div class="controls">
-    <input id="token" type="password" placeholder="MONITOR_TOKEN" autocomplete="off">
     <button id="reload">Refrescar</button>
     <button id="auto" class="ghost">▶ Auto</button>
     <span class="muted" id="updated">—</span>
@@ -169,17 +168,12 @@ const pill = (status) => {
 };
 const statusPill = (st) => st>=500?`<span class="pill err">${st}</span>`:st>=400?`<span class="pill warn">${st}</span>`:`<span class="pill ok">${st}</span>`;
 
-let TOKEN = localStorage.getItem("monitor_token") || "";
 let timer = null;
-$("token").value = TOKEN;
 
 async function load() {
-  TOKEN = $("token").value.trim();
-  localStorage.setItem("monitor_token", TOKEN);
-  if (!TOKEN) { $("subtitle").textContent = "falta el token"; return; }
   try {
-    const r = await fetch("/api/monitor/dashboard", { headers: { Authorization: "Bearer " + TOKEN } });
-    if (r.status === 401) { $("livedot").className = "dot"; $("subtitle").textContent = "token inválido"; return; }
+    const r = await fetch("/api/monitor/dashboard", { cache: "no-store" });
+    if (!r.ok) { $("livedot").className = "dot"; $("subtitle").textContent = "error " + r.status; return; }
     render(await r.json());
     $("livedot").className = "dot live";
     $("updated").textContent = "actualizado " + fmt(new Date());
@@ -275,14 +269,13 @@ document.querySelectorAll(".tab").forEach(tab => tab.onclick = () => {
   document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + tab.dataset.tab));
 });
 $("reload").onclick = load;
-$("token").addEventListener("change", load);
 function setAuto(on) {
   $("auto").textContent = on ? "⏸ Auto 3s" : "▶ Auto";
   $("auto").classList.toggle("active", on);
   if (on) { load(); timer = setInterval(load, 3000); } else { clearInterval(timer); timer = null; }
 }
 $("auto").onclick = () => setAuto(!timer);
-if (TOKEN) setAuto(true);
+setAuto(true);
 </script>
 </body>
 </html>

@@ -1,12 +1,16 @@
 /**
  * GET /api/monitor/dashboard -> resumen para el panel: qué cambió en el
  * original + cómo está y qué hizo NUESTRO servicio (runtime_log).
+ *
+ * Solo lectura y público: no expone secretos (rutas, estados y eventos).
+ * Las operaciones que mutan (`/run`, `/map` POST, `/ack`, `/agent` POST) sí
+ * siguen protegidas con `MONITOR_TOKEN`.
  */
 "use strict";
 
 const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
-const { json, authorized } = require("../../monitor/serverless");
+const { json } = require("../../monitor/serverless");
 
 const CHANGE_KINDS = ["original_changed", "new_command", "new_route", "map_value_changed", "map_added", "replacement_divergent"];
 const INFRA_KINDS = ["original_ratelimited", "map_ratelimited"];
@@ -35,9 +39,6 @@ function buildTimeline(events, runs) {
 }
 
 module.exports = async (req, res) => {
-  const secret = process.env.MONITOR_TOKEN || process.env.CRON_SECRET;
-  if (!authorized(req, secret)) return json(res, 401, { error: "E001", mensaje: "no autorizado" });
-
   const pool = getPool();
   await store.ensure(pool);
 
