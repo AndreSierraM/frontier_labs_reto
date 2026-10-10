@@ -93,7 +93,7 @@ python3 scripts/vigilancia.py        # crea foto y compara con la anterior
 
 | Hora | Fuente | Cambio detectado | Antes | Después | Adaptación | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
-| — | — | (pendiente, 20:30 UTC) | — | — | — | — |
+| 2026-10-10T18:59:49Z | Monitor `T-limite` (`agent/state/2026-10-10T19-00-25-777Z/changes.json`) | `E506`: solo cambia el texto del mensaje | `422 {"error":"E506","mensaje":"límite excedido"}` | `422 {"error":"E506","mensaje":"limite superado"}` | `reemplazo/src/domain.js` (`ERRORES.E506`), tests de dominio/HTTP y `SPEC.md` | — |
 
 ---
 

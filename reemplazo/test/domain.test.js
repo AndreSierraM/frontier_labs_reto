@@ -86,5 +86,20 @@ test("ANULA revierte depósito y es idempotente", () => {
 test("comando desconocido -> E301 con sugerencia", () => {
   assert.deepStrictEqual(d.processMessage(st(), "TRANSFERIR;x;" + d.control("TRANSFERIR;x")), { code: "E301", sugerencia: "TRANSFER" });
 });
+test("E506 expone el mensaje vigente", () => {
+  assert.deepStrictEqual(d.ERRORES.E506, [
+    422,
+    { error: "E506", mensaje: "limite superado" },
+  ]);
+});
+test("TRANSFER 100001 -> E506 con mensaje nuevo", () => {
+  const s = st();
+  d.processMessage(s, "ALTA;A;" + d.control("ALTA;A"));
+  d.processMessage(s, "ALTA;B;" + d.control("ALTA;B"));
+  d.processMessage(s, "DEPOSITO;AC-0001;200000;" + d.control("DEPOSITO;AC-0001;200000"));
+  const r = d.processMessage(s, "TRANSFER;AC-0001;AC-0002;100001;" + d.control("TRANSFER;AC-0001;AC-0002;100001"));
+  assert.strictEqual(r.code, "E506");
+  assert.strictEqual(d.ERRORES.E506[1].mensaje, "limite superado");
+});
 
 console.log(`\n${n} pruebas OK${process.exitCode ? " (con fallas)" : ""}`);

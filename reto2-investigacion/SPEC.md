@@ -108,7 +108,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | K-T2 | Monto inválido → `400 E303` (igual que depósito). | 87–100 | confirmado |
 | K-T3 | Origen = destino → `400 {"error":"E304","mensaje":"origen y destino iguales"}` (antes de límite/saldo). | 122–163 | confirmado |
 | K-T4 | Origen o destino inexistente → `404 E401`. | 87–100 | confirmado |
-| K-T5 | Monto > 100000 → `422 {"error":"E506","mensaje":"límite excedido"}`. | 87–100, 122–163 | confirmado |
+| K-T5 | Monto > 100000 → `422 {"error":"E506","mensaje":"limite superado"}`. | 87–100, 122–163 | confirmado |
 | K-T6 | Monto > saldo → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. `E506` tiene prioridad sobre `E507`. | 87–100, 122–163 | confirmado |
 | K-T7 | Éxito: resta del origen, suma al destino, reinicia el contador de fallos del origen. | 87–100, 240–278 | confirmado |
 
@@ -156,7 +156,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | E401 | 404 | `{"error":"E401","mensaje":"cuenta inexistente"}` | cuenta no existe | 58–64, 87–100 | confirmado |
 | E402 | 404 | `{"error":"E402","mensaje":"operación inexistente"}` | operación no existe | 101–116, 240–278 | confirmado |
 | E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos | 352–354 | confirmado |
-| E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 100000 | 87–100, 122–163 | confirmado |
+| E506 | 422 | `{"error":"E506","mensaje":"limite superado"}` | transferencia > 100000 | 87–100, 122–163 | confirmado |
 | E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo | 87–100, 122–163 | confirmado |
 | E510 | 409 | `{"error":"E510","mensaje":"cuenta bloqueada"}` | cuenta con 3 fallos de transferencia | 164–239, 240–278, 309–336 | confirmado |
 
@@ -170,7 +170,7 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 | --- | --- | --- | --- |
 | C-01 | `E510 "cuenta bloqueada"` no aparece en los 20 ejemplos de la mañana ni en el material; se descubrió por experimentación (secuencias `bloqueo`/`bloqueo4`). Comportamiento de estado preexistente, no el cambio anunciado (ver C-03). | 122–163, 164–278, 309–336 | confirmado |
 | C-02 | Algoritmo de control sin cambios durante la sesión: los controles de los ejemplos siguen vigentes (verificado 15:36 UTC). | ejemplos 1–20 de `frontier-reto-2/pruebas/ejemplos.jsonl`, `data/pares_control.jsonl` | confirmado |
-| C-03 | Cambio anunciado de las 15:30 BOG: pendiente de detectar con `scripts/vigilancia.py`; al detectarlo se registra en `BITACORA.md` §4 y se adapta el reemplazo. | — | pendiente (#9) |
+| C-03 | Cambio anunciado de las 15:30 BOG: **detectado el 2026-10-10T18:59:49Z** por la sonda `T-limite` (`TRANSFER;AC-0001;AC-0002;100001`). Único delta: el mensaje de `E506` pasa de `"límite excedido"` a `"limite superado"` (status `422` y código sin cambios). Registrado en `BITACORA.md` §4 y adaptado el reemplazo. | `agent/state/2026-10-10T19-00-25-777Z/changes.json` | confirmado |
 
 ## 7 · Riesgos
 

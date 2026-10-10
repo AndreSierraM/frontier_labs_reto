@@ -33,7 +33,7 @@ _MENSAJES = {
     "E301": "comando desconocido ", "E302": "aridad inválida", "E303": "monto inválido",
     "E304": "origen y destino iguales", "E401": "cuenta inexistente",
     "E402": "operación inexistente", "E404": "ruta desconocida",
-    "E506": "límite excedido", "E507": "saldo insuficiente", "E510": "cuenta bloqueada",
+    "E506": "limite superado", "E507": "saldo insuficiente", "E510": "cuenta bloqueada",
 }
 OP = lambda n: {"status": "recieved", "operacionId": f"OP-{n:04d}"}
 
