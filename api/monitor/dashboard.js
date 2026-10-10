@@ -8,6 +8,32 @@ const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
 const { json, authorized } = require("../../monitor/serverless");
 
+const CHANGE_KINDS = ["original_changed", "new_command", "new_route", "map_value_changed", "map_added", "replacement_divergent"];
+const INFRA_KINDS = ["original_ratelimited", "map_ratelimited"];
+
+const eventDetail = (e) => (e.after && e.after.response ? JSON.stringify(e.after.response) : e.message || "");
+
+/** Une eventos del monitor y corridas del enjambre en una línea de tiempo. */
+function buildTimeline(events, runs) {
+  const items = [];
+  for (const e of events || []) {
+    const type = CHANGE_KINDS.includes(e.kind) ? "change" : e.kind === "adaptation_applied" ? "ack" : INFRA_KINDS.includes(e.kind) ? "infra" : "event";
+    items.push({ at: e.detected_at, type, kind: e.kind, label: e.label || null, detail: eventDetail(e) });
+  }
+  for (const r of runs || []) {
+    items.push({
+      at: r.at,
+      type: "agent",
+      kind: r.status,
+      label: r.labels || null,
+      detail: (r.review || "").split("\n").find((l) => l.trim()) || "",
+      runUrl: r.run_url || null,
+      prUrl: r.pr_url || null,
+    });
+  }
+  return items.sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 80);
+}
+
 module.exports = async (req, res) => {
   const secret = process.env.MONITOR_TOKEN || process.env.CRON_SECRET;
   if (!authorized(req, secret)) return json(res, 401, { error: "E001", mensaje: "no autorizado" });
@@ -42,5 +68,6 @@ module.exports = async (req, res) => {
     },
     events,
     agentRuns,
+    timeline: buildTimeline(events, agentRuns),
   });
 };

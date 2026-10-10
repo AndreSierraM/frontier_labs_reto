@@ -65,6 +65,20 @@
   .kpis{display:flex;gap:26px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--line)}
   .kpi b{display:block;font-size:22px;letter-spacing:-.4px}
   .kpi small{color:var(--muted);font-size:12px}
+  .timeline{padding:6px 0}
+  .tl{display:flex;gap:14px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:flex-start}
+  .tl:last-child{border-bottom:0}
+  .tl .ico{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;font-size:14px}
+  .tl.change .ico{background:rgba(56,189,248,.15);color:var(--accent)}
+  .tl.agent .ico{background:rgba(167,139,250,.15);color:var(--info)}
+  .tl.ack .ico{background:rgba(52,211,153,.15);color:var(--ok)}
+  .tl.infra .ico{background:rgba(251,191,36,.15);color:var(--warn)}
+  .tl.event .ico{background:rgba(138,160,182,.15);color:var(--muted)}
+  .tl .body{flex:1;min-width:0}
+  .tl .body b{font-size:13.5px}
+  .tl .detail{color:var(--muted);font-size:12.5px;font-family:var(--mono);margin-top:2px;word-break:break-word}
+  .tl .time{color:var(--muted);font-size:12px;white-space:nowrap}
+  .tl .links a{margin-left:10px;font-size:12.5px}
   @media(max-width:640px){input{min-width:150px}.card .metric{font-size:22px}}
 </style>
 </head>
@@ -111,6 +125,7 @@
     <button class="tab active" data-tab="svc">Nuestro servicio</button>
     <button class="tab" data-tab="orig">Original</button>
     <button class="tab" data-tab="agent">Enjambre</button>
+    <button class="tab" data-tab="timeline">Línea de tiempo</button>
   </div>
 
   <section class="panel active" id="panel-svc">
@@ -133,6 +148,11 @@
     <table><thead><tr><th>Hora</th><th>Estado</th><th>Etiquetas</th><th>Revisión</th><th>Run</th><th>PR</th></tr></thead><tbody id="runs"></tbody></table>
     <h3>Última revisión</h3>
     <pre id="lastReview">—</pre>
+  </section>
+
+  <section class="panel" id="panel-timeline">
+    <h3>Línea de tiempo <span class="muted">cambio → corrida → PR</span></h3>
+    <div class="timeline" id="timeline"></div>
   </section>
 </main>
 
@@ -208,6 +228,28 @@ function render(d) {
          <td>${link(r.run_url, "Actions")}</td><td>${link(r.pr_url, "PR")}</td></tr>`).join("") || empty(6);
   window.__runs = runs;
   $("lastReview").textContent = (runs[0] && runs[0].review) || "—";
+
+  renderTimeline(d.timeline || []);
+}
+
+const TL_ICONS = { change:"🔔", agent:"🤖", ack:"✅", infra:"⏳", event:"•" };
+const TL_TITLES = { change:"Cambio detectado", agent:"Corrida del enjambre", ack:"Atendido", infra:"Rate-limit", event:"Evento" };
+function renderTimeline(tl) {
+  $("timeline").innerHTML = tl.map(it => {
+    const links = [
+      it.runUrl ? `<a href="${esc(it.runUrl)}" target="_blank" rel="noopener">Actions</a>` : "",
+      it.prUrl ? `<a href="${esc(it.prUrl)}" target="_blank" rel="noopener">PR</a>` : "",
+    ].filter(Boolean).join("");
+    const tag = it.type === "agent" && it.kind ? pill(it.kind) : `<span class="muted mono">${esc(it.kind || "")}</span>`;
+    return `<div class="tl ${it.type}">
+      <div class="ico">${TL_ICONS[it.type] || "•"}</div>
+      <div class="body"><b>${TL_TITLES[it.type] || "Evento"}</b> ${tag} ${it.label ? `<span class="mono">${esc(it.label)}</span>` : ""}
+        ${it.detail ? `<div class="detail">${esc(String(it.detail).slice(0, 160))}</div>` : ""}
+        ${links ? `<div class="links">${links}</div>` : ""}
+      </div>
+      <div class="time">${fmt(it.at)}</div>
+    </div>`;
+  }).join("") || `<div class="empty">Sin actividad todavía.</div>`;
 }
 
 function detail(e) {
