@@ -9,7 +9,7 @@
 "use strict";
 
 const dominio = require("../reemplazo/src/domain");
-const { BATERIA, request } = require("./battery");
+const { BATERIA, request, requestRaw } = require("./battery");
 
 const c = (body) => `${body};${dominio.control(body)}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -74,7 +74,7 @@ async function runProbes(base, token, { sleepMs = 50, timeoutMs = 15000, abortOn
     if (sleepMs) await sleep(sleepMs);
   }
   for (const [method, path] of RUTAS) {
-    const sample = await request(base, token, method, path, null, timeoutMs);
+    const sample = await requestRaw(base, token, method, path, null, timeoutMs);
     map[`route:${method}:${path}`] = sample;
     if (abortOnInfra && (sample.status === 429 || sample.status === 0)) return map;
     if (sleepMs) await sleep(sleepMs);

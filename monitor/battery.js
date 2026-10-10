@@ -48,12 +48,12 @@ const BATERIA = [
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function request(base, token, path, body, timeoutMs, tries = 2) {
+async function requestRaw(base, token, method, path, body, timeoutMs = 15000, tries = 2) {
   let lastErr = "";
   for (let i = 0; i < tries; i++) {
     try {
       const res = await fetch(base + path, {
-        method: "POST",
+        method,
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: body ? JSON.stringify(body) : undefined,
         signal: AbortSignal.timeout(timeoutMs),
@@ -76,6 +76,10 @@ async function request(base, token, path, body, timeoutMs, tries = 2) {
     }
   }
   return { status: 0, response: "unreachable", error: lastErr };
+}
+
+function request(base, token, path, body, timeoutMs = 15000, tries = 2) {
+  return requestRaw(base, token, "POST", path, body, timeoutMs, tries);
 }
 
 async function runBattery(base, token, { sleepMs = 100, timeoutMs = 20000, tries = 2, abortOnInfra = false } = {}) {
@@ -146,4 +150,4 @@ function hasInfra(foto) {
   return Object.values(foto || {}).some((s) => s && (s.status === 429 || s.status === 0));
 }
 
-module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint, hasInfra, canonical, stable, request };
+module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint, hasInfra, canonical, stable, request, requestRaw };
