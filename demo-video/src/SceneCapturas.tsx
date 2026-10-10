@@ -10,8 +10,8 @@ const CAPTURES = [
 
 export const SceneCapturas: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
-  const captureDuration = durationInFrames / CAPTURES.length;
+  const { fps } = useVideoConfig();
+  const captureDuration = 4 * fps;
 
   const activeIdx = Math.min(CAPTURES.length - 1, Math.floor(frame / captureDuration));
   const active = CAPTURES[activeIdx];

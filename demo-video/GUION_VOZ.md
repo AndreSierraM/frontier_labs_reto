@@ -1,54 +1,63 @@
-# Demo de resultados — La Caja Negra
+# Demostración técnica — La Caja Negra
 
-Video: `out/demo-resultados-2min-v16.mp4` · 1920×1080 · 30 fps · **120 segundos exactos**.
+Video: `out/demo-tecnico-2min-v17.mp4` · 1920×1080 · 30 fps · **120 segundos exactos**.
 
-Formato: demo visual sin voz. Las operaciones y cambios se presentan como
-reproducciones de evidencia local o registrada, no como una sesión en vivo.
+Formato: demostración visual sin voz. Las operaciones reproducen salidas locales;
+los cambios de contrato proceden de la bitácora. No se presenta una ejecución en vivo.
+Copy descriptivo: objetivo, operaciones, validación, arquitectura, agentes, cambios y documentación.
 
-## Montaje de dos minutos
+## Montaje
 
-| Tiempo | Pantalla | Mensaje |
+| Tiempo | Pantalla | Contenido |
 | --- | --- | --- |
-| 0:00–0:06 | Presentación | Reemplazo HTTP, pruebas y entregables. |
-| 0:06–0:16 | El reto | Conservar respuesta y estado, y adaptarse a cambios. |
-| 0:16–0:36 | Demostración local | Crear dos cuentas, depositar, transferir, consultar y anular. Respuestas exactas y saldos tras cada operación. |
-| 0:36–0:52 | Resultados | 21 pruebas de dominio, 5 de HTTP/aislamiento, 390 observaciones, 78 reglas y validación registrada de 116 casos. |
-| 0:52–1:04 | La solución | Servicio HTTP, persistencia, monitor y agentes que proponen un PR. |
-| 1:04–1:22 | Adaptaciones registradas | Saldo decimal, nuevo contrato E510 y estado de apagado HALT. |
-| 1:22–1:34 | Trazabilidad | Observación 349 → regla I-01 → comprobación del SPEC. |
-| 1:34–1:52 | Entregables | Capturas de diseño, arquitectura e índice de documentación. |
-| 1:52–2:00 | Cierre | Código, demo y evidencia. |
+| 0:00–0:06 | Presentación | Implementación y validación del reto 2. |
+| 0:06–0:16 | Objetivo | Contrato HTTP y criterios de comprobación. |
+| 0:16–0:36 | Demostración local | Seis operaciones: entrada, respuesta JSON y saldo posterior. |
+| 0:36–0:52 | Validación | 21 pruebas de dominio, 5 HTTP/aislamiento; corte de 394 observaciones y 82 filas SPEC. Los 116 casos se identifican como históricos. |
+| 0:52–1:04 | Arquitectura | Adaptador HTTP, dominio, persistencia, monitor y workflow. |
+| 1:04–1:22 | Agentes | Activación (6 s), paralelismo de scouts (6 s), verificación y pendientes CI (6 s). |
+| 1:22–1:40 | Cambios registrados | Saldo decimal, contrato E510 y estado de apagado HALT. |
+| 1:40–1:52 | Documentación | Diseño, arquitectura e índice de entregables, 4 s cada captura. |
+| 1:52–2:00 | Cierre | Repositorio y documentación. |
 
 ## Locución humana opcional
 
-**Presentación:** “La Caja Negra: estos son los resultados del reto dos de Frontier Labs.”
+**Presentación:** “La Caja Negra. Implementación y validación del reto dos.”
 
-**El reto:** “Sin acceso al código original, construimos un reemplazo que conserva sus respuestas y su estado, y que puede adaptarse cuando el servicio cambia.”
+**Objetivo:** “El objetivo es reconstruir el contrato observable de un servicio sin acceso a su código. Comparamos el código HTTP, el cuerpo JSON y el estado posterior a cada mensaje.”
 
-**Demostración:** “Creamos dos cuentas. Depositamos doscientos cincuenta en la primera y transferimos cuarenta a la segunda. La consulta confirma el saldo recibido. Al anular la transferencia, ambas cuentas recuperan sus saldos anteriores. Estas respuestas se obtuvieron ejecutando el dominio local.”
+**Demostración:** “La secuencia local crea dos cuentas, deposita doscientos cincuenta y transfiere cuarenta. La consulta devuelve el saldo de destino. La anulación restaura los saldos previos. La pantalla reproduce las respuestas del dominio.”
 
-**Resultados:** “Pasan veintiuna pruebas de dominio y cinco de HTTP y aislamiento. El log contiene trescientas noventa observaciones y la especificación, setenta y ocho reglas con evidencia. El proyecto registra además ciento dieciséis casos de validación aprobados.”
+**Validación:** “Pasan veintiuna pruebas de dominio y cinco de HTTP y aislamiento. El corte revisado contiene trescientas noventa y cuatro observaciones y ochenta y dos filas de especificación con evidencia. Los ciento dieciséis casos son un resultado histórico del proyecto.”
 
-**La solución:** “El servicio guarda el estado en PostgreSQL. Un monitor detecta cambios y los agentes proponen adaptaciones mediante pull requests, sin hacer merge automático.”
+**Arquitectura:** “El adaptador HTTP delega en el dominio y persiste el estado en PostgreSQL. El monitor registra diferencias y GitHub Actions coordina el pipeline de adaptación.”
 
-**Adaptaciones:** “La bitácora registra cambios concretos: el saldo pasa a cadena decimal; el bloqueo responde con status cuatrocientos veintitrés y un contador; y HALT incorpora un estado de apagado que persiste hasta un reset. Cada cambio tiene observaciones y commits identificables.”
+**Agentes:** “Un cambio pendiente activa el pipeline. Hasta dos scouts investigan en paralelo y el analista integra sus informes. Fixer, verificación, reviewer y reporter siguen en secuencia. La comparación es determinista. Quedan pendientes dos controles de CI; no hay merge automático.”
 
-**Trazabilidad:** “Por ejemplo, la observación trescientos cuarenta y nueve respalda la regla de health. Un validador comprueba el esquema del log y la evidencia citada por el SPEC.”
+**Cambios:** “La bitácora documenta tres ajustes: saldo como cadena decimal, bloqueo con código cuatrocientos veintitrés y contador de intentos, y estado de apagado persistente hasta reset. Cada ajuste está vinculado a observaciones y commits.”
 
-**Entregables:** “Entregamos el diseño de sistemas, el diagrama de arquitectura, la especificación y el log. Las decisiones se pueden rastrear hasta sus observaciones.”
+**Documentación:** “Los entregables incluyen diseño de sistemas, arquitectura, especificación, experimentos y bitácora.”
 
-**Cierre:** “El código, la demo y la evidencia están disponibles para revisión.”
+**Cierre:** “Repositorio y documentación disponibles para revisión.”
 
-## Evidencia y límites
+## Evidencia y alcance
 
-- `src/demo-evidence.json`: salidas exactas de seis operaciones del dominio local, incluidos control, respuesta y saldos.
-- `node scripts/verify-demo.cjs`: vuelve a ejecutar la secuencia y verifica las salidas mostradas en el video.
-- `npm --prefix reemplazo test`: 21 pruebas de dominio y 5 de HTTP/aislamiento.
-- `python3 reto2-investigacion/scripts/validar_spec.py`: 390 observaciones y 78 filas con evidencia, sin red.
-- `116/116`: validación registrada en `README.md`, no una nueva ejecución ni resultado del evaluador externo.
-- Adaptaciones: tabla del incidente en `reto2-investigacion/BITACORA.md`, IDs 370/372, 380/381 y 387–390.
-- Trazabilidad: observación 349 de `experimentos.jsonl` y regla I-01 de `SPEC.md`.
-- No se afirma compatibilidad universal, cero divergencias generales ni despliegue verificado en esta revisión.
+- `src/demo-evidence.json`: salidas exactas de seis operaciones del dominio local.
+- `node scripts/verify-demo.cjs`: ejecuta la secuencia y comprueba respuestas y saldos.
+- `npm --prefix reemplazo test`: 21 pruebas de dominio y 5 HTTP/aislamiento.
+- `python3 reto2-investigacion/scripts/validar_spec.py`: corte del 10 de octubre de 2026, 394 observaciones y 82 filas con evidencia. Valida el esquema y las referencias, no todos los comportamientos del servicio.
+- `116/116`: resultado registrado en `README.md`; no es una nueva ejecución del evaluador externo.
+- Agentes: `agent/pipeline.mjs`, `agent/lib/config.mjs` y los workflows `monitor.yml` / `swarm.yml`.
+- Activación: salida `changed=1` de check, recon o watch → workflow reutilizable. También se admiten ejecución manual y `repository_dispatch: original-changed`.
+- Sin eventos pendientes o en modo dry-run no se invocan agentes.
+- Paralelismo: `Promise.all(changes.slice(0, maxScouts))`, con `MAX_SCOUTS=2`. No es un pool que procese automáticamente todas las etiquetas. Los scouts comparten checkout, no worktrees aislados.
+- Secuencia: scouts → analyst → (fixer → tests → comparación → reviewer), hasta 2 rondas → reporter tras aprobación del pipeline.
+- La comparación con la referencia es código determinista, no un sexto agente.
+- Pendiente CI: el cron declara 10 minutos, pero la condición de check compara con 15 minutos.
+- Pendiente CI: la apertura del PR depende de `success()` y de un diff; el proceso solo devuelve error para `failed`, no para `inconclusive` o `needs-review`. No se afirma que el gate del PR esté resuelto.
+- Esta revisión no modifica workflows ni ejecuta el enjambre en producción.
+- Cambios de contrato: tabla de incidente en `reto2-investigacion/BITACORA.md`, observaciones 370/372, 380/381 y 387–390.
+- No se afirma compatibilidad universal, cero divergencias generales ni despliegue verificado.
 
 ## Render
 
@@ -56,5 +65,5 @@ reproducciones de evidencia local o registrada, no como una sesión en vivo.
 cd demo-video
 node scripts/verify-demo.cjs
 npm run lint
-npx remotion render src/index.ts la-caja-negra-demo out/demo-resultados-2min-v16.mp4 --codec=h264
+npx remotion render src/index.ts la-caja-negra-demo out/demo-tecnico-2min-v17.mp4 --codec=h264
 ```
