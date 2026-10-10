@@ -14,13 +14,15 @@ import { SceneFlujo } from "./SceneFlujo";
 import { SceneCapturas } from "./SceneCapturas";
 import { SceneResultados } from "./SceneResultados";
 import { SceneCierre } from "./SceneCierre";
+import { SceneDemo } from "./SceneDemo";
+import { SceneAdaptacion } from "./SceneAdaptacion";
+import { SceneEvidencia } from "./SceneEvidencia";
 
 loadFont("normal", { weights: ["400", "500", "600", "700", "800"], subsets: ["latin"] });
 loadJetBrainsMono("normal", { weights: ["400", "500", "600", "700", "800"], subsets: ["latin"] });
 loadSpaceGrotesk("normal", { weights: ["700"], subsets: ["latin"] });
 
 const fps = 30;
-const T = 15;
 
 const DUR = {
   intro: 6 * fps,
@@ -46,23 +48,26 @@ const SCENES = [
   { id: "08-capturas", Component: SceneCapturas, duration: DUR.capturas },
   { id: "09-resultados", Component: SceneResultados, duration: DUR.resultados },
   { id: "10-cierre", Component: SceneCierre, duration: DUR.cierre },
+  { id: "11-demo-local", Component: SceneDemo, duration: 20 * fps },
+  { id: "12-adaptacion", Component: SceneAdaptacion, duration: 18 * fps },
+  { id: "13-evidencia", Component: SceneEvidencia, duration: 12 * fps },
 ];
 
 // Keep technical scenes editable separately; the submission leads with results.
-const RESULT_SCENES = [SCENES[0], SCENES[1], SCENES[8], SCENES[2], SCENES[7], SCENES[9]];
+const RESULT_SCENES = [SCENES[0], SCENES[1], SCENES[10], SCENES[8], SCENES[2], SCENES[11], SCENES[12], SCENES[7], SCENES[9]];
 const DEMO_SCENES = RESULT_SCENES.map((scene, index) => ({
   ...scene,
-  duration: index === RESULT_SCENES.length - 1 ? scene.duration : scene.duration - T,
-  from: RESULT_SCENES.slice(0, index).reduce((total, preceding) => total + preceding.duration - T, 0),
+  from: RESULT_SCENES.slice(0, index).reduce((total, preceding) => total + preceding.duration, 0),
 }));
 const totalFrames = DEMO_SCENES.reduce((total, scene) => total + scene.duration, 0);
 const closingFrame = DEMO_SCENES[DEMO_SCENES.length - 1].from;
 
 const CHAPTERS = [
   { label: "El reto", from: DEMO_SCENES[1].from, color: COLORS.orange },
-  { label: "Resultados", from: DEMO_SCENES[2].from, color: COLORS.green },
-  { label: "La solución", from: DEMO_SCENES[3].from, color: COLORS.cyan },
-  { label: "Entregables", from: DEMO_SCENES[4].from, color: COLORS.purple },
+  { label: "Demo local", from: DEMO_SCENES[2].from, color: COLORS.cyan },
+  { label: "Resultados", from: DEMO_SCENES[3].from, color: COLORS.green },
+  { label: "Adaptación", from: DEMO_SCENES[5].from, color: COLORS.purple },
+  { label: "Evidencia", from: DEMO_SCENES[6].from, color: COLORS.blue },
 ];
 
 const ChapterGuide: React.FC = () => {

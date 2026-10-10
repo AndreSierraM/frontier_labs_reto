@@ -1,6 +1,11 @@
 {
   "rewrites": [
+    { "source": "/demo.mp4", "destination": "/demo.mp4" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/index.html", "destination": "/index.html" },
     { "source": "/monitor", "destination": "/monitor.html" },
+    { "source": "/monitor.html", "destination": "/monitor.html" },
+    { "source": "/entregas/(.*)", "destination": "/entregas/$1" },
     { "source": "/api/lab/(.*)", "destination": "/api/lab" },
     { "source": "/(.*)", "destination": "/api/index" }
   ],
@@ -11,6 +16,13 @@
     "api/monitor/run.js": { "maxDuration": 60 }
   },
   "headers": [
+    {
+      "source": "/demo.mp4",
+      "headers": [
+        { "key": "Content-Type", "value": "video/mp4" },
+        { "key": "Accept-Ranges", "value": "bytes" }
+      ]
+    },
     {
       "source": "/entregas/(.*)",
       "headers": [

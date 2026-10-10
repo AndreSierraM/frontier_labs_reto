@@ -80,7 +80,7 @@ module.exports = async (req, res) => {
   // Si el catálogo de sondas cambió, re-baselinamos: los "added" y los
   // corrimientos de contadores no son cambios del original.
   const catalog = observe.catalogKey();
-  const rebaseline = Boolean(prev && prev.catalog && prev.catalog !== catalog);
+  const rebaseline = Boolean(prev && (!prev.catalog || prev.catalog !== catalog));
   const baseline = prev && !rebaseline ? observe.withoutInfra(prev.foto) : null;
   result.changes = baseline ? observe.diff(baseline, valid).diffs : [];
   const merged = { ...(baseline || {}), ...valid };

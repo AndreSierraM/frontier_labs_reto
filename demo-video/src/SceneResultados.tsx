@@ -54,7 +54,7 @@ export const SceneResultados: React.FC = () => {
       <GlowOrb color={COLORS.green} size={550} style={{ top: "12%", left: "50%", transform: "translateX(-50%)", opacity: 0.11 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "54px 90px 84px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="02 / Resultados" title="Qué entregamos y cómo lo comprobamos" subtitle="Pruebas locales y evidencia trazable. La validación de 116 casos es la registrada en el proyecto." color={COLORS.green} />
+        <SectionHeader label="03 / Resultados" title="Qué entregamos y cómo lo comprobamos" subtitle="Pruebas locales y evidencia trazable. La validación de 116 casos es la registrada en el proyecto." color={COLORS.green} />
 
         {/* Métricas */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 22, marginBottom: 28 }}>

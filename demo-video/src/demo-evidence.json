@@ -1,0 +1,121 @@
+[
+  {
+    "body": "ALTA;Lucia",
+    "m": "ALTA;Lucia;82",
+    "response": {
+      "cuentaId": "AC-0001"
+    },
+    "status": 201,
+    "accounts": [
+      {
+        "id": "AC-0001",
+        "name": "Lucia",
+        "balance": "0.00"
+      }
+    ]
+  },
+  {
+    "body": "ALTA;Mateo",
+    "m": "ALTA;Mateo;3",
+    "response": {
+      "cuentaId": "AC-0002"
+    },
+    "status": 201,
+    "accounts": [
+      {
+        "id": "AC-0001",
+        "name": "Lucia",
+        "balance": "0.00"
+      },
+      {
+        "id": "AC-0002",
+        "name": "Mateo",
+        "balance": "0.00"
+      }
+    ]
+  },
+  {
+    "body": "DEPOSITO;AC-0001;25000",
+    "m": "DEPOSITO;AC-0001;25000;58",
+    "response": {
+      "status": "recieved",
+      "operacionId": "OP-0001"
+    },
+    "status": 200,
+    "accounts": [
+      {
+        "id": "AC-0001",
+        "name": "Lucia",
+        "balance": "250.00"
+      },
+      {
+        "id": "AC-0002",
+        "name": "Mateo",
+        "balance": "0.00"
+      }
+    ]
+  },
+  {
+    "body": "TRANSFER;AC-0001;AC-0002;4000",
+    "m": "TRANSFER;AC-0001;AC-0002;4000;58",
+    "response": {
+      "status": "recieved",
+      "operacionId": "OP-0002"
+    },
+    "status": 200,
+    "accounts": [
+      {
+        "id": "AC-0001",
+        "name": "Lucia",
+        "balance": "210.00"
+      },
+      {
+        "id": "AC-0002",
+        "name": "Mateo",
+        "balance": "40.00"
+      }
+    ]
+  },
+  {
+    "body": "CONSULTA;AC-0002",
+    "m": "CONSULTA;AC-0002;11",
+    "response": {
+      "cuenta_id": "AC-0002",
+      "saldo": "40.00"
+    },
+    "status": 200,
+    "accounts": [
+      {
+        "id": "AC-0001",
+        "name": "Lucia",
+        "balance": "210.00"
+      },
+      {
+        "id": "AC-0002",
+        "name": "Mateo",
+        "balance": "40.00"
+      }
+    ]
+  },
+  {
+    "body": "ANULA;OP-0002",
+    "m": "ANULA;OP-0002;69",
+    "response": {
+      "ok": true,
+      "anulada": "OP-0002"
+    },
+    "status": 200,
+    "accounts": [
+      {
+        "id": "AC-0001",
+        "name": "Lucia",
+        "balance": "250.00"
+      },
+      {
+        "id": "AC-0002",
+        "name": "Mateo",
+        "balance": "0.00"
+      }
+    ]
+  }
+]

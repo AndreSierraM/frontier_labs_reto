@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, Easing } from "remotion";
-import { COLORS, FONTS, Card, Terminal, GlowOrb, GridBg, SectionHeader } from "./DesignSystem";
+import { COLORS, FONTS, Card, GlowOrb, GridBg, SectionHeader } from "./DesignSystem";
 import { Icon, IconName } from "./Icons";
 
 export const SceneProblema: React.FC = () => {
@@ -37,7 +37,7 @@ export const SceneProblema: React.FC = () => {
                   <div>
                     <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>La Caja Negra</h3>
                     <p style={{ fontFamily: FONTS.sans, fontSize: 20, color: COLORS.textMuted, lineHeight: 1.55, margin: 0 }}>
-                      Un servicio HTTP cuyo comportamiento solo se puede inferir observando entradas y salidas. Sin código fuente, sin documentación.
+                      Sin código fuente ni documentación: solo peticiones HTTP y respuestas observables.
                     </p>
                   </div>
                 </div>
@@ -80,25 +80,19 @@ export const SceneProblema: React.FC = () => {
           </div>
 
           <div style={{ flex: 1.1, opacity: a2.o }}>
-            <Terminal
-              title="Cambios registrados · bitácora del proyecto"
-              style={{ height: "100%" }}
-              lines={[
-                { text: "ANTES → DESPUÉS", type: "comment", prefix: "#", color: COLORS.cyan },
-                { text: "", type: "output" },
-                { text: "Saldo: 100 → \"1.00\"", type: "output", color: COLORS.text },
-                { text: "Evidencia: observaciones 370 y 372", type: "output" },
-                { text: "", type: "output" },
-                { text: "Límite TRANSFER: 100.000 → 50.000", type: "output", color: COLORS.text },
-                { text: "Evidencia: observaciones 375 y 376", type: "output" },
-                { text: "", type: "output" },
-                { text: "E510: HTTP 409 → 423 + intentos", type: "output", color: COLORS.text },
-                { text: "Evidencia: observaciones 380 y 381", type: "output" },
-                { text: "", type: "output" },
-                { text: "Adaptación registrada: ce7aba2", type: "output", color: COLORS.green },
-                { text: "Fuente: reto2-investigacion/BITACORA.md", type: "output" },
-              ]}
-            />
+            <Card padding="36px" style={{ height: "100%", display: "flex", flexDirection: "column", gap: 30 }}>
+              <h3 style={{ fontFamily: FONTS.display, fontSize: 34, color: COLORS.text, margin: "0 0 8px" }}>Qué debe conservar el reemplazo</h3>
+              {[
+                { title: "La respuesta", detail: "Mismo status HTTP y mismo cuerpo JSON.", color: COLORS.cyan },
+                { title: "El estado posterior", detail: "Saldos, operaciones, errores y contadores coherentes.", color: COLORS.purple },
+                { title: "La capacidad de adaptarse", detail: "Detectar cambios, verificar el ajuste y proponer un PR.", color: COLORS.green },
+              ].map((item, i) => (
+                <div key={item.title} style={{ borderLeft: `4px solid ${item.color}`, padding: "10px 24px" }}>
+                  <div style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: item.color }}>{i + 1}. {item.title}</div>
+                  <p style={{ fontFamily: FONTS.sans, fontSize: 25, lineHeight: 1.5, color: COLORS.textMuted, margin: "12px 0 0" }}>{item.detail}</p>
+                </div>
+              ))}
+            </Card>
           </div>
         </div>
       </div>
