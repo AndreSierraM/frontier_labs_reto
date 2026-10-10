@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/lab/(.*)", "destination": "/api/lab" },
     { "source": "/(.*)", "destination": "/api/index" }
   ],
   "crons": [

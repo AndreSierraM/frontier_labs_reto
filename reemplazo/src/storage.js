@@ -51,8 +51,9 @@ function createMemoryStorage() {
   };
 }
 
-function createPostgresStorage(pool) {
-  const UPSERT = `INSERT INTO estado (id, data, xreq, updated_at)
+function createPostgresStorage(pool, table = "estado") {
+  const t = String(table).replace(/[^a-zA-Z0-9_]/g, "");
+  const UPSERT = `INSERT INTO ${t} (id, data, xreq, updated_at)
                   VALUES (1, $1, $2, now())
                   ON CONFLICT (id) DO UPDATE
                   SET data = EXCLUDED.data,
@@ -62,7 +63,7 @@ function createPostgresStorage(pool) {
   return {
     async ensure() {
       await pool.query(
-        `CREATE TABLE IF NOT EXISTS estado (
+        `CREATE TABLE IF NOT EXISTS ${t} (
            id integer PRIMARY KEY,
            data jsonb NOT NULL,
            xreq integer NOT NULL DEFAULT 0,
@@ -76,7 +77,7 @@ function createPostgresStorage(pool) {
       try {
         await client.query("BEGIN");
         const { rows } = await client.query(
-          "SELECT data, xreq FROM estado WHERE id = 1 FOR UPDATE"
+          `SELECT data, xreq FROM ${t} WHERE id = 1 FOR UPDATE`
         );
         const state = rows.length ? fromJSON(rows[0].data) : dominio.freshState();
         const xreq = rows.length ? rows[0].xreq : 0;
