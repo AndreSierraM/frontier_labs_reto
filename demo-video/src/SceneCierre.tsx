@@ -34,13 +34,16 @@ export const SceneCierre: React.FC = () => {
         </div>
 
         <div style={{ opacity: contentOp, marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 22, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: COLORS.cyan }}>
+            Ver código y demo
+          </div>
           <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
             {[
               { label: "github.com/AndreSierraM/frontier_labs_reto", icon: "link" as IconName },
               { label: "frontier-labs-reto.vercel.app", icon: "rocket" as IconName },
             ].map((link) => (
-              <div key={link.label} style={{ padding: "16px 28px", borderRadius: 12, backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 12, color: COLORS.textMuted, fontFamily: FONTS.mono, fontSize: 17 }}>
-                <Icon name={link.icon} size={22} color={COLORS.cyan} />
+              <div key={link.label} style={{ padding: "18px 30px", borderRadius: 12, backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.borderHighlight}`, display: "flex", alignItems: "center", gap: 14, color: COLORS.text, fontFamily: FONTS.mono, fontSize: 21 }}>
+                <Icon name={link.icon} size={24} color={COLORS.cyan} />
                 <span>{link.label}</span>
               </div>
             ))}

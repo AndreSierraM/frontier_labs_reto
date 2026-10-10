@@ -58,9 +58,9 @@ Endpoints (protegidos con `MONITOR_TOKEN`):
 
 | Disparador | Cuándo | Qué corre |
 | --- | --- | --- |
-| `schedule` | cada 15 min | `check` (batería) + `recon` (mapa) |
+| `schedule` | cada 10 min | `check` (batería) + `recon` (mapa) |
 | `workflow_dispatch` `loop_minutes=0` | manual | `check` + `recon` |
-| `workflow_dispatch` `loop_minutes=N` | demo day | tick inmediato + bucle cada 15 min (`check`) |
+| `workflow_dispatch` `loop_minutes=N` | demo day | tick inmediato + bucle cada 10 min (`check`) |
 
 Si cualquiera detecta cambio, `monitor.yml` llama a `swarm.yml` en el **mismo
 run** (workflow reutilizable) y aparece un PR.

@@ -12,7 +12,7 @@ que detecta cuándo el original cambia y propone el parche.
 | **API / entrypoint** | Vercel | `https://frontier-labs-reto.vercel.app` → `/health`, `/msg`, `/__reset` |
 | **Monitor** | Vercel + Neon | Endpoints `/api/monitor/{run,status,ack}`, snapshots y eventos en Postgres |
 | **Estado** | Neon (Postgres) | Estado del reemplazo y del laboratorio |
-| **Reloj** | GitHub Actions `monitor.yml` | Cada 15 min, o en bucle (`loop_minutes`) para el demo day |
+| **Reloj** | GitHub Actions `monitor.yml` | Cada 10 min, o en bucle (`loop_minutes`) para el demo day |
 | **Enjambre de agentes** | GitHub Actions `swarm.yml` | Ante un cambio: investiga, parchea, verifica y abre PR |
 | **Original falso (lab)** | Vercel `/api/lab` | Solo pruebas; permite cambiar `E506` en caliente |
 | **Panel** | Vercel `/monitor` | Dashboard: estado del original + nuestro servicio |

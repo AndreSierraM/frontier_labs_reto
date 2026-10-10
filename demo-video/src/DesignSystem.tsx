@@ -3,7 +3,7 @@
  * Tipografía grande, componentes y animaciones reutilizables
  */
 import React, { useMemo } from "react";
-import { Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { Img, staticFile } from "remotion";
 
 export const COLORS = {
   bg: "#080a0f",
@@ -320,7 +320,6 @@ export const ScreenshotFrame: React.FC<ScreenshotFrameProps> = ({ src, title = "
             display: "block",
             transform: `scale(${scale})`,
             transformOrigin: `${focusX}% ${focusY}%`,
-            scale: 0.734
           }}
         />
       </div>

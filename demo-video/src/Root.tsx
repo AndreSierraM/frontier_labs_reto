@@ -1,8 +1,5 @@
 import React from "react";
-import { Composition } from "remotion";
-import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import { fade } from "@remotion/transitions/fade";
-import { slide } from "@remotion/transitions/slide";
+import { Composition, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/Inter";
 import { loadFont as loadJetBrainsMono } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadSpaceGrotesk } from "@remotion/google-fonts/SpaceGrotesk";
@@ -37,61 +34,6 @@ const DUR = {
   cierre: 7 * fps,
 };
 
-export const LaCajaNegraDemo: React.FC = () => {
-  return (
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={DUR.intro} name="Intro">
-        <SceneIntro />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={fade()} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.problema} name="Problema">
-        <SceneProblema />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.arquitectura} name="Arquitectura">
-        <SceneArquitectura />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={fade()} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.codigo} name="Codigo">
-        <SceneCodigo />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={slide({ direction: "from-bottom" })} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.monitor} name="Monitor">
-        <SceneMonitor />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={fade()} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.enjambre} name="Enjambre">
-        <SceneEnjambre />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.flujo} name="Flujo">
-        <SceneFlujo />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={fade()} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.capturas} name="Capturas">
-        <SceneCapturas />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={fade()} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.resultados} name="Resultados">
-        <SceneResultados />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={fade()} timing={linearTiming({ durationInFrames: T })} />
-
-      <TransitionSeries.Sequence durationInFrames={DUR.cierre} name="Cierre">
-        <SceneCierre />
-      </TransitionSeries.Sequence>
-    </TransitionSeries>
-  );
-};
-
 const totalFrames =
   DUR.intro + DUR.problema + DUR.arquitectura + DUR.codigo + DUR.monitor + DUR.enjambre + DUR.flujo + DUR.capturas + DUR.resultados + DUR.cierre - 9 * T;
 
@@ -107,6 +49,21 @@ const SCENES = [
   { id: "09-resultados", Component: SceneResultados, duration: DUR.resultados },
   { id: "10-cierre", Component: SceneCierre, duration: DUR.cierre },
 ];
+
+const DEMO_SCENES = SCENES.map((scene, index) => ({
+  ...scene,
+  duration: index === SCENES.length - 1 ? scene.duration : scene.duration - T,
+}));
+
+export const LaCajaNegraDemo: React.FC = () => (
+  <>
+    {DEMO_SCENES.map(({ id, Component, duration }, index) => (
+      <Sequence key={id} from={DEMO_SCENES.slice(0, index).reduce((total, scene) => total + scene.duration, 0)} durationInFrames={duration}>
+        <Component />
+      </Sequence>
+    ))}
+  </>
+);
 
 export const RemotionRoot: React.FC = () => {
   return (

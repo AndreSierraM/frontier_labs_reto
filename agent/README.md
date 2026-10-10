@@ -6,7 +6,7 @@ Vigilancia y adaptación autónoma del reemplazo. Cada pieza donde corresponde:
 | --- | --- | --- |
 | API + endpoints de monitor | **Vercel** (`frontier-labs-reto.vercel.app`) | Contrato (`/health`, `/msg`, `/__reset`) y `/api/monitor/*` |
 | Estado y eventos | **Neon** (Postgres) | Estado del reemplazo, snapshots y eventos |
-| Reloj | **GitHub Actions** `monitor.yml` | Cron cada 15 min o **bucle** (`loop_minutes`) |
+| Reloj | **GitHub Actions** `monitor.yml` | Cron cada 10 min o **bucle** (`loop_minutes`) |
 | Enjambre | **GitHub Actions** `swarm.yml` | Solo ante cambio: investiga, parchea, verifica y abre PR |
 
 ```

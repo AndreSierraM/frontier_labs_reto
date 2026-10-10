@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, Easing } from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { COLORS, FONTS, GlowOrb, GridBg, SectionHeader, ScreenshotFrame } from "./DesignSystem";
 
 const CAPTURES = [
@@ -30,7 +30,7 @@ export const SceneCapturas: React.FC = () => {
 
         <div style={{ flex: 1, display: "flex", gap: 40, alignItems: "center" }}>
           {/* Screenshot principal */}
-          <div style={{ flex: 1.4, position: "relative" }}>
+          <div style={{ flex: 1.4, position: "relative", alignSelf: "stretch" }}>
             {CAPTURES.map((cap, i) => (
               <div
                 key={cap.src}
