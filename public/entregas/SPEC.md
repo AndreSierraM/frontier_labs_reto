@@ -17,7 +17,9 @@ Secuencias del log: `integridad` (1–16), `aridad` (17–46), `alta` (47–57),
 `consulta` (58–64), `deposito` (65–86), `transfer` (87–100), `anula` (101–116),
 `estado` (117–121), `bordes` (122–163), `bloqueo` (164–239),
 `bloqueo3` (240–278), `max` (279–290), `sugerencia` (291–308),
-`bloqueo4` (309–336), `sugerencia2` (337–347), `gaps` (348–366).
+`bloqueo4` (309–336), `sugerencia2` (337–347), `gaps` (348–366),
+`consulta-v2` (370–373), `transfer-v2` (374–377), `halt` (378–379, 387–388),
+`bloqueo-v2` (380–383), `ascii` (385–386), `transfer-nombres` (391–394).
 
 ---
 
@@ -26,7 +28,7 @@ Secuencias del log: `integridad` (1–16), `aridad` (17–46), `alta` (47–57),
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
 | I-01 | `GET /health` con token → `200 {"ok":true}`. | 349 | confirmado |
-| I-02 | `POST /msg` recibe `{"m":"..."}`. | 1–347, 350–366 | confirmado |
+| I-02 | `POST /msg` recibe `{"m":"..."}`. | 1–347, 350–394 | confirmado |
 | I-03 | `POST /__reset` → `200 {"ok":true}` y limpia el estado (cuentas, operaciones y contadores; el siguiente `ALTA` vuelve a `AC-0001`). | 117–121, 348, 360 | confirmado |
 | I-04 | Cualquier otra ruta/método no definidos → `404 {"error":"E404","mensaje":"ruta desconocida"}` (`GET /msg`, `POST /health`, `GET /__reset`). | 352–354 | confirmado |
 | I-05 | Todas las rutas exigen `Authorization: Bearer <token>`; ausente/incorrecto → `401 {"error":"E001","mensaje":"no autorizado"}`. El esquema `Bearer` es sensible a mayúsculas. | 350, 351 | confirmado |
@@ -68,9 +70,11 @@ def control(cuerpo):
 
 ## 3 · Comandos
 
-Orden general de evaluación: `E001` → `E100` → `E102` → `E103` → `E104` →
-control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302`
-(aridad) → reglas de negocio (`E303`, `E304`, `E401`, `E510`, `E506`, `E507`, `E402`).
+Orden general de evaluación: cuando el servicio está apagado (`HALT;1`),
+`E599` tiene **precedencia absoluta** (antes que todo). Después: `E001` → `E100` →
+`E102` → `E103` → `E104` → control (`E201`/`E202`, salvo `PING`) → `E301`
+(comando desconocido) → `E302` (aridad) → reglas de negocio (`E303`, `E304`,
+`E401`, `E510`, `E506`, `E507`, `E402`).
 
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
@@ -116,7 +120,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | K-T2 | Monto inválido → `400 E303` (igual que depósito). | 93, 94, 95, 96 | confirmado |
 | K-T3 | Origen = destino → `400 {"error":"E304","mensaje":"origen y destino iguales"}` (antes de límite/saldo). | 97, 131 | confirmado |
 | K-T4 | Origen o destino inexistente → `404 E401`. | 98, 99 | confirmado |
-| K-T5 | Monto > 50000 → `422 {"error":"E506","mensaje":"límite excedido"}` (v2: el umbral bajó de 100000 a 50000) **solo si los nombres de origen y destino difieren**; si coinciden, E506 no aplica y cae a E507. | 91, 100, 374–377, 391–394 | confirmado |
+| K-T5 | Monto > 50000 (v2; antes 100000) → `422 E506` **solo si los nombres de origen y destino difieren**; si coinciden, `E506` no aplica y cae a `E507`. | 91, 100, 374–377, 391–394 | confirmado |
 | K-T6 | Monto > saldo → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. `E506` tiene prioridad sobre `E507`. | 100, 126, 127 | confirmado |
 | K-T7 | Éxito: resta del origen, suma al destino, reinicia el contador de fallos del origen. | 92, 240–278 | confirmado |
 
@@ -128,6 +132,20 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | K-N2 | Ya anulada → `200 {"ok":false,"motivo":"ya anulada"}`. | 106 | confirmado |
 | K-N3 | Operación inexistente (o id con formato inválido) → `404 {"error":"E402","mensaje":"operación inexistente"}`. | 43, 107, 108 | confirmado |
 | K-N4 | Anular **no** desbloquea una cuenta bloqueada. | 198, 237, 275 | confirmado |
+
+### HALT
+
+| ID | Comportamiento | Evidencia | Confianza |
+| --- | --- | --- | --- |
+| K-H1 | `HALT;<confirmación>;<control>` con confirmación distinta de `1` → `409 {"error":"E520","mensaje":"operación destructiva: detiene el servicio; reenvía con confirmación"}`. | 378 | confirmado |
+| K-H2 | `HALT;1;<control>` → el servicio se apaga y todo `POST /msg` responde `503 E599` hasta el siguiente `__reset`. `GET /health`, `POST /__reset` y `404` siguen funcionando. | 387, 388 | confirmado |
+| K-H3 | Aridad 3 (incluyendo control). | 378, 379 | confirmado |
+
+### NOTAS
+
+| ID | Comportamiento | Evidencia | Confianza |
+| --- | --- | --- | --- |
+| K-O1 | `NOTAS;<control>` → `200 {"notas":[...]}` con notas de migración. Aridad 2. | 379 | confirmado |
 
 ### Comando desconocido
 
@@ -164,13 +182,14 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | E401 | 404 | `{"error":"E401","mensaje":"cuenta inexistente"}` | cuenta no existe | 13, 58, 61, 86, 98 | confirmado |
 | E402 | 404 | `{"error":"E402","mensaje":"operación inexistente"}` | operación no existe | 43, 107, 108 | confirmado |
 | E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos | 352–354 | confirmado |
-| E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 100000 | 91, 100, 128 | confirmado |
+| E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 50000 (v2; solo si nombres de origen y destino difieren) | 91, 100, 374–377, 391–394 | confirmado |
 | E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo | 126, 127 | confirmado |
 | E510 | 423 | `{"error":"E510","mensaje":"cuenta bloqueada","intentos":N}` | cuenta con 3 fallos de transferencia (v2) | 134, 135, 380, 381 | confirmado |
 | E520 | 409 | `{"error":"E520","mensaje":"operación destructiva: detiene el servicio; reenvía con confirmación"}` | comando destructivo `HALT` (v2) | 378 | confirmado |
 | E599 | 503 | `{"error":"E599","mensaje":"service halted"}` | servicio apagado con `HALT;1`; todo `/msg` responde 503 hasta `__reset` | 387, 388 | confirmado |
 
-Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
+Precedencia observada: cuando el servicio está apagado (`HALT;1`), `E599`
+precede a todo. Después: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 `E201`/`E202` → `E301` → `E302` → `E303` → `E304` → `E401` → `E510` → `E506` → `E507`
 (en `TRANSFER`), y `E402` en `ANULA`.
 
@@ -182,11 +201,7 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 | X-02 | El algoritmo de control **no cambió** durante la sesión: los controles de los ejemplos siguen vigentes y el dataset propio valida 34/34. | `data/pares_control.jsonl` (34/34), 3, 5, 12 | confirmado |
 | X-03 | El cambio anunciado (15:30 BOG / 20:30 UTC) **no se observó** en la ventana vigilada hasta la redacción de esta spec: las dos fotos `logs/snapshots/20261010T154017Z.json` y `…T154053Z.json` son idénticas (`sin cambios`). El `429` de infraestructura (365) se excluye y no se cuenta como cambio. | `logs/snapshots/*.json`, 365 | confirmado (no cambio) |
 
-**Cambio del evento (15:30 BOG / 20:30 UTC).** Cuando el monitor lo detecte, añadir una fila con evidencia real (el validador exige que los IDs existan y correspondan):
-
-```text
-| X-04 | **Cambio v2 (incidente #FR-0153, detectado 2026-10-10T21:51Z):** (a) `CONSULTA` devuelve `saldo` como cadena decimal `"S.DD"` (centavos), (b) umbral `E506` baja de `>100000` a `>50000` **y solo aplica si los nombres de origen y destino difieren**, (c) `E510` pasa a status `423` y añade `intentos`, (d) comandos nuevos `HALT` (`409 E520`) y `NOTAS` (200 con notas), (e) match de comando ASCII-only (`pıng` ≠ `PING`), (f) `HALT;1` apaga el servicio (`503 E599`) hasta `__reset`. Adaptado en `reemplazo/src/domain.js` (commit `1f22e74`). | 370, 372, 374–379, 380, 381, 385–394 | confirmado |
-```
+| X-04 | **Cambio v2** (incidente #FR-0153, detectado 2026-10-10T21:51Z): (a) `CONSULTA` devuelve `saldo` como cadena decimal `"S.DD"` (centavos), (b) umbral `E506` baja de `>100000` a `>50000` y solo aplica si los nombres de origen y destino difieren, (c) `E510` pasa a status `423` y añade `intentos`, (d) comandos nuevos `HALT` (`409 E520`) y `NOTAS` (200 con notas), (e) match de comando ASCII-only (`pıng` ≠ `PING`), (f) `HALT;1` apaga el servicio (`503 E599`) hasta `__reset`. | 370, 372, 374–379, 380, 381, 385–394 | confirmado |
 
 ## 7 · Riesgos
 

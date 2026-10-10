@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-10-10T23:21:40.470094+00:00",
+  "fecha": "2026-10-10T23:22:58.497775+00:00",
   "url": "http://localhost:3111",
   "resumen": {
     "ejemplos": [
@@ -11,11 +11,11 @@
       34
     ],
     "bateria": [
-      67,
+      72,
       72
     ],
     "total": [
-      113,
+      118,
       126
     ]
   },
@@ -169,103 +169,6 @@
         {
           "cuenta_id": "AC-0002",
           "saldo": "407.00"
-        }
-      ]
-    },
-    {
-      "seq": "alta",
-      "m": "CONSULTA;AC-0001;14",
-      "ok": false,
-      "esperado": [
-        200,
-        {
-          "cuenta_id": "AC-0001",
-          "saldo": 0
-        }
-      ],
-      "obtenido": [
-        200,
-        {
-          "cuenta_id": "AC-0001",
-          "saldo": "0.00"
-        }
-      ]
-    },
-    {
-      "seq": "transfer",
-      "m": "TRANSFER;AC-0001;AC-0002;100000;12",
-      "ok": false,
-      "esperado": [
-        200,
-        {
-          "status": "recieved",
-          "operacionId": "OP-0002"
-        }
-      ],
-      "obtenido": [
-        422,
-        {
-          "error": "E506",
-          "mensaje": "límite excedido"
-        }
-      ]
-    },
-    {
-      "seq": "transfer",
-      "m": "CONSULTA;AC-0002;11",
-      "ok": false,
-      "esperado": [
-        200,
-        {
-          "cuenta_id": "AC-0002",
-          "saldo": "1000.00"
-        }
-      ],
-      "obtenido": [
-        200,
-        {
-          "cuenta_id": "AC-0002",
-          "saldo": "0.00"
-        }
-      ]
-    },
-    {
-      "seq": "bloqueo",
-      "m": "TRANSFER;AC-0001;AC-0002;101;21",
-      "ok": false,
-      "esperado": [
-        423,
-        {
-          "error": "E510",
-          "mensaje": "cuenta bloqueada"
-        }
-      ],
-      "obtenido": [
-        423,
-        {
-          "error": "E510",
-          "mensaje": "cuenta bloqueada",
-          "intentos": 1
-        }
-      ]
-    },
-    {
-      "seq": "bloqueo",
-      "m": "TRANSFER;AC-0001;AC-0002;10;13",
-      "ok": false,
-      "esperado": [
-        423,
-        {
-          "error": "E510",
-          "mensaje": "cuenta bloqueada"
-        }
-      ],
-      "obtenido": [
-        423,
-        {
-          "error": "E510",
-          "mensaje": "cuenta bloqueada",
-          "intentos": 2
         }
       ]
     }
