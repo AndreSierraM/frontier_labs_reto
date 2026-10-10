@@ -43,6 +43,8 @@ const BATERIA = [
   ["CONSULTA", c("CONSULTA;AC-0001")],
   ["DEPOSITO", c("DEPOSITO;AC-0001;100")],
   ["SALDO", c("CONSULTA;AC-0001")],
+  ["NOTAS", `NOTAS;${refControl("NOTAS")}`],
+  ["HALT", c("HALT;AC-0001")],
   ["T-ok", c("TRANSFER;AC-0001;AC-0002;50")],
   ["T-limite", c("TRANSFER;AC-0001;AC-0002;100001")],
   ["T-saldo", c("TRANSFER;AC-0001;AC-0002;101")],
@@ -60,6 +62,16 @@ const BATERIA = [
   ["falta2", c("TRANSFER;AC-0001;AC-0002;101")],
   ["falta3", c("TRANSFER;AC-0001;AC-0002;101")],
   ["E510", c("TRANSFER;AC-0001;AC-0002;101")],
+  // Bordes de umbral/precisión: si el original cambia el límite (E506) o el
+  // formato de saldo, estas sondas lo detectan (el cambio de 100000->50000 de
+  // la v2 no lo veía la batería anterior).
+  ["lim-reset", null],
+  ["lim-A", c("ALTA;A")],
+  ["lim-B", c("ALTA;B")],
+  ["lim-dep", c("DEPOSITO;AC-0001;1000000")],
+  ["lim-saldo", c("CONSULTA;AC-0001")],
+  ["lim-50000", c("TRANSFER;AC-0001;AC-0002;50000")],
+  ["lim-50001", c("TRANSFER;AC-0001;AC-0002;50001")],
 ];
 
 // --- Descubrimiento -------------------------------------------------------
@@ -69,6 +81,7 @@ const COMANDOS = [
   "RETIRA", "RETIRO", "DEPOSITAR", "TRANSFERIR", "CANCELA", "REVERSA",
   "ANULAR", "HISTORIAL", "INFO", "STATUS", "AYUDA", "HELP", "VERSION",
   "ECO", "PING2", "SET", "GET", "QUERY", "ORDEN", "PAGO", "COBRO",
+  "HALT", "NOTAS",
 ];
 // Montos de borde (válidos e inválidos).
 const MONTOS = [

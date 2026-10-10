@@ -28,8 +28,8 @@ const storage = createPostgresStorage(pool);
 function recordRequest(r) {
   pool
     .query(
-      `INSERT INTO runtime_log (method, path, status, ms) VALUES ($1, $2, $3, $4)`,
-      [r.method, r.path, r.status, r.ms]
+      `INSERT INTO runtime_log (method, path, status, ms, m, response) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [r.method, r.path, r.status, r.ms, r.m == null ? null : String(r.m), r.response == null ? null : JSON.stringify(r.response)]
     )
     .catch(() => {});
   // Poda ocasional para no crecer sin límite en el plan gratuito.
@@ -59,6 +59,10 @@ function ensureReady() {
            ms integer NOT NULL
          )`
       );
+      // Captura de la petición (m) y la respuesta exactas para poder mapear qué
+      // envía un cliente y entender cambios desde la petición misma.
+      await pool.query(`ALTER TABLE runtime_log ADD COLUMN IF NOT EXISTS m text`);
+      await pool.query(`ALTER TABLE runtime_log ADD COLUMN IF NOT EXISTS response jsonb`);
       await pool.query(`CREATE INDEX IF NOT EXISTS runtime_log_at_idx ON runtime_log (at DESC)`);
     })().catch((err) => {
       ready = null;

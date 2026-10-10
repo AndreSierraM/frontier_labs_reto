@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
     const to = q.get("to") || new Date().toISOString();
     const limit = Math.min(Number(q.get("limit") || 5000), 20000);
     const { rows } = await pool.query(
-      `SELECT id, at, method, path, status, ms FROM runtime_log
+      `SELECT id, at, method, path, status, ms, m, response FROM runtime_log
         WHERE at >= $1 AND at <= $2 AND path IN ('/msg','/__reset')
         ORDER BY id LIMIT $3`,
       [from, to, limit]

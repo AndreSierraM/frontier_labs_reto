@@ -47,3 +47,23 @@ test("maxBody explícito se respeta", async (t) => {
   const body = await res.json();
   assert.equal(body.error, "E101");
 });
+
+test("onRequest captura la petición (m) y la respuesta exacta", async (t) => {
+  const seen = [];
+  const { server, base } = await start(
+    createHandler(createMemoryStorage(), { token: "t", onRequest: (r) => seen.push(r) })
+  );
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  const m = `ALTA;A;${require("../src/domain").control("ALTA;A")}`;
+  const res = await fetch(base + "/msg", {
+    method: "POST",
+    headers: { Authorization: "Bearer t", "Content-Type": "application/json" },
+    body: JSON.stringify({ m }),
+  });
+  assert.equal(res.status, 201);
+  await new Promise((r) => setTimeout(r, 25));
+  const msg = seen.find((x) => x.path === "/msg");
+  assert.ok(msg, "se registró /msg");
+  assert.equal(msg.m, m);
+  assert.deepEqual(msg.response, { cuentaId: "AC-0001" });
+});

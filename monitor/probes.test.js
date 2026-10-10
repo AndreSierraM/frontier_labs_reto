@@ -22,7 +22,7 @@ test("probes.js no carga el dominio del reemplazo", () => {
 test("el catálogo coincide con la instantánea dorada", () => {
   const probes = require("./probes");
   const c = probes.catalog();
-  assert.strictEqual(c.battery.length, 31);
+  assert.strictEqual(c.battery.length, 40);
   const golden = require("./__snapshots__/probes.json");
   assert.deepStrictEqual(
     { battery: c.battery, discovery: c.discovery, routes: c.routes, all: c.all },

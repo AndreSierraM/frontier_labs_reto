@@ -90,12 +90,13 @@ function readBody(req, max) {
 }
 
 // ---------- manejo de POST /msg ----------
-async function handleMsg(req, res, storage, maxBody) {
+async function handleMsg(req, res, storage, maxBody, capture) {
   const head = req.method === "HEAD";
   let raw;
   try {
     raw = await readBody(req, maxBody);
   } catch (code) {
+    if (capture) capture({ m: null, response: { error: code } });
     return send(res, code, {}, head);
   }
 
@@ -103,9 +104,11 @@ async function handleMsg(req, res, storage, maxBody) {
   try {
     payload = JSON.parse(raw.toString("utf8"));
   } catch (_) {
+    if (capture) capture({ m: null, response: { error: "E100" } });
     return send(res, "E100", {}, head);
   }
   if (!payload || typeof payload !== "object" || typeof payload.m !== "string") {
+    if (capture) capture({ m: null, response: { error: "E102" } });
     return send(res, "E102", {}, head);
   }
 
@@ -116,14 +119,20 @@ async function handleMsg(req, res, storage, maxBody) {
 
   const headers = { "x-req": String(out.xreq) };
   const r = out.r;
+  let status, body;
   if (r.code) {
-    const [status, base] = dominio.ERRORES[r.code];
-    const body = { ...base };
+    const [s, base] = dominio.ERRORES[r.code];
+    status = s;
+    body = { ...base };
     if (r.sugerencia) body.sugerencia = r.sugerencia;
     if (r.intentos !== undefined) body.intentos = r.intentos;
-    return json(res, status, body, headers, head);
+  } else {
+    status = r.status || 200;
+    body = r.ok;
   }
-  return json(res, r.status || 200, r.ok, headers, head);
+  // Instrumentación: petición + respuesta exactas (lo consume `runtime_log`).
+  if (capture) capture({ m: payload.m, response: body });
+  return json(res, status, body, headers, head);
 }
 
 // ---------- aplicación HTTP (reutilizable por local y Vercel) ----------
@@ -133,13 +142,14 @@ function createHandler(storage, { token = "", maxBody = 8191, onRequest = null }
   return async function handler(req, res) {
     const started = Date.now();
     let path = req.url;
+    let captured = null;
     try {
       path = new URL(req.url, "http://localhost").pathname;
     } catch (_) {}
     if (onRequest) {
       res.on("finish", () => {
         try {
-          onRequest({ method: req.method, path, status: res.statusCode, ms: Date.now() - started });
+          onRequest({ method: req.method, path, status: res.statusCode, ms: Date.now() - started, ...(captured || {}) });
         } catch (_) {}
       });
     }
@@ -159,7 +169,7 @@ function createHandler(storage, { token = "", maxBody = 8191, onRequest = null }
         return json(res, 200, { ok: true }, {}, head);
       }
       if (req.method === "POST" && routePath === "/msg") {
-        return handleMsg(req, res, storage, maxBody);
+        return handleMsg(req, res, storage, maxBody, (info) => { captured = info; });
       }
 
       return send(res, "E404", {}, head);

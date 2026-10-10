@@ -111,6 +111,22 @@
       }
     },
     {
+      "label": "NOTAS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "NOTAS;11"
+      }
+    },
+    {
+      "label": "HALT",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HALT;AC-0001;82"
+      }
+    },
+    {
       "label": "T-ok",
       "method": "POST",
       "path": "/msg",
@@ -242,6 +258,60 @@
       "path": "/msg",
       "body": {
         "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "lim-reset",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "lim-A",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "lim-B",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;B;59"
+      }
+    },
+    {
+      "label": "lim-dep",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000;51"
+      }
+    },
+    {
+      "label": "lim-saldo",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CONSULTA;AC-0001;14"
+      }
+    },
+    {
+      "label": "lim-50000",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;50000;59"
+      }
+    },
+    {
+      "label": "lim-50001",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;50001;56"
       }
     }
   ],
@@ -468,6 +538,22 @@
       "path": "/msg",
       "body": {
         "m": "COBRO;x;76"
+      }
+    },
+    {
+      "label": "cmd:HALT",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HALT;x;42"
+      }
+    },
+    {
+      "label": "cmd:NOTAS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "NOTAS;x;56"
       }
     },
     {
@@ -867,6 +953,22 @@
       }
     },
     {
+      "label": "NOTAS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "NOTAS;11"
+      }
+    },
+    {
+      "label": "HALT",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HALT;AC-0001;82"
+      }
+    },
+    {
       "label": "T-ok",
       "method": "POST",
       "path": "/msg",
@@ -998,6 +1100,60 @@
       "path": "/msg",
       "body": {
         "m": "TRANSFER;AC-0001;AC-0002;101;21"
+      }
+    },
+    {
+      "label": "lim-reset",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "lim-A",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "lim-B",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;B;59"
+      }
+    },
+    {
+      "label": "lim-dep",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000;51"
+      }
+    },
+    {
+      "label": "lim-saldo",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "CONSULTA;AC-0001;14"
+      }
+    },
+    {
+      "label": "lim-50000",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;50000;59"
+      }
+    },
+    {
+      "label": "lim-50001",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "TRANSFER;AC-0001;AC-0002;50001;56"
       }
     },
     {
@@ -1222,6 +1378,22 @@
       "path": "/msg",
       "body": {
         "m": "COBRO;x;76"
+      }
+    },
+    {
+      "label": "cmd:HALT",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "HALT;x;42"
+      }
+    },
+    {
+      "label": "cmd:NOTAS",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "NOTAS;x;56"
       }
     },
     {
