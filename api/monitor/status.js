@@ -38,7 +38,13 @@ module.exports = async (req, res) => {
     original: process.env.URL_API_ENTRYPOINT || null,
     replacement: process.env.MONITOR_TARGET_URL || "https://frontier-labs-reto.vercel.app",
     lastSnapshot: last
-      ? { id: last.id, taken_at: last.taken_at, target_url: last.target_url, fingerprint: last.fingerprint }
+      ? {
+          id: last.id,
+          taken_at: last.taken_at,
+          target_url: last.target_url,
+          fingerprint: last.fingerprint,
+          foto: last.foto,
+        }
       : null,
     events,
   });

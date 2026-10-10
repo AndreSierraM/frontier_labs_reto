@@ -13,7 +13,7 @@
 
 const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
-const { runBattery, health, diffLabels, fingerprint } = require("../../monitor/battery");
+const { runBattery, health, diffLabels, fingerprint, hasInfra } = require("../../monitor/battery");
 
 function json(res, status, obj) {
   res.statusCode = status;
@@ -85,9 +85,19 @@ module.exports = async (req, res) => {
 
   // 1) Original
   const fotoOrig = await runBattery(originalUrl, originalToken);
+  result.original.samples = Object.keys(fotoOrig).length;
+  result.original.rateLimited = hasInfra(fotoOrig);
+
+  // Rate-limit/inalcanzable: no es comportamiento del servicio (SPEC I-11).
+  // No comparamos ni pisamos la línea base; registramos y salimos.
+  if (result.original.rateLimited) {
+    await store.recordEvent(pool, "original_ratelimited", null, null, null, "la sonda topó con 429/infra; detección omitida");
+    json(res, 200, { ok: true, ...result, omitted: true });
+    return;
+  }
+
   const prev = await store.lastSnapshot(pool);
   result.changes = prev ? diffLabels(prev.foto, fotoOrig) : [];
-  result.original.samples = Object.keys(fotoOrig).length;
   result.original.fingerprint = fingerprint(fotoOrig);
   result.original.changed = result.changes.length > 0;
 

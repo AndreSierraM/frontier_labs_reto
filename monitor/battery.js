@@ -135,4 +135,10 @@ function fingerprint(foto) {
   return crypto.createHash("sha256").update(stable(foto)).digest("hex");
 }
 
-module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint, canonical, stable };
+// 429 (rate-limit de infraestructura, SPEC I-11) o 0 (inaccesible) no son
+// comportamiento del servicio: invalidan la foto para detección/verificación.
+function hasInfra(foto) {
+  return Object.values(foto || {}).some((s) => s && (s.status === 429 || s.status === 0));
+}
+
+module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint, hasInfra, canonical, stable };

@@ -134,6 +134,15 @@ async function main() {
   save(runDir, "diagnosis.md", analyst.out);
   log("diagnóstico listo");
 
+  // El analista decide con una línea `PATCH: yes|no`. Sin cambio real no se
+  // invoca al fixer ni se abre PR (evita parches por falsos positivos).
+  if (/^PATCH:\s*no\b/im.test(analyst.out)) {
+    log("el analista concluyó PATCH: no (sin cambio real que adaptar)");
+    save(runDir, "pr-body.md", "No se requiere adaptación.\n\n" + analyst.out);
+    await ack(changes.map((c) => c.label));
+    return;
+  }
+
   // ---- Fase 3: fixer + verificación -------------------------------------
   let verification = null;
   let fixerOut = "";
@@ -158,6 +167,10 @@ async function main() {
     verification = await verifyAgainstOriginal({ root: ROOT });
     save(runDir, `verification-${round}.json`, verification);
     log(`ronda ${round}: ${verification.summary}`);
+    if (verification.inconclusive) {
+      console.error("[swarm] verificación no concluyente (infra/rate-limit); evento queda pendiente, sin PR");
+      process.exit(0);
+    }
     if (verification.ok) break;
   }
 

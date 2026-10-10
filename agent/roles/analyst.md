@@ -14,3 +14,7 @@ Recibes los informes de los exploradores y la evidencia del monitor. Produces un
 
 ## Salida (Markdown)
 Un plan de parche que un implementador pueda seguir sin ambigüedad.
+
+**Termina SIEMPRE con una línea exacta:** `PATCH: yes` si hay que modificar el
+reemplazo, o `PATCH: no` si no hay cambio real que adaptar (falso positivo, delta
+nulo, o evidencia insuficiente). Esa línea decide si el enjambre parchea o no.
