@@ -1,122 +1,80 @@
-/**
- * ESCENA 5: Monitor
- * API + Vigilancia con diseño de 3 columnas limpio
- */
 import React from "react";
-import {
-  AbsoluteFill,
-  useCurrentFrame,
-  useVideoConfig,
-  interpolate,
-  Easing,
-} from "remotion";
-import { COLORS, FONTS, Terminal, Card, GlowOrb, GridBg, SectionHeader } from "./DesignSystem";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, Easing } from "remotion";
+import { COLORS, FONTS, Terminal, Card, GlowOrb, GridBg, SectionHeader, ScreenshotFrame, Badge } from "./DesignSystem";
+import { Icon } from "./Icons";
 
 export const SceneMonitor: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
-  const fadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [durationInFrames - 20, durationInFrames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-  const getAnim = (delay: number) => ({
-    y: interpolate(frame, [delay * fps, (delay + 0.6) * fps], [30, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-    o: interpolate(frame, [delay * fps, (delay + 0.5) * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-  });
+  const a1 = {
+    x: interpolate(frame, [0.2 * fps, fps], [-40, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    o: interpolate(frame, [0.2 * fps, 0.9 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  };
+  const a2 = {
+    x: interpolate(frame, [0.6 * fps, 1.4 * fps], [40, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    o: interpolate(frame, [0.6 * fps, 1.3 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  };
 
   const cronPulse = Math.sin((frame / fps) * 2.5) * 0.25 + 0.75;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.bg, opacity: Math.min(fadeIn, fadeOut) }}>
+    <AbsoluteFill style={{ backgroundColor: COLORS.bg }}>
       <GridBg opacity={0.02} />
-      <GlowOrb color={COLORS.green} size={350} style={{ top: "10%", right: "5%", opacity: 0.08 }} />
+      <GlowOrb color={COLORS.green} size={450} style={{ top: "8%", right: "3%", opacity: 0.1 }} />
 
-      <div style={{ padding: "60px 100px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="04 / Vigilancia" title="Monitor autónomo con snapshots" subtitle="La batería de 31 puntos corre cada 15 minutos y compara hashes para detectar cambios." color={COLORS.green} />
+      <div style={{ padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
+        <SectionHeader label="04 / Vigilancia" title="Monitor autónomo con snapshots" subtitle="La batería de 31 puntos corre cada 15 minutos y compara hashes SHA-256." color={COLORS.green} />
 
-        <div style={{ flex: 1, display: "flex", gap: 24 }}>
-          {/* Col 1: API Routes */}
-          <div style={{ flex: 0.9, transform: `translateY(${getAnim(0.2).y}px)`, opacity: getAnim(0.2).o }}>
-            <Card glow="cyan" style={{ height: "100%" }}>
-              <h3 style={{ fontFamily: FONTS.sans, fontSize: 15, fontWeight: 700, color: COLORS.cyan, margin: "0 0 18px 0", paddingBottom: 12, borderBottom: `1px solid ${COLORS.border}` }}>
-                Entrypoint API
-              </h3>
-              <div style={{ fontFamily: FONTS.mono, fontSize: 13, lineHeight: 2 }}>
-                {[
-                  { method: "GET", path: "/health", resp: "{ ok: true }", color: COLORS.greenBright },
-                  { method: "POST", path: "/msg", resp: "protocolo mensajes", color: COLORS.yellow },
-                  { method: "POST", path: "/__reset", resp: "estado inicial", color: COLORS.cyan },
-                  { method: "POST", path: "/api/monitor/run", resp: "batería", color: COLORS.purple },
-                  { method: "GET", path: "/api/monitor/status", resp: "snapshot", color: COLORS.blue },
-                ].map((r) => (
-                  <div key={r.path} style={{ marginBottom: 10, padding: "8px 12px", backgroundColor: COLORS.bgCode, borderRadius: 8 }}>
-                    <div>
-                      <span style={{ color: r.color, fontWeight: 700 }}>{r.method}</span>{" "}
-                      <span style={{ color: COLORS.text }}>{r.path}</span>
-                    </div>
-                    <div style={{ color: COLORS.textDim, fontSize: 11, marginTop: 2 }}>→ {r.resp}</div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          {/* Col 2: Terminal */}
-          <div style={{ flex: 1.2, transform: `translateY(${getAnim(0.6).y}px)`, opacity: getAnim(0.6).o }}>
+        <div style={{ flex: 1, display: "flex", gap: 36 }}>
+          {/* Terminal de la batería */}
+          <div style={{ flex: 1, transform: `translateX(${a1.x}px)`, opacity: a1.o }}>
             <Terminal
               title="monitor/run — batería de 31 puntos"
               style={{ height: "100%" }}
               lines={[
-                { text: "[monitor] Iniciando batería...", type: "output", color: COLORS.cyan },
+                { text: "[monitor] Iniciando batería vs API oficial...", type: "output", color: COLORS.cyan },
                 { text: "", type: "output" },
                 { text: "✓ health check", type: "output", color: COLORS.green },
                 { text: "✓ auth válido → 200", type: "output", color: COLORS.green },
                 { text: "✓ auth inválido → 401 E001", type: "output", color: COLORS.green },
-                { text: "✓ PING → {ok:true}", type: "output", color: COLORS.green },
+                { text: "✓ PING → {pong:true}", type: "output", color: COLORS.green },
                 { text: "✓ ALTA → cuenta AC-XXXX", type: "output", color: COLORS.green },
-                { text: "✓ DEPOSITO → saldo updated", type: "output", color: COLORS.green },
-                { text: "✓ TRANSFER → op creada", type: "output", color: COLORS.green },
+                { text: "✓ DEPOSITO → saldo actualizado", type: "output", color: COLORS.green },
+                { text: "✓ TRANSFER → operación creada", type: "output", color: COLORS.green },
                 { text: "✓ CONSULTA → estado completo", type: "output", color: COLORS.green },
-                { text: "✓ ANULA → op anulada", type: "output", color: COLORS.green },
+                { text: "✓ ANULA → reversión única", type: "output", color: COLORS.green },
                 { text: "✓ E100..E510 verificados", type: "output", color: COLORS.green },
                 { text: "", type: "output" },
                 { text: "[31/31] PASS — snapshot guardado", type: "output", color: COLORS.greenBright },
-                { text: "[NEON] INSERT INTO snapshots ...", type: "output", color: COLORS.purple },
+                { text: "[NEON] hash SHA-256 ≠ anterior", type: "output", color: COLORS.yellow },
+                { text: "[swarm] → trigger workflow", type: "output", color: COLORS.purple },
               ]}
             />
           </div>
 
-          {/* Col 3: Cron + Estado */}
-          <div style={{ flex: 0.9, transform: `translateY(${getAnim(1).y}px)`, opacity: getAnim(1).o }}>
-            <Card glow="purple" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-              <h3 style={{ fontFamily: FONTS.sans, fontSize: 15, fontWeight: 700, color: COLORS.purple, margin: "0 0 18px 0", paddingBottom: 12, borderBottom: `1px solid ${COLORS.border}` }}>
-                Cron + Estado
-              </h3>
-
-              <div style={{ padding: 14, borderRadius: 10, backgroundColor: `${COLORS.purple}08`, border: `1px solid ${COLORS.purple}20`, marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: COLORS.purple, opacity: cronPulse, boxShadow: `0 0 10px ${COLORS.purple}` }} />
-                <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.purple, fontWeight: 600 }}>Cada 15 min</span>
+          {/* Dashboard real */}
+          <div style={{ flex: 1.1, transform: `translateX(${a2.x}px)`, opacity: a2.o, display: "flex", flexDirection: "column", gap: 20 }}>
+            <ScreenshotFrame src="captures/monitor-dashboard.png" title="monitor — dashboard en vivo" />
+            <div style={{ display: "flex", gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <Card padding="18px" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: COLORS.purple, opacity: cronPulse, boxShadow: `0 0 12px ${COLORS.purple}` }} />
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 16, color: COLORS.purple, fontWeight: 700 }}>Cron cada 15 min</div>
+                </Card>
               </div>
-
-              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textMuted, lineHeight: 2, flex: 1 }}>
-                <div><span style={{ color: COLORS.cyan }}>snapshot.id</span> uuid</div>
-                <div><span style={{ color: COLORS.cyan }}>snapshot.ts</span> ISO</div>
-                <div><span style={{ color: COLORS.cyan }}>snapshot.results</span> JSONB</div>
-                <div><span style={{ color: COLORS.cyan }}>snapshot.hash</span> SHA-256</div>
-                <div style={{ marginTop: 8 }}>
-                  <span style={{ color: COLORS.green }}>▸</span> SELECT ... FOR UPDATE
-                </div>
-                <div>
-                  <span style={{ color: COLORS.green }}>▸</span> Serialización garantizada
-                </div>
+              <div style={{ flex: 1 }}>
+                <Card padding="18px" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <Icon name="database" size={24} color={COLORS.blue} />
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 16, color: COLORS.blue, fontWeight: 700 }}>Postgres JSONB</div>
+                </Card>
               </div>
-
-              <div style={{ marginTop: 12, padding: 10, borderRadius: 8, backgroundColor: `${COLORS.yellow}06`, border: `1px solid ${COLORS.yellow}18` }}>
-                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.yellow }}>
-                  ⚠ hash ≠ anterior → trigger swarm
-                </div>
-              </div>
-            </Card>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <Badge color="green">SELECT ... FOR UPDATE</Badge>
+              <Badge color="cyan">Serializa escrituras</Badge>
+              <Badge color="yellow">429/infra ignorado</Badge>
+            </div>
           </div>
         </div>
       </div>

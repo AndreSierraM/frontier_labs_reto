@@ -1,40 +1,42 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, Easing } from "remotion";
 import { COLORS, FONTS, Card, Terminal, GlowOrb, GridBg, SectionHeader } from "./DesignSystem";
+import { Icon, IconName } from "./Icons";
 
 export const SceneProblema: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
-
-  const fadeIn = interpolate(frame, [0, 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [durationInFrames - 20, durationInFrames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const { fps } = useVideoConfig();
 
   const a1 = {
-    y: interpolate(frame, [0.2 * fps, fps], [40, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    y: interpolate(frame, [0.2 * fps, fps], [50, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
     o: interpolate(frame, [0.2 * fps, 0.8 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
   };
   const a2 = {
-    y: interpolate(frame, [0.6 * fps, 1.4 * fps], [40, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    y: interpolate(frame, [0.6 * fps, 1.4 * fps], [50, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
     o: interpolate(frame, [0.6 * fps, 1.2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  };
+  const a3 = {
+    y: interpolate(frame, [1 * fps, 1.8 * fps], [50, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    o: interpolate(frame, [1 * fps, 1.6 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
   };
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.bg, opacity: Math.min(fadeIn, fadeOut) }}>
+    <AbsoluteFill style={{ backgroundColor: COLORS.bg }}>
       <GridBg opacity={0.02} />
-      <GlowOrb color={COLORS.red} size={350} style={{ top: "10%", right: "5%", opacity: 0.08 }} />
+      <GlowOrb color={COLORS.red} size={400} style={{ top: "8%", right: "5%", opacity: 0.1 }} />
 
-      <div style={{ padding: "60px 100px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
         <SectionHeader label="01 / El Problema" title="Un servicio sin especificación" subtitle="Solo hay una forma de descubrirlo: observar, experimentar y modelar." color={COLORS.red} />
 
-        <div style={{ flex: 1, display: "flex", gap: 32 }}>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ flex: 1, display: "flex", gap: 36 }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
             <div style={{ transform: `translateY(${a1.y}px)`, opacity: a1.o }}>
-              <Card glow="red" padding="28px">
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: `${COLORS.red}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, border: `1px solid ${COLORS.red}20` }}>🎲</div>
+              <Card glow="red" padding="32px">
+                <div style={{ display: "flex", gap: 20 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: `${COLORS.red}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `1px solid ${COLORS.red}25` }}><Icon name="dice" size={30} color={COLORS.red} /></div>
                   <div>
-                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 20, fontWeight: 700, color: COLORS.text, margin: "0 0 8px 0" }}>La Caja Negra</h3>
-                    <p style={{ fontFamily: FONTS.sans, fontSize: 15, color: COLORS.textMuted, lineHeight: 1.7, margin: 0 }}>
+                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>La Caja Negra</h3>
+                    <p style={{ fontFamily: FONTS.sans, fontSize: 20, color: COLORS.textMuted, lineHeight: 1.55, margin: 0 }}>
                       Un servicio HTTP cuyo comportamiento solo se puede inferir observando entradas y salidas. Sin código fuente, sin documentación.
                     </p>
                   </div>
@@ -43,12 +45,12 @@ export const SceneProblema: React.FC = () => {
             </div>
 
             <div style={{ transform: `translateY(${a2.y}px)`, opacity: a2.o }}>
-              <Card glow="purple" padding="28px">
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: `${COLORS.purple}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, border: `1px solid ${COLORS.purple}20` }}>🎯</div>
+              <Card glow="purple" padding="32px">
+                <div style={{ display: "flex", gap: 20 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 14, backgroundColor: `${COLORS.purple}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `1px solid ${COLORS.purple}25` }}><Icon name="target" size={30} color={COLORS.purple} /></div>
                   <div>
-                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 20, fontWeight: 700, color: COLORS.text, margin: "0 0 8px 0" }}>El Reto</h3>
-                    <p style={{ fontFamily: FONTS.sans, fontSize: 15, color: COLORS.textMuted, lineHeight: 1.7, margin: 0 }}>
+                    <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>El Reto</h3>
+                    <p style={{ fontFamily: FONTS.sans, fontSize: 20, color: COLORS.textMuted, lineHeight: 1.55, margin: 0 }}>
                       Construir un reemplazo 100% compatible, modelado como máquina de estados, con vigilancia autónoma que detecta cambios y se auto-adapta.
                     </p>
                   </div>
@@ -56,21 +58,27 @@ export const SceneProblema: React.FC = () => {
               </Card>
             </div>
 
-            <div style={{ flex: 1 }} />
-            <div style={{ opacity: a2.o, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, padding: "16px 0", borderTop: `1px solid ${COLORS.border}` }}>
-              {[{ icon: "🔄", label: "HTTP Entrypoint", value: "/msg" }, { icon: "🔐", label: "Auth", value: "Bearer" }, { icon: "📡", label: "Protocolo", value: "JSON" }].map((item) => (
-                <div key={item.label} style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 22, marginBottom: 4 }}>{item.icon}</div>
-                  <div style={{ fontFamily: FONTS.sans, fontSize: 11, color: COLORS.textDim, marginBottom: 2 }}>{item.label}</div>
-                  <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textMuted, fontWeight: 600 }}>{item.value}</div>
-                </div>
-              ))}
+            <div style={{ transform: `translateY(${a3.y}px)`, opacity: a3.o }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+                {[
+                  { icon: "clipboard" as IconName, label: "Especificación", value: "366 obs.", c: COLORS.cyan },
+                  { icon: "flask" as IconName, label: "Validación", value: "116/116", c: COLORS.green },
+                  { icon: "microscope" as IconName, label: "Experimentos", value: "JSONL log", c: COLORS.purple },
+                ].map((item) => (
+                  <Card key={item.label} padding="20px" style={{ textAlign: "center" }}>
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}><Icon name={item.icon} size={30} color={item.c} /></div>
+                    <div style={{ fontFamily: FONTS.sans, fontSize: 15, color: COLORS.textDim, marginBottom: 4 }}>{item.label}</div>
+                    <div style={{ fontFamily: FONTS.mono, fontSize: 18, color: COLORS.cyan, fontWeight: 700 }}>{item.value}</div>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
 
           <div style={{ flex: 1.1, opacity: a2.o }}>
             <Terminal
-              title="curl — explorando el original"
+              title="curl — ingeniería inversa"
+              style={{ height: "100%" }}
               lines={[
                 { text: "curl -X POST https://api.servicio/m/msg", type: "cmd", prefix: "$" },
                 { text: "-H 'Authorization: Bearer ***'", type: "output" },
@@ -78,14 +86,15 @@ export const SceneProblema: React.FC = () => {
                 { text: "", type: "output" },
                 { text: '{"ok": true}', type: "output", color: COLORS.green },
                 { text: "", type: "output" },
-                { text: "curl -X POST ... -d '{\"m\":\"ALTA|Test\"}'", type: "cmd", prefix: "$" },
-                { text: '{"cuenta": "AC-0001"}', type: "output", color: COLORS.green },
+                { text: "# Probando combinaciones...", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "ALTA|Test       → AC-0001", type: "output", color: COLORS.green },
+                { text: "DEPOSITO|...|100 → saldo: 100", type: "output", color: COLORS.green },
+                { text: "TRANSFER|...    → OP-0001", type: "output", color: COLORS.green },
                 { text: "", type: "output" },
-                { text: "# ¿Cuál es el límite exacto?", color: COLORS.yellow, type: "comment", prefix: "#" },
-                { text: "# ¿Cómo se calcula el control?", color: COLORS.yellow, type: "comment", prefix: "#" },
-                { text: "# 366 experimentos para descifrarlo...", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "# ¿Qué pasa al 3er fallo?", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "# ¿Cuál es el algoritmo del control?", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "# 366 observaciones guardadas...", color: COLORS.yellow, type: "comment", prefix: "#" },
               ]}
-              style={{ height: "100%" }}
             />
           </div>
         </div>

@@ -40,6 +40,6 @@ jobs:
         run: |
           git diff --exit-code -- \
             public/entregas/03-especificacion-servicio.html \
-            public/entregas/04-log-experimentos.html \
+            public/entregas/04-log-experimentos.md \
             public/entregas/SPEC.md \
             public/entregas/experimentos.jsonl

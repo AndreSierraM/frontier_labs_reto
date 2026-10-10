@@ -1,64 +1,53 @@
-/**
- * ESCENA 9: Cierre
- * Logo, links y tagline final
- */
 import React from "react";
-import {
-  AbsoluteFill,
-  useCurrentFrame,
-  useVideoConfig,
-  interpolate,
-  Easing,
-} from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, Easing } from "remotion";
 import { COLORS, FONTS, GlowOrb, GridBg } from "./DesignSystem";
+import { Icon, IconName } from "./Icons";
 
 export const SceneCierre: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const fadeIn = interpolate(frame, [0, 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-  const titleY = interpolate(frame, [0, 1.2 * fps], [40, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const contentOp = interpolate(frame, [0.8 * fps, 1.8 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const titleY = interpolate(frame, [0, 1.2 * fps], [50, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const contentOp = interpolate(frame, [0.6 * fps, 1.6 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.bg, opacity: fadeIn }}>
+    <AbsoluteFill style={{ backgroundColor: COLORS.bg }}>
       <GridBg opacity={0.03} />
-      <GlowOrb color={COLORS.cyan} size={400} style={{ top: "10%", left: "20%", opacity: 0.1 }} />
-      <GlowOrb color={COLORS.purple} size={350} style={{ bottom: "10%", right: "15%", opacity: 0.08 }} />
+      <GlowOrb color={COLORS.cyan} size={550} style={{ top: "5%", left: "18%", opacity: 0.15 }} />
+      <GlowOrb color={COLORS.purple} size={480} style={{ bottom: "5%", right: "12%", opacity: 0.12 }} />
 
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%", padding: "0 100px" }}>
-        <div style={{ width: 72, height: 72, borderRadius: 18, background: `linear-gradient(135deg, ${COLORS.cyan}20, ${COLORS.purple}20)`, border: `1.5px solid ${COLORS.cyan}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, marginBottom: 28, boxShadow: `0 0 60px ${COLORS.cyan}18` }}>
-          🔲
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%", padding: "0 110px" }}>
+        <div style={{ width: 96, height: 96, borderRadius: 24, background: `linear-gradient(135deg, ${COLORS.cyan}25, ${COLORS.purple}25)`, border: `2px solid ${COLORS.cyan}35`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 36, boxShadow: `0 0 80px ${COLORS.cyan}20` }}>
+          <Icon name="box" size={48} color={COLORS.cyan} strokeWidth={1.6} />
         </div>
 
         <div style={{ transform: `translateY(${titleY}px)`, textAlign: "center" }}>
-          <h2 style={{ fontFamily: FONTS.display, fontSize: 60, fontWeight: 700, color: COLORS.text, margin: 0, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: FONTS.display, fontSize: 96, fontWeight: 800, color: COLORS.text, margin: 0, lineHeight: 1.05, letterSpacing: "-0.03em" }}>
             La{" "}
             <span style={{ background: `linear-gradient(135deg, ${COLORS.cyan}, ${COLORS.purple})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               Caja Negra
             </span>
           </h2>
-          <p style={{ fontFamily: FONTS.sans, fontSize: 22, color: COLORS.textMuted, marginTop: 14 }}>
+          <p style={{ fontFamily: FONTS.sans, fontSize: 30, color: COLORS.textMuted, marginTop: 18 }}>
             Reto 2 · Frontier Labs · 2024
           </p>
         </div>
 
-        <div style={{ opacity: contentOp, marginTop: 44, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ opacity: contentOp, marginTop: 52, display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
             {[
-              { label: "github.com/AndreSierraM/frontier_labs_reto", icon: "🔗" },
-              { label: "frontier-labs-reto.vercel.app", icon: "🚀" },
+              { label: "github.com/AndreSierraM/frontier_labs_reto", icon: "link" as IconName },
+              { label: "frontier-labs-reto.vercel.app", icon: "rocket" as IconName },
             ].map((link) => (
-              <div key={link.label} style={{ padding: "12px 22px", borderRadius: 10, backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 10, color: COLORS.textMuted, fontFamily: FONTS.mono, fontSize: 13 }}>
-                <span>{link.icon}</span>
+              <div key={link.label} style={{ padding: "16px 28px", borderRadius: 12, backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 12, color: COLORS.textMuted, fontFamily: FONTS.mono, fontSize: 17 }}>
+                <Icon name={link.icon} size={22} color={COLORS.cyan} />
                 <span>{link.label}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ marginTop: 24, padding: "16px 32px", borderRadius: 12, background: `linear-gradient(135deg, ${COLORS.cyan}08, ${COLORS.purple}08)`, border: `1px solid ${COLORS.cyan}15`, textAlign: "center" }}>
-            <p style={{ fontFamily: FONTS.sans, fontSize: 16, color: COLORS.textMuted, margin: 0 }}>
+          <div style={{ marginTop: 28, padding: "20px 40px", borderRadius: 14, background: `linear-gradient(135deg, ${COLORS.cyan}0c, ${COLORS.purple}0c)`, border: `1px solid ${COLORS.cyan}20`, textAlign: "center" }}>
+            <p style={{ fontFamily: FONTS.sans, fontSize: 21, color: COLORS.textMuted, margin: 0 }}>
               Máquina de estados · Vigilancia autónoma · Enjambre de agentes
             </p>
           </div>

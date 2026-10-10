@@ -53,8 +53,8 @@ Detalle completo: [`SPEC.md`](SPEC.md) y [`README.md`](README.md).
 **En producción**, la vigilancia ya corre en la nube: GitHub Actions llama cada
 15 min (o en bucle) al monitor en Vercel, que ejecuta esta misma batería contra
 el original y guarda snapshots y eventos en Neon. Si detecta un cambio, dispara
-al enjambre, que abre un PR. Ver [`agent/README.md`](../agent/README.md) y
-[`docs/lab-e2e/cadena-automatica.md`](../docs/lab-e2e/cadena-automatica.md).
+al enjambre, que abre un PR. Ver [`agent/README.md`](../agent/README.md) y los
+runs de [GitHub Actions](https://github.com/AndreSierraM/frontier_labs_reto/actions).
 
 Para reproducirlo en local:
 
@@ -75,7 +75,7 @@ python3 scripts/vigilancia.py        # crea foto y compara con la anterior
    (`send_and_log`).
 4. **Adaptar**: desde la raíz del repo, reglas en `reemplazo/src/domain.js`; transporte en `reemplazo/src/server.js`. Actualizar `SPEC.md` con el `id` del log.
 5. **Verificar**: `verificar.py` (20/20) + `prueba_diferencial.py` (coincidencias).
-6. **Anotar** en `docs/plantillas/07-incidente.md` (ruta desde la raíz) y en esta bitácora (tabla de la sección 4).
+6. **Anotar** en esta bitácora (tabla de la sección 4).
 7. **Desplegar** la versión adaptada.
 
 ### 3.3 Criterio de aceptación
@@ -110,5 +110,6 @@ python3 scripts/vigilancia.py        # crea foto y compara con la anterior
 | Paquete ejecutable de entrega | `../reemplazo/README.md` |
 | Detector de cambios (local) | `scripts/vigilancia.py` |
 | Monitor + enjambre (desplegado) | `../agent/README.md` |
-| Prueba E2E y cadena automática | `../docs/lab-e2e/` |
-| Plantilla de preparación del incidente | `../docs/plantillas/07-incidente.md` |
+| Prueba E2E y cadena automática | runs de GitHub Actions (`../.github/workflows/`) |
+| Validación de la spec | `scripts/validar_spec.py` |
+| Entregables (especificación y log) | `../public/entregas/03-especificacion-servicio.html`, `../public/entregas/04-log-experimentos.md` |

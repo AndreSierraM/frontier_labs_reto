@@ -94,4 +94,4 @@ incluirlos en el repositorio. El servicio debe permanecer disponible desde las
   vive en PostgreSQL y lo comparten las instancias.
 - Algunos errores cambian estado: E506/E507 incrementan fallos; no tratarlos como operaciones sin efecto.
 
-La spec y el log se entregan por separado: [SPEC](../reto2-investigacion/SPEC.md), [experimentos](../reto2-investigacion/experimentos.jsonl). Diseño/diagrama: [entregables](../docs/entregables/). No afirmar equivalencia completa hasta validar el entrypoint con la evaluación oficial.
+La spec y el log se entregan por separado: [SPEC](../reto2-investigacion/SPEC.md), [experimentos](../reto2-investigacion/experimentos.jsonl). Diseño/diagrama: [entregables](../public/entregas/). No afirmar equivalencia completa hasta validar el entrypoint con la evaluación oficial.

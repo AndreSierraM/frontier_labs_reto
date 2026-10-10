@@ -93,7 +93,7 @@ conservan en `scripts/`. Ver [índice y requisitos de scripts](scripts/README.md
 ### Datos
 - `data/pares_control.jsonl` — 35 pares `(cuerpo, control)` (34 válidos + PING).
 - `data/control_cache.json` — escaneos completos por cuerpo (controles únicos).
-- `experimentos.jsonl` — 347 observaciones con hipótesis (evidencia de la spec).
+- `experimentos.jsonl` — 366 observaciones con hipótesis (evidencia de la spec).
 
 ---
 
@@ -235,7 +235,7 @@ reto2-investigacion/
 ├── README.md            # informe de hallazgos
 ├── SPEC.md              # especificación oficial
 ├── BITACORA.md          # qué pasó y cómo reaccionar
-├── experimentos.jsonl   # 347 observaciones (evidencia)
+├── experimentos.jsonl   # 366 observaciones (evidencia)
 ├── data/                # dataset de controles
 ├── logs/                # fingerprint + snapshots para detectar cambios
 ├── scripts/             # herramientas activas y legacy; ver scripts/README.md

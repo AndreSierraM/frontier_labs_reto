@@ -1,61 +1,55 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, Easing } from "remotion";
 import { COLORS, FONTS, GlowOrb, GridBg } from "./DesignSystem";
+import { Icon } from "./Icons";
 
 export const SceneIntro: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
-  const fadeOut = interpolate(frame, [durationInFrames - 20, durationInFrames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const titleY = interpolate(frame, [0, 1.5 * fps], [60, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const titleOp = interpolate(frame, [0, fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const subY = interpolate(frame, [0.5 * fps, 1.5 * fps], [40, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const subOp = interpolate(frame, [0.5 * fps, 1.2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const tagsOp = interpolate(frame, [1 * fps, 2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.bg, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", opacity: fadeOut }}>
-      <GridBg opacity={0.025} />
-      <GlowOrb color={COLORS.cyan} size={500} style={{ top: "5%", left: "15%", opacity: 0.15 }} />
-      <GlowOrb color={COLORS.purple} size={450} style={{ bottom: "5%", right: "10%", opacity: 0.12 }} />
+    <AbsoluteFill style={{ backgroundColor: COLORS.bg, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+      <GridBg opacity={0.03} />
+      <GlowOrb color={COLORS.cyan} size={600} style={{ top: "2%", left: "18%", opacity: 0.18 }} />
+      <GlowOrb color={COLORS.purple} size={520} style={{ bottom: "2%", right: "12%", opacity: 0.15 }} />
 
       <div style={{ textAlign: "center", zIndex: 1 }}>
-        <div style={{
-          opacity: interpolate(frame, [0, fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          marginBottom: 32,
-        }}>
+        <div style={{ opacity: titleOp, marginBottom: 36 }}>
           <div style={{
-            width: 72, height: 72, borderRadius: 18,
-            background: `linear-gradient(135deg, ${COLORS.cyan}20, ${COLORS.purple}20)`,
-            border: `1.5px solid ${COLORS.cyan}30`, display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 32, margin: "0 auto", boxShadow: `0 0 80px ${COLORS.cyan}15`,
-          }}>🔲</div>
+            width: 96, height: 96, borderRadius: 24,
+            background: `linear-gradient(135deg, ${COLORS.cyan}25, ${COLORS.purple}25)`,
+            border: `2px solid ${COLORS.cyan}35`, display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto", boxShadow: `0 0 100px ${COLORS.cyan}20`,
+          }}><Icon name="box" size={48} color={COLORS.cyan} strokeWidth={1.6} /></div>
         </div>
 
-        <div style={{
-          transform: `translateY(${interpolate(frame, [0, 1.5 * fps], [50, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
-          opacity: interpolate(frame, [0, fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-        }}>
-          <h1 style={{ fontFamily: FONTS.display, fontSize: 88, fontWeight: 800, color: COLORS.text, margin: 0, letterSpacing: "-0.03em", lineHeight: 1.05 }}>
+        <div style={{ transform: `translateY(${titleY}px)`, opacity: titleOp }}>
+          <h1 style={{ fontFamily: FONTS.display, fontSize: 128, fontWeight: 800, color: COLORS.text, margin: 0, letterSpacing: "-0.04em", lineHeight: 1 }}>
             La <span style={{ background: `linear-gradient(135deg, ${COLORS.cyan}, ${COLORS.purple})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Caja Negra</span>
           </h1>
         </div>
 
-        <div style={{
-          transform: `translateY(${interpolate(frame, [0.5 * fps, 1.5 * fps], [30, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
-          opacity: interpolate(frame, [0.5 * fps, 1.2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          marginTop: 20,
-        }}>
-          <p style={{ fontFamily: FONTS.sans, fontSize: 28, color: COLORS.textMuted, margin: 0 }}>Reto 2 · Frontier Labs</p>
+        <div style={{ transform: `translateY(${subY}px)`, opacity: subOp, marginTop: 28 }}>
+          <p style={{ fontFamily: FONTS.sans, fontSize: 38, color: COLORS.textMuted, margin: 0, fontWeight: 400 }}>Reto 2 · Frontier Labs</p>
         </div>
 
-        <div style={{
-          opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          marginTop: 48, display: "flex", gap: 12, justifyContent: "center",
-        }}>
-          {["Máquina de Estados", "Vigilancia Autónoma", "Enjambre de Agentes"].map((tag, i) => (
-            <div key={tag} style={{
-              padding: "10px 22px", borderRadius: 10,
-              backgroundColor: i === 0 ? `${COLORS.cyan}08` : i === 1 ? `${COLORS.purple}08` : `${COLORS.green}08`,
-              border: `1px solid ${i === 0 ? COLORS.cyan : i === 1 ? COLORS.purple : COLORS.green}22`,
-              color: i === 0 ? COLORS.cyan : i === 1 ? COLORS.purple : COLORS.green,
-              fontFamily: FONTS.mono, fontSize: 13, fontWeight: 600, letterSpacing: "0.03em",
-            }}>{tag}</div>
+        <div style={{ opacity: tagsOp, marginTop: 56, display: "flex", gap: 16, justifyContent: "center" }}>
+          {[
+            { t: "Máquina de Estados", c: COLORS.cyan },
+            { t: "Vigilancia Autónoma", c: COLORS.purple },
+            { t: "Enjambre de Agentes", c: COLORS.green },
+          ].map((tag) => (
+            <div key={tag.t} style={{
+              padding: "14px 28px", borderRadius: 12,
+              backgroundColor: `${tag.c}0e`, border: `1.5px solid ${tag.c}30`,
+              color: tag.c, fontFamily: FONTS.mono, fontSize: 18, fontWeight: 700, letterSpacing: "0.02em",
+            }}>{tag.t}</div>
           ))}
         </div>
       </div>

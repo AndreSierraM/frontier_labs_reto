@@ -38,8 +38,7 @@ Detalle del enjambre: [`agent/README.md`](agent/README.md).
 ```text
 frontier-reto-2/            Material oficial del reto, sin modificar
 reto2-investigacion/        Investigación, SPEC, bitácora y evidencia
-  reemplazo/ → ver reemplazo/ (paquete ejecutable)
-  scripts/                   Sondas, validación y diferencial
+  scripts/                   Sondas, validación (validar.py, validar_spec.py) y diferencial
 reemplazo/                  Runtime del reemplazo (dominio, HTTP, persistencia)
   src/domain.js              Máquina de estados pura
   src/server.js              Adapter HTTP (reutilizable por local y Vercel)
@@ -50,7 +49,8 @@ api/                        Funciones serverless de Vercel
   lab/                       Original falso controlable (pruebas)
 monitor/                    Batería de vigilancia y capa de Postgres del monitor
 agent/                      Enjambre de agentes (roles, harness, orquestador)
-docs/                       Diseño, arquitectura y evidencia
+tools/                      Generadores de entregables (build-entregas.py, render-entregas.py)
+docs/                       Observabilidad y evidencia
 ```
 
 ## Entrypoint (contrato)
@@ -106,22 +106,31 @@ No publicar `.env`, tokens, DB locales ni capturas con credenciales.
 
 | Necesidad | Fuente |
 | --- | --- |
-| Diseño para entregar | [HTML](docs/entregables/01-diseno-sistemas.html) · [PDF](docs/entregables/01-diseno-sistemas.pdf) |
-| Diagrama para entregar | [HTML](docs/entregables/02-diagrama-arquitectura.html) · [PDF](docs/entregables/02-diagrama-arquitectura.pdf) |
-| Decisiones completas | [Diseño](docs/01-diseno.md) · [Arquitectura](docs/02-arquitectura.md) |
-| Enjambre de agentes | [agent/README.md](agent/README.md) |
+| Especificación del servicio (entregable) | [HTML](public/entregas/03-especificacion-servicio.html) · [PDF](public/entregas/03-especificacion-servicio.pdf) · [SPEC.md](reto2-investigacion/SPEC.md) |
+| Log de experimentos (entregable) | [Markdown](public/entregas/04-log-experimentos.md) · [JSONL](reto2-investigacion/experimentos.jsonl) |
+| Diseño para entregar | [HTML](public/entregas/01-diseno-sistemas.html) · [PDF](public/entregas/01-diseno-sistemas.pdf) |
+| Diagrama para entregar | [HTML](public/entregas/02-diagrama-arquitectura.html) · [PDF](public/entregas/02-diagrama-arquitectura.pdf) |
+| Índice de entregas | [public/entregas/index.html](public/entregas/index.html) |
+| Validar log + evidencia del SPEC | [validar_spec.py](reto2-investigacion/scripts/validar_spec.py) |
+| Generar entregables 03/04 | [tools/build-entregas.py](tools/build-entregas.py) |
+| Integración continua | [.github/workflows/ci.yml](.github/workflows/ci.yml) (tests + evidencia + entregas al día) |
+| Enjambre de agentes (roles, CI/CD) | [agent/README.md](agent/README.md) |
 | Observabilidad (qué vemos) | [docs/observabilidad.md](docs/observabilidad.md) |
-| Pruebas E2E (laboratorio) | [docs/lab-e2e](docs/lab-e2e/README.md) |
-| Comportamiento observado | [SPEC](reto2-investigacion/SPEC.md) · [experimentos](reto2-investigacion/experimentos.jsonl) |
+| Workflows (monitor + swarm) | [.github/workflows](.github/workflows) · [runs](https://github.com/AndreSierraM/frontier_labs_reto/actions) |
+| Laboratorio E2E (original falso) | [api/lab](api/lab) · cadena monitor → enjambre → PR en los runs |
 | Cronología e incidente | [Bitácora](reto2-investigacion/BITACORA.md) |
-| Índice completo | [docs/README.md](docs/README.md) |
+| Regenerar PDF de entregas | [tools/render-entregas.py](tools/render-entregas.py) |
 
 ## Estado y límites
 
 - Validación local: **20/20** ejemplos, **34/34** control y **62/62** batería
   (**116/116**) + **21/21** unitarias.
-- Log de experimentos: **366 observaciones**; cada comportamiento del SPEC cita
-  líneas concretas del log (no quedan referencias genéricas como `probe_recon`).
+- Log de experimentos: **366 observaciones** (IDs 1–366, JSONL válido); cada
+  comportamiento del SPEC cita **IDs exactos** del log, verificados por
+  `reto2-investigacion/scripts/validar_spec.py`.
+- Especificación: **75 comportamientos** con ID, evidencia y confianza;
+  `validar_spec.py` comprueba esquema del log y correspondencia de la evidencia
+  (**OK**). Entregables en `public/entregas/03-*` y `public/entregas/04-*`.
 - El evaluador usa 100 tests, reset antes de cada test y máximo 5s por paso;
   compara status y cuerpo.
 - **Rate-limit de infraestructura:** el original responde `429 {"infra":"rate-limit"}`
