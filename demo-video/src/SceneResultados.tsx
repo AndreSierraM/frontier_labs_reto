@@ -59,8 +59,8 @@ export const SceneResultados: React.FC = () => {
       <GridBg opacity={0.02} />
       <GlowOrb color={COLORS.green} size={550} style={{ top: "12%", left: "50%", transform: "translateX(-50%)", opacity: 0.11 }} />
 
-      <div style={{ padding: "54px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="08 / Resultados" title="Todo pasa. Todo verificado." subtitle="Métricas que demuestran compatibilidad total con el servicio original." color={COLORS.green} />
+      <div style={{ position: "relative", zIndex: 1, padding: "54px 90px 84px", height: "100%", display: "flex", flexDirection: "column" }}>
+        <SectionHeader label="08 / Resultados" title="Compatibilidad medida, prueba a prueba" subtitle="Resultados de la validación del reemplazo frente al servicio original." color={COLORS.green} />
 
         {/* Métricas */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 22, marginBottom: 28 }}>
@@ -77,8 +77,8 @@ export const SceneResultados: React.FC = () => {
         {/* Detalle */}
         <div style={{ flex: 1, display: "flex", gap: 24, transform: `translateY(${bottomY}px)`, opacity: bottomOp }}>
           {/* Terminal */}
-          <div style={{ flex: 1.35, display: "flex", flexDirection: "column", borderRadius: 16, overflow: "hidden", border: `1px solid ${COLORS.border}`, backgroundColor: "#0b0d14" }}>
-            <div style={{ padding: "12px 22px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${COLORS.border}`, backgroundColor: "#0e1017" }}>
+          <div style={{ flex: 1.35, display: "flex", flexDirection: "column", borderRadius: 16, overflow: "hidden", border: `1px solid ${COLORS.border}`, backgroundColor: COLORS.bgCard }}>
+            <div style={{ padding: "12px 22px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${COLORS.border}`, backgroundColor: COLORS.bgElevated }}>
               <div style={{ display: "flex", gap: 8 }}>
                 <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: COLORS.red, opacity: 0.7 }} />
                 <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: COLORS.yellow, opacity: 0.7 }} />

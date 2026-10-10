@@ -54,12 +54,12 @@ export const SceneCodigo: React.FC = () => {
       <GlowOrb color={COLORS.purple} size={550} style={{ top: "8%", left: "1%", opacity: 0.12 }} />
       <GlowOrb color={COLORS.cyan} size={450} style={{ bottom: "6%", right: "3%", opacity: 0.1 }} />
 
-      <div style={{ padding: "48px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "48px 90px 84px", height: "100%", display: "flex", flexDirection: "column" }}>
         <SectionHeader label="03 / El Código" title="La máquina de estados, paso a paso" subtitle="domain.js es puro JavaScript: parseo, guardas y efectos. Sin HTTP, sin E/S." color={COLORS.purple} />
 
         <div style={{ flex: 1, display: "flex", gap: 30 }}>
           <div style={{ flex: 1.55, transform: `translateX(${codeX}px)`, opacity: codeOp }}>
-            <CodeHighlight language="domain.js · processMessage" highlightLines={stage.lines} code={CODE} fontSize={21} lineHeight={29} />
+            <CodeHighlight language="domain.js · processMessage" highlightLines={stage.lines} code={CODE} fontSize={20} lineHeight={26} />
           </div>
 
           <div style={{ flex: 0.85, display: "flex", flexDirection: "column", gap: 16, opacity: sidebarOp }}>
@@ -69,7 +69,7 @@ export const SceneCodigo: React.FC = () => {
                   const isActive = i === stageIdx;
                   const isDone = i < stageIdx;
                   return (
-                    <div key={s.title} style={{ display: "flex", alignItems: "center", gap: 16, padding: "11px 0", opacity: isActive ? 1 : isDone ? 0.6 : 0.28 }}>
+                    <div key={s.title} style={{ display: "flex", alignItems: "center", gap: 16, padding: "11px 0", opacity: isActive ? 1 : 0.65 }}>
                       <div style={{
                         width: 42, height: 42, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
                         backgroundColor: i <= stageIdx ? `${s.color}1c` : "transparent",

@@ -9,6 +9,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const observe = require("../monitor/observe.js");
+const compare = require("../monitor/compare.js");
+const probes = require("../monitor/probes.js");
 const scan = require("./scan-probes.js");
 
 const URL = (process.env.URL_API_ENTRYPOINT || "").replace(/\/$/, "");
@@ -17,14 +19,14 @@ const REPL_URL = (process.env.REPL_URL || "https://frontier-labs-reto.vercel.app
 const REPL_TOKEN = process.env.REPL_TOKEN || "";
 const OUT = path.resolve(__dirname, "../reto2-investigacion/logs/watch-map");
 
-const list = [...observe.PROBES.battery, ...scan.catalog().discovery];
+const list = [...probes.catalog().battery, ...scan.catalog().discovery];
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const ts = new Date().toISOString();
   console.error(`[scan] ${list.length} sondas contra el ORIGINAL (rps=${observe.limiter.rps})`);
   const orig = await observe.run(URL, TOKEN, list, { sleepMs: 0, concurrency: 1, throttle: true, infraRetries: 1, infraAbortAfter: 3 });
-  const origValid = observe.withoutInfra(orig);
+  const origValid = compare.withoutInfra(orig);
   console.error(`[scan] original: ${Object.keys(origValid).length}/${Object.keys(orig).length} válidas`);
 
   let repl = {};
@@ -33,7 +35,7 @@ const list = [...observe.PROBES.battery, ...scan.catalog().discovery];
     repl = await observe.run(REPL_URL, REPL_TOKEN, list, { sleepMs: 0, concurrency: 1, throttle: false, infraRetries: 0 });
   }
 
-  const d = observe.diff(observe.withoutInfra(repl), origValid);
+  const d = compare.diff(compare.withoutInfra(repl), origValid);
   const cmdNew = [];
   const routeNew = [];
   for (const [label, s] of Object.entries(origValid)) {

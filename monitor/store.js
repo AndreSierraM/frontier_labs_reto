@@ -16,6 +16,7 @@ async function ensure(pool) {
        foto jsonb NOT NULL
      )`
   );
+  await pool.query(`ALTER TABLE monitor_snapshots ADD COLUMN IF NOT EXISTS catalog text`);
   await pool.query(
     `CREATE TABLE IF NOT EXISTS monitor_events (
        id serial PRIMARY KEY,
@@ -35,6 +36,7 @@ async function ensure(pool) {
        map jsonb NOT NULL
      )`
   );
+  await pool.query(`ALTER TABLE monitor_maps ADD COLUMN IF NOT EXISTS catalog text`);
   await pool.query(
     `CREATE TABLE IF NOT EXISTS agent_runs (
        id serial PRIMARY KEY,
@@ -78,32 +80,32 @@ async function listAgentRuns(pool, limit = 10) {
 
 async function lastMap(pool) {
   const { rows } = await pool.query(
-    `SELECT id, taken_at, fingerprint, map FROM monitor_maps ORDER BY id DESC LIMIT 1`
+    `SELECT id, taken_at, fingerprint, map, catalog FROM monitor_maps ORDER BY id DESC LIMIT 1`
   );
   return rows[0] || null;
 }
 
-async function saveMap(pool, fp, map) {
+async function saveMap(pool, fp, map, catalog = null) {
   const { rows } = await pool.query(
-    `INSERT INTO monitor_maps (fingerprint, map) VALUES ($1, $2) RETURNING id, taken_at`,
-    [fp, JSON.stringify(map)]
+    `INSERT INTO monitor_maps (fingerprint, map, catalog) VALUES ($1, $2, $3) RETURNING id, taken_at`,
+    [fp, JSON.stringify(map), catalog]
   );
   return rows[0];
 }
 
 async function lastSnapshot(pool) {
   const { rows } = await pool.query(
-    `SELECT id, taken_at, target_url, fingerprint, foto
+    `SELECT id, taken_at, target_url, fingerprint, foto, catalog
        FROM monitor_snapshots ORDER BY id DESC LIMIT 1`
   );
   return rows[0] || null;
 }
 
-async function saveSnapshot(pool, targetUrl, fp, foto) {
+async function saveSnapshot(pool, targetUrl, fp, foto, catalog = null) {
   const { rows } = await pool.query(
-    `INSERT INTO monitor_snapshots (target_url, fingerprint, foto)
-     VALUES ($1, $2, $3) RETURNING id, taken_at`,
-    [targetUrl, fp, JSON.stringify(foto)]
+    `INSERT INTO monitor_snapshots (target_url, fingerprint, foto, catalog)
+     VALUES ($1, $2, $3, $4) RETURNING id, taken_at`,
+    [targetUrl, fp, JSON.stringify(foto), catalog]
   );
   return rows[0];
 }

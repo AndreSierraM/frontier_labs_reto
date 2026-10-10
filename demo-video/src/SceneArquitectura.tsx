@@ -18,7 +18,7 @@ const NODES: N[] = [
   { id: "neon", logo: "neon", title: "Neon · PostgreSQL", subtitle: "JSONB · FOR UPDATE", x: 1440, y: 100, color: COLORS.purple },
   { id: "lab", logo: "lab", title: "Laboratorio", subtitle: "original falso · /api/lab", x: 640, y: 390, color: COLORS.orange },
   { id: "monitor", logo: "monitor", title: "Monitor", subtitle: "batería 31 puntos", x: 1040, y: 390, color: COLORS.greenBright },
-  { id: "actions", logo: "gactions", title: "GitHub Actions", subtitle: "cron 15min · workflow", x: 1440, y: 390, color: COLORS.blue },
+  { id: "actions", logo: "gactions", title: "GitHub Actions", subtitle: "cron 10 min · workflow", x: 1440, y: 390, color: COLORS.blue },
   { id: "swarm", logo: "agents", title: "Enjambre", subtitle: "5 roles · 1 PR", x: 1440, y: 660, color: COLORS.pink },
 ];
 
@@ -34,7 +34,7 @@ const EDGES: Edge[] = [
   { from: "actions", to: "swarm", label: "trigger", color: COLORS.pink },
 ];
 
-const EdgeLine: React.FC<{ edge: Edge; opacity: number }> = ({ edge, opacity }) => {
+const EdgeLine: React.FC<{ edge: Edge; opacity: number; frame: number; fps: number; index: number }> = ({ edge, opacity, frame, fps, index }) => {
   const a = NODES.find((n) => n.id === edge.from)!;
   const b = NODES.find((n) => n.id === edge.to)!;
   const horizontal = Math.abs(b.y - a.y) < Math.abs(b.x - a.x);
@@ -58,6 +58,9 @@ const EdgeLine: React.FC<{ edge: Edge; opacity: number }> = ({ edge, opacity }) 
   const mx = (x1 + x2) / 2;
   const my = (y1 + y2) / 2;
   const labelW = edge.label ? edge.label.length * 9 + 24 : 0;
+  const packetProgress = ((frame / (fps * 2.4) + index * 0.17) % 1 + 1) % 1;
+  const packetX = x1 + (x2 - x1) * packetProgress;
+  const packetY = y1 + (y2 - y1) * packetProgress;
 
   return (
     <g opacity={opacity}>
@@ -67,6 +70,8 @@ const EdgeLine: React.FC<{ edge: Edge; opacity: number }> = ({ edge, opacity }) 
         </marker>
       </defs>
       <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={edge.color} strokeWidth={2.5} strokeDasharray={edge.dashed ? "9,6" : "none"} markerEnd={`url(#${markerId})`} opacity={0.85} />
+      <circle cx={packetX} cy={packetY} r={13} fill={edge.color} opacity={0.12} />
+      <circle cx={packetX} cy={packetY} r={6} fill={edge.color} opacity={0.95} />
       {edge.label && (
         <>
           <rect x={mx - labelW / 2} y={my - 15} width={labelW} height={30} rx={8} fill={COLORS.bg} stroke={`${edge.color}50`} strokeWidth={1} />
@@ -93,7 +98,7 @@ export const SceneArquitectura: React.FC = () => {
       <GlowOrb color={COLORS.cyan} size={600} style={{ top: "15%", left: "4%", opacity: 0.1 }} />
       <GlowOrb color={COLORS.purple} size={500} style={{ bottom: "8%", right: "3%", opacity: 0.08 }} />
 
-      <div style={{ padding: "50px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "50px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
         <SectionHeader label="02 / Arquitectura" title="Sistema desplegado, extremo a extremo" subtitle="Petición HTTP → dominio puro → persistencia. En paralelo: vigilancia y adaptación autónoma." color={COLORS.cyan} />
 
         <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
@@ -113,7 +118,7 @@ export const SceneArquitectura: React.FC = () => {
             </div>
 
             <svg width={CW} height={CH} viewBox={`0 0 ${CW} ${CH}`} style={{ position: "absolute", inset: 0 }}>
-              {EDGES.map((e, i) => <EdgeLine key={i} edge={e} opacity={edgeOp(i)} />)}
+              {EDGES.map((e, i) => <EdgeLine key={e.from + e.to} edge={e} opacity={edgeOp(i)} frame={frame} fps={fps} index={i} />)}
             </svg>
 
             {NODES.map((node, i) => {

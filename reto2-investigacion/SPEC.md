@@ -74,8 +74,8 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
-| K-00 | Comandos válidos (insensibles a mayúsculas): `PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `ANULA`. | 3, 5, 12, 66, 90, 104 | confirmado |
-| K-01 | Aridad exacta (segmentos incluyendo control): `PING` 2, `ALTA` 3, `CONSULTA` 3, `DEPOSITO` 4, `TRANSFER` 5, `ANULA` 3. Si no coincide → `400 E302`. | 17–46 | confirmado |
+| K-00 | Comandos válidos (insensibles a mayúsculas): `PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `ANULA` y, en v2, `HALT` y `NOTAS`. | 3, 5, 12, 66, 90, 104, 378, 379 | confirmado |
+| K-01 | Aridad exacta (segmentos incluyendo control): `PING` 2, `ALTA` 3, `CONSULTA` 3, `DEPOSITO` 4, `TRANSFER` 5, `ANULA` 3, `HALT` 3, `NOTAS` 2. Si no coincide → `400 E302`. | 17–46, 378, 379 | confirmado |
 
 ### PING
 
@@ -95,7 +95,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
-| K-C1 | `CONSULTA;<id>;<control>` existente → `200 {"cuenta_id":"<id>","saldo":N}`. | 12, 60 | confirmado |
+| K-C1 | `CONSULTA;<id>;<control>` existente → `200 {"cuenta_id":"<id>","saldo":"S.DD"}` (v2: saldo como cadena decimal de 2 dígitos; unidades = centavos). | 12, 60, 370, 372 | confirmado |
 | K-C2 | Cuenta inexistente → `404 {"error":"E401","mensaje":"cuenta inexistente"}`. El id se compara exacto (sensible a mayúsculas; `ac-0001`, `AC-1` fallan). | 61, 62, 63, 64 | confirmado |
 
 ### DEPOSITO
@@ -115,7 +115,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | K-T2 | Monto inválido → `400 E303` (igual que depósito). | 93, 94, 95, 96 | confirmado |
 | K-T3 | Origen = destino → `400 {"error":"E304","mensaje":"origen y destino iguales"}` (antes de límite/saldo). | 97, 131 | confirmado |
 | K-T4 | Origen o destino inexistente → `404 E401`. | 98, 99 | confirmado |
-| K-T5 | Monto > 100000 → `422 {"error":"E506","mensaje":"límite excedido"}`. | 91, 100 | confirmado |
+| K-T5 | Monto > 50000 → `422 {"error":"E506","mensaje":"límite excedido"}` (v2: el umbral bajó de 100000 a 50000). | 91, 100, 374–377 | confirmado |
 | K-T6 | Monto > saldo → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. `E506` tiene prioridad sobre `E507`. | 100, 126, 127 | confirmado |
 | K-T7 | Éxito: resta del origen, suma al destino, reinicia el contador de fallos del origen. | 92, 240–278 | confirmado |
 
@@ -141,7 +141,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | --- | --- | --- | --- |
 | M-01 | El estado es por proceso y por token: cuentas, saldos, operaciones y contadores. | 117–121 | confirmado |
 | M-02 | Contadores `AC-%04d` y `OP-%04d` secuenciales; `__reset` los vuelve a 1 y borra el estado. | 118, 120 | confirmado |
-| M-03 | **Bloqueo por fraude (oculto):** cada cuenta lleva un contador de fallos de transferencia. `E506` y `E507` lo incrementan; una transferencia exitosa o un depósito lo reinician; `E303`, `E304` y `E401` no lo tocan. Con **3 fallos**, el siguiente intento de transferencia desde esa cuenta (como origen) → `409 {"error":"E510","mensaje":"cuenta bloqueada"}`, comprobado tras validar monto/igualdad/cuentas y antes del límite/saldo. `CONSULTA`, `DEPOSITO` y `ANULA` siguen permitidos; un depósito desbloquea. | 164–239, 240–278, 309–336 | confirmado |
+| M-03 | **Bloqueo por fraude (oculto):** cada cuenta lleva un contador de fallos de transferencia. `E506` y `E507` lo incrementan; una transferencia exitosa o un depósito lo reinician; `E303`, `E304` y `E401` no lo tocan. Con **3 fallos**, el siguiente intento de transferencia desde esa cuenta (como origen) → `423 {"error":"E510","mensaje":"cuenta bloqueada","intentos":N}` (v2: antes `409` sin `intentos`), comprobado tras validar monto/igualdad/cuentas y antes del límite/saldo. `CONSULTA`, `DEPOSITO` y `ANULA` siguen permitidos; un depósito desbloquea. | 164–239, 240–278, 309–336, 380–383 | confirmado |
 | M-04 | `x-req` es un contador global que no reinicia `__reset`. | 361–364 | confirmado |
 
 ## 5 · Errores
@@ -165,7 +165,8 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos | 352–354 | confirmado |
 | E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 100000 | 91, 100, 128 | confirmado |
 | E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo | 126, 127 | confirmado |
-| E510 | 409 | `{"error":"E510","mensaje":"cuenta bloqueada"}` | cuenta con 3 fallos de transferencia | 134, 135, 178 | confirmado |
+| E510 | 423 | `{"error":"E510","mensaje":"cuenta bloqueada","intentos":N}` | cuenta con 3 fallos de transferencia (v2) | 134, 135, 380, 381 | confirmado |
+| E520 | 409 | `{"error":"E520","mensaje":"operación destructiva: detiene el servicio; reenvía con confirmación"}` | comando destructivo `HALT` (v2) | 378 | confirmado |
 
 Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 `E201`/`E202` → `E301` → `E302` → `E303` → `E304` → `E401` → `E510` → `E506` → `E507`
@@ -182,7 +183,7 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 **Cambio del evento (15:30 BOG / 20:30 UTC).** Cuando el monitor lo detecte, añadir una fila con evidencia real (el validador exige que los IDs existan y correspondan):
 
 ```text
-| X-04 | <qué cambió> (`<etiqueta>`): antes `<...>`, después `<...>`; detectado `<hora UTC>`, adaptado en <#PR>/<commit>. | <id-log>, <id-log> | confirmado |
+| X-04 | **Cambio v2 (incidente #FR-0153, detectado 2026-10-10T21:51Z):** cuatro deltas reales — (a) `CONSULTA` devuelve `saldo` como cadena decimal `"S.DD"` (centavos), (b) umbral `E506` baja de `>100000` a `>50000`, (c) `E510` pasa a status `423` y añade `intentos`, (d) comandos nuevos `HALT` (`409 E520`) y `NOTAS` (200 con notas). Adaptado en `reemplazo/src/domain.js` (commit `ce7aba2`). | 370, 372, 374–379, 380, 381 | confirmado |
 ```
 
 ## 7 · Riesgos

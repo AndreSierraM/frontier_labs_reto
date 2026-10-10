@@ -1,12 +1,13 @@
 /**
  * Persistencia del estado de la caja negra.
  *
- * El dominio (`domain.js`) sigue siendo puro y en memoria; aquí sólo se
- * serializa ese estado hacia distintos backends. Dos adaptadores:
+ * El dominio sigue siendo puro y en memoria. Aquí se serializa hacia distintos
+ * backends:
  *
- *   - createMemoryStorage()      estado por proceso (local y tests).
- *   - createPostgresStorage(pool) estado en PostgreSQL (Neon en Vercel),
- *     con lectura/escritura atómica vía transacción.
+ *   - createMemoryStorage()        estado por proceso (local y tests).
+ *   - createPostgresStorage(pool)  estado en PostgreSQL (Neon en Vercel).
+ *     Ahora con **caché en memoria + write-behind**: la mayoría de requests
+ *     solo tocan memoria; el flush a Postgres es asíncrono.
  *
  * Contrato: `mutate(fn)` entrega (state, xreq), ejecuta `fn` (que muta el
  * estado en memoria) y persiste el resultado; `reset()` vuelve al estado
@@ -53,12 +54,37 @@ function createMemoryStorage() {
 
 function createPostgresStorage(pool, table = "estado") {
   const t = String(table).replace(/[^a-zA-Z0-9_]/g, "");
-  const UPSERT = `INSERT INTO ${t} (id, data, xreq, updated_at)
-                  VALUES (1, $1, $2, now())
-                  ON CONFLICT (id) DO UPDATE
-                  SET data = EXCLUDED.data,
-                      xreq = EXCLUDED.xreq,
-                      updated_at = now()`;
+
+  const SELECT_SQL = `SELECT data, xreq FROM ${t} WHERE id = 1`;
+  const UPDATE_SQL = `UPDATE ${t} SET data = $1, xreq = $2, updated_at = now() WHERE id = 1`;
+  const INSERT_SQL = `INSERT INTO ${t} (id, data, xreq, updated_at) VALUES (1, $1, $2, now())`;
+
+  // ---------- caché en memoria ----------
+  let mem = null;       // estado cacheado
+  let memXreq = 0;      // xreq cacheado
+  let dirty = false;    // ¿hay cambios sin flush?
+  let flushing = false; // ¿hay un flush en vuelo?
+
+  async function flush() {
+    if (!dirty || flushing || !mem) return;
+    flushing = true;
+    dirty = false;
+    try {
+      await pool.query(UPDATE_SQL, [JSON.stringify(toJSON(mem)), memXreq]);
+    } catch (err) {
+      dirty = true; // reintentar en el próximo ciclo
+    } finally {
+      flushing = false;
+    }
+  }
+
+  // Safety-net: cada 300 ms intentamos vaciar si hay dirty.
+  const flushTimer = setInterval(() => {
+    if (dirty && !flushing) flush().catch(() => {});
+  }, 300);
+
+  // Evitamos que el timer mantenga vivo el proceso en tests locales.
+  flushTimer.unref && flushTimer.unref();
 
   return {
     async ensure() {
@@ -73,29 +99,42 @@ function createPostgresStorage(pool, table = "estado") {
     },
 
     async mutate(fn) {
-      const client = await pool.connect();
-      try {
-        await client.query("BEGIN");
-        const { rows } = await client.query(
-          `SELECT data, xreq FROM ${t} WHERE id = 1 FOR UPDATE`
-        );
-        const state = rows.length ? fromJSON(rows[0].data) : dominio.freshState();
-        const xreq = rows.length ? rows[0].xreq : 0;
-        const out = fn(state, xreq);
-        await client.query(UPSERT, [JSON.stringify(toJSON(state)), out.xreq]);
-        await client.query("COMMIT");
-        return out;
-      } catch (err) {
-        await client.query("ROLLBACK").catch(() => {});
-        throw err;
-      } finally {
-        client.release();
+      // Lazy-load: solo tocamos Postgres la primera vez (o después de un
+      // crash / restart de la instancia serverless).
+      if (!mem) {
+        const { rows } = await pool.query(SELECT_SQL);
+        if (rows.length) {
+          mem = fromJSON(rows[0].data);
+          memXreq = rows[0].xreq;
+        } else {
+          mem = dominio.freshState();
+          memXreq = 0;
+          await pool.query(INSERT_SQL, [JSON.stringify(toJSON(mem)), 0]);
+        }
       }
+
+      // La mutación es puramente en memoria y síncrona dentro del event-loop
+      // de Node, así que no hay race-conditions intra-proceso.
+      const out = fn(mem, memXreq);
+      memXreq = out.xreq;
+      dirty = true;
+
+      // Disparamos el flush sin await para no bloquear la respuesta HTTP.
+      flush().catch(() => {});
+
+      return out;
     },
 
     async reset() {
-      await pool.query(UPSERT, [JSON.stringify(toJSON(dominio.freshState())), 0]);
+      mem = dominio.freshState();
+      memXreq = 0;
+      dirty = false;
+      await pool.query(UPDATE_SQL, [JSON.stringify(toJSON(mem)), 0]);
     },
+
+    // Expuesto para tests / diagnóstico.
+    _flush: flush,
+    _cached: () => ({ state: mem, xreq: memXreq, dirty }),
   };
 }
 

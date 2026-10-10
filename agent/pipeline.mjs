@@ -1,6 +1,10 @@
 /**
  * Pipeline del enjambre: scouts → analista → (fixer → verificación → revisor)*
  * → reporter. Devuelve un estado y reporta la corrida al monitor.
+ *
+ * Este archivo es el **orquestador**: solo decide qué fase correr y en qué
+ * orden. La construcción de prompts vive en `lib/prompts.mjs`; la ejecución
+ * de cada fase en `lib/phase.mjs`.
  */
 import { config } from "./lib/config.mjs";
 import { fetchChanges, ack } from "./lib/monitorClient.mjs";
@@ -10,14 +14,17 @@ import { runTests } from "./lib/tests.mjs";
 import { verifyAgainstOriginal } from "./lib/verify.mjs";
 import { fetchVercelLogs } from "./lib/logs.mjs";
 import { gitDiff } from "./lib/git.mjs";
+import {
+  changeText,
+  analystTask,
+  adaptTask,
+  reviewTask,
+  reporterTask,
+  needsChanges,
+  saysNoPatch,
+} from "./lib/prompts.mjs";
 
 const log = (...a) => console.log("[swarm]", ...a);
-
-const changeText = (ch) =>
-  `## ${ch.label}\n- antes: ${JSON.stringify(ch.before)}\n- ahora: ${JSON.stringify(ch.after)}\n- detectado: ${ch.detected_at}`;
-
-const needsChanges = (review) => /^REVIEW:\s*cambios/im.test(review || "");
-const saysNoPatch = (diagnosis) => /^PATCH:\s*no\b/im.test(diagnosis || "");
 
 // ---- Fase 1: scouts en paralelo -----------------------------------------
 async function scoutsPhase(changes, runDir) {
@@ -33,45 +40,13 @@ async function scoutsPhase(changes, runDir) {
 }
 
 // ---- Fase 2: analista ----------------------------------------------------
-const analystTask = (changes, scoutReports, vercelLogs) =>
-  [
-    "Diagnóstico para adaptar el reemplazo.",
-    "",
-    "## Cambios detectados por el monitor",
-    changes.map(changeText).join("\n\n"),
-    "",
-    "## Informes de los exploradores",
-    scoutReports,
-    "",
-    "## Errores recientes de nuestra API desplegada (logs de Vercel)",
-    "```",
-    vercelLogs.slice(0, 8000),
-    "```",
-    "",
-    "Spec vigente: `reto2-investigacion/SPEC.md`. Dominio: `reemplazo/src/domain.js`.",
-  ].join("\n");
+// (prompt construido por prompts.mjs; aquí solo se invoca)
 
 // ---- Fase 3: adaptación con gate de verificación + revisión --------------
 async function reviewPhase(diagnosis, fixerOut, verification, runDir) {
   const diff = gitDiff();
   save(runDir, "fixer.patch", diff);
-  const task = [
-    "Revisa el parche antes de proponerlo.",
-    "",
-    "## Diagnóstico",
-    diagnosis,
-    "",
-    "## Resumen del fixer",
-    fixerOut,
-    "",
-    "## Verificación",
-    JSON.stringify(verification, null, 2),
-    "",
-    "## Diff (git diff)",
-    "```diff",
-    diff.slice(0, 12000),
-    "```",
-  ].join("\n");
+  const task = reviewTask(diagnosis, fixerOut, verification, diff);
   return (await runPhase({ role: "reviewer", task, label: "reviewer", runDir, file: "review.md" })).out;
 }
 
@@ -81,14 +56,7 @@ async function adaptPhase(diagnosis, runDir) {
   let review = "";
 
   for (let round = 1; round <= config.maxFixRounds; round++) {
-    const task = [
-      "Diagnóstico:",
-      diagnosis,
-      verification && !verification.ok ? `\nLa verificación anterior falló:\n${verification.summary}\nCorrige el parche.` : "",
-      needsChanges(review) ? `\nLa revisión pidió cambios:\n${review}\nAplica las correcciones.` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const task = adaptTask(diagnosis, verification, review);
 
     const fixer = await runPhase({ role: "fixer", task, label: `fixer#${round}`, runDir, file: `fixer-${round}.md` });
     fixerOut = fixer.out;
@@ -116,25 +84,7 @@ async function adaptPhase(diagnosis, runDir) {
 }
 
 // ---- Fase 4: reporter ----------------------------------------------------
-const reporterTask = (changes, diagnosis, fixerOut, verification, review) =>
-  [
-    "Redacta el cuerpo del PR.",
-    "",
-    "## Cambios",
-    changes.map(changeText).join("\n\n"),
-    "",
-    "## Diagnóstico",
-    diagnosis,
-    "",
-    "## Resumen del fixer",
-    fixerOut,
-    "",
-    "## Verificación",
-    JSON.stringify(verification, null, 2),
-    "",
-    "## Revisión",
-    review,
-  ].join("\n");
+// (prompt construido por prompts.mjs; aquí solo se invoca)
 
 // ---- Orquestador ---------------------------------------------------------
 // El reporte al monitor lo hace el workflow (tiene run-id y PR-url del CI).

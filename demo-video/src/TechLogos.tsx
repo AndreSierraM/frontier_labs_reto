@@ -1,5 +1,6 @@
 import React from "react";
 import { Img, staticFile } from "remotion";
+import { COLORS, FONTS } from "./DesignSystem";
 
 export type LogoName = "node" | "postgres" | "vercel" | "gactions" | "github" | "neon" | "openrouter" | "lab" | "http" | "json" | "user" | "monitor" | "agents";
 
@@ -31,7 +32,7 @@ export const TechLogo: React.FC<TechLogoProps> = ({ name, size = 40, color = "#f
     return (
       <Img
         src={staticFile(LOGO_FILES[name]!)}
-        style={{ width: size, height: size, objectFit: "contain", ...style }}
+        style={{ width: size, height: size, objectFit: "contain", filter: ["vercel", "github", "openrouter"].includes(name) ? "brightness(0.25)" : undefined, ...style }}
       />
     );
   }
@@ -112,7 +113,8 @@ export const LogoNode: React.FC<LogoNodeProps> = ({ logo, title, subtitle, color
       style={{
         width,
         height,
-        backgroundColor: "#11131f",
+        backgroundColor: COLORS.bgCard,
+        backgroundImage: `linear-gradient(140deg, ${color}14, transparent 90%)`,
         border: `1.5px solid ${color}50`,
         borderRadius: 16,
         padding: "16px 18px",
@@ -126,8 +128,8 @@ export const LogoNode: React.FC<LogoNodeProps> = ({ logo, title, subtitle, color
       }}
     >
       <TechLogo name={logo} size={logoSize} color={color} />
-      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: titleSize, fontWeight: 700, color: "#f8fafc", textAlign: "center", lineHeight: 1.2 }}>{title}</div>
-      {subtitle && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: subSize, color: "#6b7a90", textAlign: "center", lineHeight: 1.3 }}>{subtitle}</div>}
+      <div style={{ fontFamily: FONTS.sans, fontSize: titleSize, fontWeight: 700, color: COLORS.text, textAlign: "center", lineHeight: 1.2 }}>{title}</div>
+      {subtitle && <div style={{ fontFamily: FONTS.mono, fontSize: subSize, color: COLORS.textMuted, textAlign: "center", lineHeight: 1.3 }}>{subtitle}</div>}
     </div>
   );
 };

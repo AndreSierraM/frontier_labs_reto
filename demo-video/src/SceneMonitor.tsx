@@ -23,14 +23,14 @@ export const SceneMonitor: React.FC = () => {
       <GridBg opacity={0.02} />
       <GlowOrb color={COLORS.green} size={450} style={{ top: "8%", right: "3%", opacity: 0.1 }} />
 
-      <div style={{ padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="04 / Vigilancia" title="Monitor autónomo con snapshots" subtitle="La batería de 31 puntos corre cada 15 minutos y compara hashes SHA-256." color={COLORS.green} />
+      <div style={{ position: "relative", zIndex: 1, padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
+        <SectionHeader label="04 / Vigilancia" title="Monitor autónomo con snapshots" subtitle="La batería de 31 puntos corre cada 10 minutos y compara hashes SHA-256." color={COLORS.green} />
 
         <div style={{ flex: 1, display: "flex", gap: 36 }}>
           {/* Terminal de la batería */}
           <div style={{ flex: 1, transform: `translateX(${a1.x}px)`, opacity: a1.o }}>
             <Terminal
-              title="monitor/run — batería de 31 puntos"
+              title="Ejemplo de ejecución · batería de 31 puntos"
               style={{ height: "100%" }}
               lines={[
                 { text: "[monitor] Iniciando batería vs API oficial...", type: "output", color: COLORS.cyan },
@@ -55,12 +55,12 @@ export const SceneMonitor: React.FC = () => {
 
           {/* Dashboard real */}
           <div style={{ flex: 1.1, transform: `translateX(${a2.x}px)`, opacity: a2.o, display: "flex", flexDirection: "column", gap: 20 }}>
-            <ScreenshotFrame src="captures/monitor-dashboard.png" title="monitor — dashboard en vivo" />
+            <ScreenshotFrame src="captures/monitor-dashboard.png" title="Interfaz del monitor · datos sin cargar" scale={1.5} />
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ flex: 1 }}>
                 <Card padding="18px" style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: COLORS.purple, opacity: cronPulse, boxShadow: `0 0 12px ${COLORS.purple}` }} />
-                  <div style={{ fontFamily: FONTS.mono, fontSize: 16, color: COLORS.purple, fontWeight: 700 }}>Cron cada 15 min</div>
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 16, color: COLORS.purple, fontWeight: 700 }}>Cron cada 10 min</div>
                 </Card>
               </div>
               <div style={{ flex: 1 }}>

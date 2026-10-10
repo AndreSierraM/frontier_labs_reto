@@ -16,7 +16,7 @@ export const SceneCierre: React.FC = () => {
       <GlowOrb color={COLORS.cyan} size={550} style={{ top: "5%", left: "18%", opacity: 0.15 }} />
       <GlowOrb color={COLORS.purple} size={480} style={{ bottom: "5%", right: "12%", opacity: 0.12 }} />
 
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%", padding: "0 110px" }}>
+      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%", padding: "0 110px" }}>
         <div style={{ width: 96, height: 96, borderRadius: 24, background: `linear-gradient(135deg, ${COLORS.cyan}25, ${COLORS.purple}25)`, border: `2px solid ${COLORS.cyan}35`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 36, boxShadow: `0 0 80px ${COLORS.cyan}20` }}>
           <Icon name="box" size={48} color={COLORS.cyan} strokeWidth={1.6} />
         </div>
@@ -29,7 +29,7 @@ export const SceneCierre: React.FC = () => {
             </span>
           </h2>
           <p style={{ fontFamily: FONTS.sans, fontSize: 30, color: COLORS.textMuted, marginTop: 18 }}>
-            Reto 2 · Frontier Labs · 2024
+            Reto 2 · Frontier Labs
           </p>
         </div>
 

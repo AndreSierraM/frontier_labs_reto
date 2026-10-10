@@ -44,10 +44,13 @@ module.exports = async (req, res) => {
   }
 
   const prev = await store.lastMap(pool);
-  const baseline = prev ? observe.withoutInfra(prev.map) : null;
+  // Si el catálogo de sondas cambió, re-baselinamos (sin eventos).
+  const catalog = observe.catalogKey();
+  const rebaseline = Boolean(prev && prev.catalog && prev.catalog !== catalog);
+  const baseline = prev && !rebaseline ? observe.withoutInfra(prev.map) : null;
   const d = baseline ? observe.diff(baseline, clean) : { added: [], changed: [], removed: [], diffs: [] };
   const merged = { ...(baseline || {}), ...clean };
-  const saved = await store.saveMap(pool, observe.fingerprint(merged), merged);
+  const saved = await store.saveMap(pool, observe.fingerprint(merged), merged, catalog);
 
   if (baseline && (d.added.length || d.changed.length)) {
     await store.recordEvent(pool, kinds.KIND.MAP_CHANGED, null, null, null,

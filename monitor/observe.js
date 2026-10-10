@@ -2,50 +2,24 @@
  * Observación del original: ejecución de sondas y comparación.
  *
  * Las sondas (datos) viven en `probes.js`; aquí está la lógica: HTTP, runner,
- * health, diff, fingerprint e infra. Una sola implementación para la batería y
- * el mapa.
+ * health. El rate-limiter vive en `limiter.js`; la comparación pura en
+ * `compare.js`.
  */
 "use strict";
 
 const probes = require("./probes");
+const limiter = require("./limiter");
 const compare = require("./compare");
-const { hasInfra, withoutInfra } = compare;
+const { hasInfra, withoutInfra, fingerprint } = compare;
 
 const PROBES = probes.catalog();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-// ---------------------------------------------------------------- rate limit
-// Material oficial (`frontier-reto-2/README.md`): cada token admite 10 req/s y
-// 8.000/día. Si se supera, el original responde 429 con `X-Frontier-Infra`.
-// Serializamos TODAS las peticiones con un limitador global por debajo del
-// límite (8 rps por defecto) para no autobloquearnos.
-const RPS = Math.max(1, Number(process.env.MONITOR_RPS || 8));
-const MIN_GAP_MS = Math.ceil(1000 / RPS);
-const BACKOFF_MS = Math.max(0, Number(process.env.MONITOR_BACKOFF_MS || 2000));
-let nextSlot = 0;
-
-/** Reserva el siguiente hueco del limitador y espera si aún no toca. */
-async function acquire() {
-  const now = Date.now();
-  const at = Math.max(now, nextSlot);
-  nextSlot = at + MIN_GAP_MS;
-  if (at > now) await sleep(at - now);
-}
-
-const limiter = {
-  rps: RPS,
-  minGapMs: MIN_GAP_MS,
-  acquire,
-  reset: () => {
-    nextSlot = 0;
-  },
-};
 
 // ---------------------------------------------------------------- HTTP
 async function requestRaw(base, token, method, path, body, timeoutMs = 15000, tries = 3, throttle = true) {
   let lastErr = "";
   for (let i = 0; i < tries; i++) {
-    if (throttle) await acquire();
+    if (throttle) await limiter.acquire();
     try {
       const res = await fetch(base + path, {
         method,
@@ -62,13 +36,13 @@ async function requestRaw(base, token, method, path, body, timeoutMs = 15000, tr
       }
       const infra = res.status === 429 || res.headers.get("x-frontier-infra") === "rate-limit";
       if (infra && i < tries - 1) {
-        await sleep(BACKOFF_MS * (i + 1));
+        await sleep(limiter.backoffMs * (i + 1));
         continue;
       }
       return { status: res.status, response: parsed };
     } catch (e) {
       lastErr = String(e && e.message);
-      await sleep(BACKOFF_MS * (i + 1));
+      await sleep(limiter.backoffMs * (i + 1));
     }
   }
   return { status: 0, response: "unreachable", error: lastErr };
@@ -148,12 +122,20 @@ async function run(
 
 const runBattery = (base, token, opts) => run(base, token, PROBES.battery, { sleepMs: 50, timeoutMs: 20000, ...opts, concurrency: 1 });
 
-// Batería secuencial (estado) + descubrimiento/rutas en paralelo (sin estado).
+// Clave del catálogo de sondas: si cambia, el monitor RE-BASELINA (evita falsos
+// "cambios" por sondas nuevas o por corrimiento del contador de operaciones).
+const catalogKey = () => fingerprint(PROBES.all.map((p) => [p.label, p.method, p.path, p.body]));
+
+// Batería secuencial (estado) + descubrimiento (sin estado).
 async function runAll(base, token, opts = {}) {
   const battery = await runBattery(base, token, opts);
   // Si la batería no obtuvo NINGUNA muestra válida, el original está caído:
   // no tiene sentido gastar el descubrimiento.
   if (hasInfra(battery) && Object.keys(withoutInfra(battery)).length === 0) return battery;
+  // Reset antes del descubrimiento: sus sondas crean operaciones, así que sin
+  // reset el contador OP-* dependería de la batería y cambiar la batería
+  // falsearía el mapa.
+  await requestRaw(base, token, "POST", "/__reset", null, opts.timeoutMs || 15000, 1, opts.throttle !== false);
   const rest = await run(base, token, [...PROBES.discovery, ...PROBES.routes], {
     sleepMs: 0,
     ...opts,
@@ -174,4 +156,4 @@ async function health(base, token, timeoutMs = 15000) {
   }
 }
 
-module.exports = { PROBES, request, requestRaw, run, runBattery, runAll, health, limiter, ...compare };
+module.exports = { PROBES, catalogKey, request, requestRaw, run, runBattery, runAll, health, limiter, ...compare };

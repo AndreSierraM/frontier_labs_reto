@@ -1,5 +1,6 @@
 import React from "react";
-import { Composition, Sequence } from "remotion";
+import { Composition, Sequence, useCurrentFrame } from "remotion";
+import { COLORS, FONTS } from "./DesignSystem";
 import { loadFont } from "@remotion/google-fonts/Inter";
 import { loadFont as loadJetBrainsMono } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadSpaceGrotesk } from "@remotion/google-fonts/SpaceGrotesk";
@@ -14,9 +15,9 @@ import { SceneCapturas } from "./SceneCapturas";
 import { SceneResultados } from "./SceneResultados";
 import { SceneCierre } from "./SceneCierre";
 
-loadFont();
-loadJetBrainsMono();
-loadSpaceGrotesk();
+loadFont("normal", { weights: ["400", "500", "600", "700", "800"], subsets: ["latin"] });
+loadJetBrainsMono("normal", { weights: ["400", "500", "600", "700", "800"], subsets: ["latin"] });
+loadSpaceGrotesk("normal", { weights: ["700"], subsets: ["latin"] });
 
 const fps = 30;
 const T = 15;
@@ -53,15 +54,49 @@ const SCENES = [
 const DEMO_SCENES = SCENES.map((scene, index) => ({
   ...scene,
   duration: index === SCENES.length - 1 ? scene.duration : scene.duration - T,
+  from: SCENES.slice(0, index).reduce((total, preceding) => total + preceding.duration - T, 0),
 }));
+
+const CHAPTERS = [
+  { label: "Descubrir", from: DEMO_SCENES[1].from, color: COLORS.orange },
+  { label: "Construir", from: DEMO_SCENES[2].from, color: COLORS.cyan },
+  { label: "Vigilar", from: DEMO_SCENES[4].from, color: COLORS.green },
+  { label: "Adaptar", from: DEMO_SCENES[5].from, color: COLORS.purple },
+  { label: "Demostrar", from: DEMO_SCENES[7].from, color: COLORS.blue },
+];
+
+const ChapterGuide: React.FC = () => {
+  const frame = useCurrentFrame();
+  if (frame < CHAPTERS[0].from || frame >= DEMO_SCENES[9].from) return null;
+  return (
+    <div style={{ position: "absolute", bottom: 16, left: 110, right: 110, display: "flex", gap: 24, pointerEvents: "none" }}>
+      {CHAPTERS.map((chapter, index) => {
+        const end = CHAPTERS[index + 1]?.from ?? DEMO_SCENES[9].from;
+        const progress = Math.max(0, Math.min(1, (frame - chapter.from) / (end - chapter.from)));
+        const active = frame >= chapter.from && frame < end;
+        return (
+          <div key={chapter.label} style={{ flex: 1 }}>
+            <div style={{ height: 3, backgroundColor: COLORS.border, borderRadius: 2, overflow: "hidden", marginBottom: 8 }}>
+              <div style={{ height: "100%", width: `${progress * 100}%`, backgroundColor: chapter.color }} />
+            </div>
+            <div style={{ fontFamily: FONTS.sans, fontSize: 17, fontWeight: active ? 700 : 500, color: active ? chapter.color : COLORS.textDim }}>
+              {String(index + 1).padStart(2, "0")} · {chapter.label}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export const LaCajaNegraDemo: React.FC = () => (
   <>
-    {DEMO_SCENES.map(({ id, Component, duration }, index) => (
-      <Sequence key={id} from={DEMO_SCENES.slice(0, index).reduce((total, scene) => total + scene.duration, 0)} durationInFrames={duration}>
+    {DEMO_SCENES.map(({ id, Component, duration, from }) => (
+      <Sequence key={id} from={from} durationInFrames={duration}>
         <Component />
       </Sequence>
     ))}
+    <ChapterGuide />
   </>
 );
 

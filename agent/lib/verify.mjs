@@ -10,10 +10,10 @@ import { spawn } from "node:child_process";
 import observe from "../../monitor/observe.js";
 import compare from "../../monitor/compare.js";
 import { config } from "./config.mjs";
+import { startCandidate } from "./runner.mjs";
 
 const { runBattery, runAll } = observe;
 const { diff, hasInfra } = compare;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const REFERENCE_RATE_LIMITED = "la referencia del original está rate-limited (429/infra)";
 const inconclusive = (summary) => ({
@@ -32,8 +32,12 @@ export function gate({ reference = {}, candidate = {}, referenceMap = null, cand
   if (hasInfra(reference)) return inconclusive(REFERENCE_RATE_LIMITED);
   if (hasInfra(candidate)) return inconclusive("el reemplazo local devolvió 429 o es inaccesible");
 
-  const divergences = diff(reference, candidate).diffs;
-  const mapDivergences = referenceMap && candidateMap ? diff(referenceMap, candidateMap).diffs : [];
+  // Solo comparamos etiquetas presentes en AMBOS lados: una sonda nueva del
+  // catálogo no es una divergencia del reemplazo.
+  const divergences = diff(reference, candidate).diffs.filter((d) => d.before !== null);
+  const mapDivergences = referenceMap && candidateMap
+    ? diff(referenceMap, candidateMap).diffs.filter((d) => d.before !== null)
+    : [];
   const all = [...divergences, ...mapDivergences];
   return {
     ok: all.length === 0,
@@ -58,37 +62,6 @@ async function monitorGet(path) {
   } catch (_) {
     return null;
   }
-}
-
-/** Arranca el reemplazo local y espera a que `/health` responda. */
-async function startCandidate(root, port) {
-  const base = `http://127.0.0.1:${port}`;
-  const child = spawn("node", ["reemplazo/src/server.js"], {
-    cwd: root,
-    env: { ...process.env, TOKEN_API_ENTRYPOINT: "local-swarm", PORT: String(port) },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  let logs = "";
-  child.stdout.on("data", (d) => (logs += d));
-  child.stderr.on("data", (d) => (logs += d));
-  const stop = () => child.kill("SIGKILL");
-
-  let up = false;
-  for (let i = 0; i < 40; i++) {
-    try {
-      const r = await fetch(base + "/health", {
-        headers: { Authorization: "Bearer local-swarm" },
-        signal: AbortSignal.timeout(2000),
-      });
-      if (r.ok) { up = true; break; }
-    } catch (_) {}
-    await sleep(250);
-  }
-  if (!up) {
-    stop();
-    return { error: "el reemplazo local no arrancó: " + logs.slice(0, 300) };
-  }
-  return { base, logs, stop };
 }
 
 /** Referencia del original: snapshot + mapa del monitor (o sonda en vivo). */

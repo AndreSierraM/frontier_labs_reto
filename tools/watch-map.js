@@ -17,6 +17,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const observe = require("../monitor/observe.js");
+const compare = require("../monitor/compare.js");
+const probes = require("../monitor/probes.js");
 const scan = require("./scan-probes.js");
 
 const URL = (process.env.URL_API_ENTRYPOINT || "").replace(/\/$/, "");
@@ -80,7 +82,7 @@ async function mapBoth() {
 
   log(`Fase 1+2 · ${list.length} sondas contra el ORIGINAL`);
   const orig = await observe.run(URL, TOKEN, list, { sleepMs: 0, concurrency: 1, throttle: true, infraRetries: 1, infraAbortAfter: 3 });
-  const origValid = observe.withoutInfra(orig);
+  const origValid = compare.withoutInfra(orig);
   fs.writeFileSync(path.join(OUT, `map-${ts}.json`), JSON.stringify({ at: stamp(), url: URL, total: Object.keys(orig).length, valid: Object.keys(origValid).length, map: orig }, null, 2));
   log(`mapa original: ${Object.keys(origValid).length}/${Object.keys(orig).length} válidas -> map-${ts}.json`);
 
@@ -96,7 +98,7 @@ async function mapBoth() {
     log("sin REPL_TOKEN: no se compara contra el reemplazo");
   }
 
-  const d = observe.diff(observe.withoutInfra(replMap), origValid);
+  const d = compare.diff(compare.withoutInfra(replMap), origValid);
   fs.writeFileSync(
     path.join(OUT, `report-${ts}.json`),
     JSON.stringify({ at: stamp(), original: URL, replacement: REPL_URL, changedLabels: d.changed, added: d.added, removed: d.removed, diffs: d.diffs, cmdNew, routeNew }, null, 2)

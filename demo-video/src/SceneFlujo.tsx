@@ -18,7 +18,7 @@ const P = {
 
 // Serpentina: fila 1 de izq→der, fila 2 de der→izq, fila 3 de izq→der
 const STEPS: (Step & { color: string; phase: string })[] = [
-  { n: 1, logo: "gactions", title: "Cron", sub: "cada 15 min", x: 210, y: 100, color: P.vig, phase: "Vigilancia" },
+  { n: 1, logo: "gactions", title: "Cron", sub: "cada 10 min", x: 210, y: 100, color: P.vig, phase: "Vigilancia" },
   { n: 2, logo: "vercel", title: "Monitor /run", sub: "ejecuta batería", x: 550, y: 100, color: P.vig, phase: "Vigilancia" },
   { n: 3, logo: "monitor", title: "31 puntos", sub: "vs original", x: 890, y: 100, color: P.vig, phase: "Vigilancia" },
   { n: 4, logo: "neon", title: "Snapshot", sub: "hash SHA-256", x: 1230, y: 100, color: P.vig, phase: "Vigilancia" },
@@ -40,7 +40,8 @@ const StepNode: React.FC<{ s: Step & { color: string }; opacity: number; scale: 
       style={{
         width: NW,
         height: NH,
-        backgroundColor: active ? `${s.color}16` : "#11131f",
+        backgroundColor: COLORS.bgCard,
+        backgroundImage: `linear-gradient(140deg, ${s.color}${active ? "24" : "10"}, transparent)`,
         border: `2px solid ${active ? s.color : s.color + "50"}`,
         borderRadius: 18,
         padding: "16px 18px",
@@ -49,10 +50,10 @@ const StepNode: React.FC<{ s: Step & { color: string }; opacity: number; scale: 
         alignItems: "center",
         justifyContent: "center",
         gap: 8,
-        boxShadow: active ? `0 0 55px ${s.color}40` : `0 10px 30px ${s.color}10`,
+        boxShadow: active ? `0 6px 24px ${s.color}20` : `0 6px 16px ${s.color}08`,
       }}
     >
-      <div style={{ position: "absolute", top: -14, left: 14, width: 34, height: 34, borderRadius: 10, backgroundColor: s.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONTS.mono, fontSize: 18, fontWeight: 800, color: "#080a0f", boxShadow: `0 4px 14px ${s.color}50` }}>
+      <div style={{ position: "absolute", top: -14, left: 14, width: 34, height: 34, borderRadius: 10, backgroundColor: s.color, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONTS.mono, fontSize: 18, fontWeight: 800, color: COLORS.bgCard }}>
         {s.n}
       </div>
       <TechLogo name={s.logo} size={52} color={s.color} />
@@ -88,7 +89,7 @@ const VArrow: React.FC<{ x: number; y1: number; y2: number; color: string; label
   return (
     <g opacity={opacity}>
       <defs>
-        <marker id={id} markerWidth="12" markerHeight="12" refX="3.5" refY="9" orient="auto">
+        <marker id={id} markerWidth="12" markerHeight="12" refX="3.5" refY="9" orient="0">
           <path d="M0,0 L3.5,9 L7,0 Z" fill={color} />
         </marker>
       </defs>
@@ -122,18 +123,18 @@ export const SceneFlujo: React.FC = () => {
       <GlowOrb color={COLORS.cyan} size={450} style={{ top: "8%", left: "6%", opacity: 0.08 }} />
       <GlowOrb color={COLORS.green} size={450} style={{ bottom: "6%", right: "6%", opacity: 0.08 }} />
 
-      <div style={{ padding: "46px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "46px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
         <SectionHeader label="06 / Flujo Completo" title="Pipeline autónomo · 12 pasos" subtitle="Detecta → investiga → parchea → verifica → entrega. Sin intervención humana hasta el PR." color={COLORS.cyan} />
 
         <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
           <div style={{ position: "relative", width: CW, height: CH }}>
             {/* etiquetas de fase */}
             {[
-              { name: "Vigilancia", note: "cada 15 min", y: 100, color: P.vig },
+              { name: "Vigilancia", note: "cada 10 min", y: 100, color: P.vig },
               { name: "Investigación", note: "si cambió", y: 400, color: P.inv },
               { name: "Entrega", note: "PR + deploy", y: 680, color: P.ent },
             ].map((ph) => (
-              <div key={ph.name} style={{ position: "absolute", left: 0, top: ph.y - NH / 2 - 4, display: "flex", flexDirection: "column", gap: 2, opacity: interpolate(frame, [(0.1 + ph.y / 400) * fps, (0.1 + ph.y / 400 + 0.3) * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
+              <div key={ph.name} style={{ position: "absolute", left: 0, top: ph.y === 100 ? ph.y + NH / 2 + 16 : ph.y - NH / 2 + 20, display: "flex", flexDirection: "column", gap: 2, opacity: interpolate(frame, [(0.1 + ph.y / 400) * fps, (0.1 + ph.y / 400 + 0.3) * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ width: 5, height: 22, borderRadius: 3, backgroundColor: ph.color }} />
                   <span style={{ fontFamily: FONTS.mono, fontSize: 14, color: ph.color, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em" }}>{ph.name}</span>

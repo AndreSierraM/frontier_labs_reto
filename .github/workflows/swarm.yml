@@ -69,7 +69,7 @@ jobs:
           VERCEL_SCOPE: cabalastechhub
           MAX_SCOUTS: "2"
           MAX_FIX_ROUNDS: "2"
-          SWARM_AGENT_TIMEOUT_MS: "300000"
+          SWARM_AGENT_TIMEOUT_MS: "600000"
           PI_SKIP_VERSION_CHECK: "1"
           PI_TELEMETRY: "0"
         run: node agent/swarm.mjs

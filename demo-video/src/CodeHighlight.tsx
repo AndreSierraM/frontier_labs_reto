@@ -10,16 +10,16 @@ const KEYWORDS = new Set([
 const GLOBALS = new Set(["Map", "String", "Number", "Array", "Object", "JSON", "Boolean", "Promise", "RegExp", "Buffer", "Math", "process"]);
 
 const TOKEN_COLORS: Record<string, string> = {
-  comment: "#5b6b82",
-  string: "#34d399",
-  keyword: "#c084fc",
-  number: "#f59e0b",
-  global: "#60a5fa",
-  method: "#4de8ff",
-  fncall: "#fbbf24",
-  property: "#93b4d4",
-  plain: "#cbd5e1",
-  punctuation: "#64748b",
+  comment: COLORS.textDim,
+  string: COLORS.green,
+  keyword: COLORS.purple,
+  number: COLORS.orange,
+  global: COLORS.blue,
+  method: COLORS.cyan,
+  fncall: COLORS.yellow,
+  property: COLORS.blue,
+  plain: COLORS.text,
+  punctuation: COLORS.textMuted,
 };
 
 type Token = { text: string; type: keyof typeof TOKEN_COLORS };
@@ -118,7 +118,7 @@ export const CodeHighlight: React.FC<CodeHighlightProps> = ({ code, language = "
   return (
     <div
       style={{
-        backgroundColor: "#0b0d14",
+        backgroundColor: COLORS.bgCard,
         borderRadius: 16,
         overflow: "hidden",
         border: `1px solid ${COLORS.borderHighlight}`,
@@ -126,7 +126,7 @@ export const CodeHighlight: React.FC<CodeHighlightProps> = ({ code, language = "
         ...style,
       }}
     >
-      <div style={{ padding: "13px 24px", borderBottom: `1px solid ${COLORS.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#0e1017" }}>
+      <div style={{ padding: "13px 24px", borderBottom: `1px solid ${COLORS.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: COLORS.bgElevated }}>
         <span style={{ color: COLORS.textDim, fontFamily: FONTS.mono, fontSize: 14, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700 }}>{language}</span>
         <div style={{ display: "flex", gap: 8 }}>
           <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#ef4444", opacity: 0.7 }} />
@@ -142,7 +142,7 @@ export const CodeHighlight: React.FC<CodeHighlightProps> = ({ code, language = "
               key={idx}
               style={{
                 display: "flex",
-                backgroundColor: isHl ? "rgba(0,212,255,0.07)" : "transparent",
+                backgroundColor: isHl ? `${COLORS.cyan}12` : "transparent",
                 borderLeft: `3px solid ${isHl ? COLORS.cyan : "transparent"}`,
                 paddingRight: 24,
               }}

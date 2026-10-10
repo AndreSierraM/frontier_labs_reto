@@ -1,6 +1,6 @@
 # La caja negra · Log de experimentos
 
-Frontier Labs · Reto 2 · **366 observaciones reales** contra el original · JSONL validado · evidencia verificada · IDs 1–366.
+Frontier Labs · Reto 2 · **384 observaciones reales** contra el original · JSONL validado · evidencia verificada · IDs 1–384.
 
 **Qué es:** una línea JSON por cada request enviado al servicio original, con la hipótesis, el request, el status y el cuerpo exacto de la respuesta. Es la fuente de evidencia del [SPEC](SPEC.md) y se puede descargar íntegro.
 
@@ -8,10 +8,10 @@ Frontier Labs · Reto 2 · **366 observaciones reales** contra el original · JS
 
 | Métrica | Valor |
 | --- | --- |
-| Observaciones | 366 (IDs 1–366) |
-| Secuencias | 16 |
-| Códigos de error | 18 |
-| Status observados | 200×96, 201×68, 400×112, 401×2, 404×25, 409×18, 413×1, 422×43, 429×1 |
+| Observaciones | 384 (IDs 1–384) |
+| Secuencias | 17 |
+| Códigos de error | 19 |
+| Status observados | 200×105, 201×70, 400×112, 401×2, 404×26, 409×19, 413×1, 422×46, 423×2, 429×1 |
 
 ## Esquema del registro
 
@@ -46,6 +46,7 @@ Frontier Labs · Reto 2 · **366 observaciones reales** contra el original · JS
 | `bloqueo4` | 309–336 | 28 | E303, E304, E401, E507, E510 | E401 #1 |
 | `sugerencia2` | 337–347 | 11 | E301 | umbral sugerencia ALTXXX |
 | `gaps` | 348–366 | 19 | E001, E100, E101, E102, E404 | __reset limpia estado |
+| `incidente-v2` | 367–384 | 18 | E404, E506, E510, E520 | reset del estado |
 
 ## Organizado por error
 
@@ -55,20 +56,21 @@ Frontier Labs · Reto 2 · **366 observaciones reales** contra el original · JS
 | `E303` | 400 | 31 | 34, 40, 68, 70, 72, 74, 76, 78… | aridad de DEPOSITO con 2 args extra |
 | `E301` | 400 | 29 | 291, 292, 293, 294, 295, 296, 297, 298… | sugerencia para XYZ |
 | `E302` | 400 | 26 | 18, 19, 20, 21, 22, 24, 25, 26… | aridad de PING con 1 args extra |
+| `E510` | 409 | 20 | 134, 135, 178, 179, 181, 206, 207, 208… | justo sobre el limite: E506 |
 | `E401` | 404 | 19 | 13, 14, 15, 16, 28, 58, 61, 62… | ¿el control ignora el espacio? |
-| `E510` | 409 | 18 | 134, 135, 178, 179, 181, 206, 207, 208… | justo sobre el limite: E506 |
-| `E506` | 422 | 7 | 91, 100, 128, 212, 213, 214, 290 | transfer un peso sobre el umbral |
+| `E506` | 422 | 10 | 91, 100, 128, 212, 213, 214, 290, 375… | transfer un peso sobre el umbral |
 | `E304` | 400 | 6 | 97, 131, 318, 319, 320, 330 | transfer a la misma cuenta |
 | `E104` | 400 | 5 | 2, 10, 11, 53, 147 | segmento de control vacío: ¿E104? |
 | `E202` | 400 | 4 | 6, 145, 150, 151 | mismo valor con cero a la izquierda |
 | `E201` | 400 | 4 | 7, 8, 9, 144 | tres dígitos: ¿E201? |
+| `E404` | 404 | 4 | 352, 353, 354, 384 | GET /msg desconocido → E404 |
 | `E402` | 404 | 3 | 43, 107, 108 | aridad de ANULA con 1 args extra |
-| `E404` | 404 | 3 | 352, 353, 354 | GET /msg desconocido → E404 |
 | `E102` | 400 | 3 | 357, 358, 359 | JSON sin m → E102 |
 | `E103` | 400 | 2 | 1, 146 | mensaje sin separador: ¿E103 falta control? |
 | `E001` | 401 | 2 | 350, 351 | sin Authorization → E001 |
 | `E100` | 400 | 2 | 355, 356 | body vacío → E100 |
 | `E101` | 413 | 1 | 366 | body > 8191 bytes → E101 |
+| `E520` | 409 | 1 | 378 | comando nuevo HALT (destructivo) |
 
 ## Hallazgos notables
 
@@ -81,7 +83,7 @@ Frontier Labs · Reto 2 · **366 observaciones reales** contra el original · JS
 
 ## Descarga y reproducibilidad
 
-- Log completo: [`experimentos.jsonl`](experimentos.jsonl) (JSONL, 366 líneas).
+- Log completo: [`experimentos.jsonl`](experimentos.jsonl) (JSONL, 384 líneas).
 - Especificación: [`SPEC.md`](SPEC.md) · [versión HTML](03-especificacion-servicio.html).
 - Validador (esquema + evidencia): `reto2-investigacion/scripts/validar_spec.py` → **OK**.
 - Generación: `tools/build-entregas.py` reconstruye este informe desde el JSONL; crece con cada observación nueva.

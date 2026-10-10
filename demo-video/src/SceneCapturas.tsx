@@ -3,9 +3,9 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remo
 import { COLORS, FONTS, GlowOrb, GridBg, SectionHeader, ScreenshotFrame } from "./DesignSystem";
 
 const CAPTURES = [
-  { src: "captures/diseno.png", title: "01 · Diseño de Sistemas", tag: "Entregable oficial", color: COLORS.cyan, focusY: 18, scale: 1.55 },
-  { src: "captures/arquitectura.png", title: "02 · Diagrama de Arquitectura", tag: "Entregable oficial", color: COLORS.purple, focusY: 12, scale: 1.65 },
-  { src: "captures/entregables.png", title: "Índice de entregables", tag: "Documentación", color: COLORS.green, focusY: 8, scale: 1.5 },
+  { src: "captures/diseno.png", path: "entregas/01-diseno-sistemas.html", title: "01 · Diseño de Sistemas", note: "Misma respuesta y mismo estado posterior: el criterio de compatibilidad.", tag: "Entregable oficial", color: COLORS.cyan, scale: 2.1 },
+  { src: "captures/arquitectura.png", path: "entregas/02-diagrama-arquitectura.html", title: "02 · Diagrama de Arquitectura", note: "Adaptador HTTP, núcleo de estados y persistencia con responsabilidades claras.", tag: "Entregable oficial", color: COLORS.purple, scale: 1.55 },
+  { src: "captures/entregables.png", path: "entregas/", title: "Índice de entregables", note: "SPEC, experimentos y bitácora: decisiones que se pueden rastrear.", tag: "Documentación", color: COLORS.green, scale: 2.1 },
 ];
 
 export const SceneCapturas: React.FC = () => {
@@ -16,14 +16,13 @@ export const SceneCapturas: React.FC = () => {
   const active = CAPTURES[activeIdx];
 
   const headerOp = interpolate(frame, [0, 0.6 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const zoom = interpolate(frame, [0, 12 * fps], [1, 1.06], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.bg }}>
       <GridBg opacity={0.02} />
       <GlowOrb color={active.color} size={600} style={{ top: "30%", left: "50%", transform: "translate(-50%, -50%)", opacity: 0.1 }} />
 
-      <div style={{ padding: "60px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "60px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={{ opacity: headerOp }}>
           <SectionHeader label="07 / Evidencia" title="Documentación y diagramas" subtitle="Entregables verificables: diseño, arquitectura y especificación completa." color={COLORS.cyan} />
         </div>
@@ -40,7 +39,7 @@ export const SceneCapturas: React.FC = () => {
                   opacity: i === activeIdx ? interpolate(frame % (3.2 * fps), [0, 0.3 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0,
                 }}
               >
-                <ScreenshotFrame src={cap.src} title={`frontier-labs-reto.vercel.app/${cap.src}`} scale={cap.scale * zoom} focusY={cap.focusY} />
+                <ScreenshotFrame src={cap.src} title={`frontier-labs-reto.vercel.app/${cap.path}`} scale={cap.scale} focusY={0} />
               </div>
             ))}
           </div>
@@ -71,6 +70,10 @@ export const SceneCapturas: React.FC = () => {
                 </div>
               );
             })}
+
+            <div style={{ minHeight: 140, borderLeft: `3px solid ${active.color}`, padding: "14px 22px", marginTop: 12 }}>
+              <p style={{ fontFamily: FONTS.sans, fontSize: 24, color: COLORS.text, lineHeight: 1.5, margin: 0 }}>{active.note}</p>
+            </div>
 
             <div style={{ display: "flex", gap: 8, marginTop: 12, justifyContent: "center" }}>
               {CAPTURES.map((_, i) => (

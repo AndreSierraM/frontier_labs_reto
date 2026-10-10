@@ -52,7 +52,7 @@ export const SceneEnjambre: React.FC = () => {
       <GridBg opacity={0.02} />
       <GlowOrb color={COLORS.purple} size={550} style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", opacity: 0.08 }} />
 
-      <div style={{ padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
         <SectionHeader label="05 / Enjambre de Agentes" title="5 roles, 0 divergencias, 1 PR" subtitle="Pipeline autónomo: investiga, diagnostica, parchea, verifica y entrega." color={COLORS.purple} />
 
         <div style={{ flex: 1, display: "flex", gap: 32 }}>
@@ -87,7 +87,7 @@ export const SceneEnjambre: React.FC = () => {
           </div>
 
           <div style={{ flex: 1.05 }}>
-            <Terminal title="swarm.mjs — orquestador" lines={termLines.slice(0, Math.max(0, visibleLines))} style={{ height: "100%" }} />
+            <Terminal title="Ejemplo ilustrativo · ejecución del enjambre" lines={termLines.slice(0, Math.max(0, visibleLines))} style={{ height: "100%" }} />
           </div>
         </div>
       </div>

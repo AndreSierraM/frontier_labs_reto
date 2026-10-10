@@ -11,7 +11,10 @@ export const SceneIntro: React.FC = () => {
   const titleOp = interpolate(frame, [0, fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const subY = interpolate(frame, [0.5 * fps, 1.5 * fps], [40, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const subOp = interpolate(frame, [0.5 * fps, 1.2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const tagsOp = interpolate(frame, [1 * fps, 2 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const tagAnim = (index: number) => ({
+    y: interpolate(frame, [(1 + index * 0.18) * fps, (1.45 + index * 0.18) * fps], [20, 0], { easing: Easing.bezier(0.16, 1, 0.3, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+    o: interpolate(frame, [(1 + index * 0.18) * fps, (1.35 + index * 0.18) * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  });
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.bg, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
@@ -39,18 +42,20 @@ export const SceneIntro: React.FC = () => {
           <p style={{ fontFamily: FONTS.sans, fontSize: 38, color: COLORS.textMuted, margin: 0, fontWeight: 400 }}>Reto 2 · Frontier Labs</p>
         </div>
 
-        <div style={{ opacity: tagsOp, marginTop: 56, display: "flex", gap: 16, justifyContent: "center" }}>
+        <div style={{ marginTop: 56, display: "flex", gap: 16, justifyContent: "center" }}>
           {[
             { t: "Máquina de Estados", c: COLORS.cyan },
             { t: "Vigilancia Autónoma", c: COLORS.purple },
             { t: "Enjambre de Agentes", c: COLORS.green },
-          ].map((tag) => (
-            <div key={tag.t} style={{
+          ].map((tag, index) => {
+            const anim = tagAnim(index);
+            return <div key={tag.t} style={{
+              opacity: anim.o, transform: `translateY(${anim.y}px)`,
               padding: "14px 28px", borderRadius: 12,
               backgroundColor: `${tag.c}0e`, border: `1.5px solid ${tag.c}30`,
               color: tag.c, fontFamily: FONTS.mono, fontSize: 18, fontWeight: 700, letterSpacing: "0.02em",
-            }}>{tag.t}</div>
-          ))}
+            }}>{tag.t}</div>;
+          })}
         </div>
       </div>
     </AbsoluteFill>

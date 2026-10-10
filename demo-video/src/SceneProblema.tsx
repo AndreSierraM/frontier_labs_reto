@@ -25,7 +25,7 @@ export const SceneProblema: React.FC = () => {
       <GridBg opacity={0.02} />
       <GlowOrb color={COLORS.red} size={400} style={{ top: "8%", right: "5%", opacity: 0.1 }} />
 
-      <div style={{ padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
         <SectionHeader label="01 / El Problema" title="Un servicio sin especificación" subtitle="Solo hay una forma de descubrirlo: observar, experimentar y modelar." color={COLORS.red} />
 
         <div style={{ flex: 1, display: "flex", gap: 36 }}>
@@ -69,8 +69,8 @@ export const SceneProblema: React.FC = () => {
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <Icon name={item.icon} size={32} color={item.c} />
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontFamily: FONTS.sans, fontSize: 17, color: COLORS.textDim, marginBottom: 5, whiteSpace: "nowrap" }}>{item.label}</div>
-                        <div style={{ fontFamily: FONTS.mono, fontSize: 21, color: item.c, fontWeight: 700, whiteSpace: "nowrap" }}>{item.value}</div>
+                        <div style={{ fontFamily: FONTS.sans, fontSize: 19, color: COLORS.textMuted, marginBottom: 5, whiteSpace: "nowrap" }}>{item.label}</div>
+                        <div style={{ fontFamily: FONTS.mono, fontSize: 26, color: item.c, fontWeight: 700, whiteSpace: "nowrap" }}>{item.value}</div>
                       </div>
                     </div>
                   </Card>
@@ -90,14 +90,14 @@ export const SceneProblema: React.FC = () => {
                 { text: "", type: "output" },
                 { text: '{"ok": true}', type: "output", color: COLORS.green },
                 { text: "", type: "output" },
-                { text: "# Probando combinaciones...", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "Probando combinaciones...", color: COLORS.yellow, type: "comment", prefix: "#" },
                 { text: "ALTA|Test       → AC-0001", type: "output", color: COLORS.green },
                 { text: "DEPOSITO|...|100 → saldo: 100", type: "output", color: COLORS.green },
                 { text: "TRANSFER|...    → OP-0001", type: "output", color: COLORS.green },
                 { text: "", type: "output" },
-                { text: "# ¿Qué pasa al 3er fallo?", color: COLORS.yellow, type: "comment", prefix: "#" },
-                { text: "# ¿Cuál es el algoritmo del control?", color: COLORS.yellow, type: "comment", prefix: "#" },
-                { text: "# 366 observaciones guardadas...", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "¿Qué pasa al 3er fallo?", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "¿Cuál es el algoritmo del control?", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "366 observaciones guardadas...", color: COLORS.yellow, type: "comment", prefix: "#" },
               ]}
             />
           </div>

@@ -98,19 +98,16 @@ Fuente del cambio: `GET /api/monitor/dashboard` → `events` (kinds `original_ch
 [`/monitor`](https://frontier-labs-reto.vercel.app/monitor). El enjambre reporta cada
 corrida a `/api/monitor/agent` (estado, etiquetas, revisión, run y PR).
 
-| Hora (UTC / BOG) | Etiqueta | Antes | Después | id log | Adaptación (PR) | Commit merge | Desplegado |
+| Hora (UTC / BOG) | Etiqueta | Antes | Después | id log | Adaptación (PR) | Commit | Desplegado |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| — pendiente | — | — | — | — | — | — | — |
+| 2026-10-10 21:51Z / 16:51 | `CONSULTA` / `SALDO` | `{"cuenta_id":"AC-0001","saldo":100}` | `{"cuenta_id":"AC-0001","saldo":"1.00"}` | 370, 372 | `reemplazo/src/domain.js` (saldo decimal) | `ce7aba2` | sí |
+| 2026-10-10 21:51Z / 16:51 | `T-50001` / `T-100000` | `E506` solo si `monto > 100000` | `E506` si `monto > 50000` | 375, 376 | `domain.js` (umbral 50000) | `ce7aba2` | sí |
+| 2026-10-10 21:51Z / 16:51 | `E510` | `409 {"error":"E510","mensaje":"cuenta bloqueada"}` | `423 {...,"intentos":N}` | 380, 381 | `domain.js` (status + `intentos`) | `ce7aba2` | sí |
+| 2026-10-10 21:51Z / 16:51 | `HALT` / `NOTAS` / `E520` | `400 E301 comando desconocido` | `HALT`→`409 E520`; `NOTAS`→`200 {notas:[...]}` | 378, 379 | `domain.js` (comandos + error E520) | `ce7aba2` | sí |
 
-**Al detectarlo, añadir una fila con este formato:**
-
-```text
-| 2026-10-10 20:3XZ / 15:3X | `T-<algo>` | `{"error":"…"}` | `{"error":"…"}` | <id-log> | [#<n>](<pr-url>) | <sha> | sí |
-```
-
-Pasos: (1) confirmar el evento en el panel; (2) **mergear el PR del enjambre antes de
-las 20:00**; (3) añadir `X-04` en [`SPEC.md`](SPEC.md) con el `id` del log; (4) re-correr
-`validar.py` contra el entrypoint y guardar `logs/validacion-entrypoint.json`.
+**Nota:** el cambio se anunció 20:30 UTC, pero no fue observable hasta las 21:51 UTC
+(el token anterior quedó en `429`); se detectó con el escáner diferencial
+(original vs reemplazo, 399 pasos) y se confirmó en el original con el token nuevo.
 
 ---
 

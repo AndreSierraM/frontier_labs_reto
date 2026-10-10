@@ -77,13 +77,18 @@ module.exports = async (req, res) => {
   }
 
   const prev = await store.lastSnapshot(pool);
-  const baseline = prev ? observe.withoutInfra(prev.foto) : null;
+  // Si el catálogo de sondas cambió, re-baselinamos: los "added" y los
+  // corrimientos de contadores no son cambios del original.
+  const catalog = observe.catalogKey();
+  const rebaseline = Boolean(prev && prev.catalog && prev.catalog !== catalog);
+  const baseline = prev && !rebaseline ? observe.withoutInfra(prev.foto) : null;
   result.changes = baseline ? observe.diff(baseline, valid).diffs : [];
   const merged = { ...(baseline || {}), ...valid };
   result.original.fingerprint = observe.fingerprint(merged);
   result.original.changed = result.changes.length > 0;
+  result.original.rebaselined = rebaseline;
 
-  const snap = await store.saveSnapshot(pool, originalUrl, result.original.fingerprint, merged);
+  const snap = await store.saveSnapshot(pool, originalUrl, result.original.fingerprint, merged, catalog);
   result.original.snapshotId = snap.id;
   result.original.takenAt = snap.taken_at;
   result.original.baseline = prev ? prev.id : null;

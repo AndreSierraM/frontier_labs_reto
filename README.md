@@ -139,10 +139,10 @@ No publicar `.env`, tokens, DB locales ni capturas con credenciales.
 
 - Validación local: **20/20** ejemplos, **34/34** control y **62/62** batería
   (**116/116**) + **21/21** unitarias.
-- Log de experimentos: **366 observaciones** (IDs 1–366, JSONL válido); cada
+- Log de experimentos: **384 observaciones** (IDs 1–384, JSONL válido); cada
   comportamiento del SPEC cita **IDs exactos** del log, verificados por
   `reto2-investigacion/scripts/validar_spec.py`.
-- Especificación: **75 comportamientos** con ID, evidencia y confianza;
+- Especificación: **76 comportamientos** con ID, evidencia y confianza;
   `validar_spec.py` comprueba esquema del log y correspondencia de la evidencia
   (**OK**). Entregables en `public/entregas/03-*` y `public/entregas/04-*`.
 - El evaluador usa 100 tests, reset antes de cada test y máximo 5s por paso;

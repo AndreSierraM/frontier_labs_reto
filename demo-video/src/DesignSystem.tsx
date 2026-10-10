@@ -6,28 +6,28 @@ import React, { useMemo } from "react";
 import { Img, staticFile } from "remotion";
 
 export const COLORS = {
-  bg: "#080a0f",
-  bgElevated: "#0f111a",
-  bgCard: "#131520",
-  bgCode: "#0d0f16",
-  border: "#1e2130",
-  borderHighlight: "#2a2e45",
-  cyan: "#00d4ff",
-  cyanBright: "#4de8ff",
-  purple: "#a855f7",
-  purpleBright: "#c084fc",
-  green: "#10b981",
-  greenBright: "#34d399",
-  red: "#ef4444",
-  redDim: "#f87171",
-  yellow: "#f59e0b",
-  orange: "#f97316",
-  blue: "#3b82f6",
-  pink: "#ec4899",
-  text: "#f8fafc",
-  textMuted: "#a8b5c8",
-  textDim: "#6b7a90",
-  textDark: "#475569",
+  bg: "#f7f7f2",
+  bgElevated: "#eeefe9",
+  bgCard: "#ffffff",
+  bgCode: "#f1f4f1",
+  border: "#dde3dc",
+  borderHighlight: "#c5d2ca",
+  cyan: "#326c75",
+  cyanBright: "#397582",
+  purple: "#786493",
+  purpleBright: "#806995",
+  green: "#42745c",
+  greenBright: "#3b725c",
+  red: "#a35f65",
+  redDim: "#a8666b",
+  yellow: "#8b6c35",
+  orange: "#9b654b",
+  blue: "#536f96",
+  pink: "#94667d",
+  text: "#273a35",
+  textMuted: "#52645e",
+  textDim: "#62746c",
+  textDark: "#7c8982",
 };
 
 export const FONTS = {
@@ -41,8 +41,8 @@ export const GridBg: React.FC<{ opacity?: number }> = ({ opacity = 0.03 }) => (
     style={{
       position: "absolute",
       inset: 0,
-      backgroundImage: `linear-gradient(rgba(0,212,255,${opacity}) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,${opacity}) 1px, transparent 1px)`,
-      backgroundSize: "60px 60px",
+      backgroundImage: `radial-gradient(ellipse at 4% 6%, #dceee780, transparent 55%), radial-gradient(ellipse at 96% 94%, #ede4f380, transparent 55%), linear-gradient(rgba(50,108,117,${opacity}) 1px, transparent 1px), linear-gradient(90deg, rgba(50,108,117,${opacity}) 1px, transparent 1px)`,
+      backgroundSize: "100% 100%, 100% 100%, 60px 60px, 60px 60px",
       pointerEvents: "none",
     }}
   />
@@ -64,14 +64,14 @@ export const GlowOrb: React.FC<{ color?: string; size?: number; style?: React.CS
 );
 
 export const SectionHeader: React.FC<{ label: string; title: string; subtitle?: string; color?: string }> = ({ label, title, subtitle, color = COLORS.cyan }) => (
-  <div style={{ marginBottom: 44 }}>
+  <div style={{ marginBottom: 32, flexShrink: 0 }}>
     <span style={{ fontFamily: FONTS.mono, fontSize: 17, color, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, display: "block", marginBottom: 18 }}>
       {label}
     </span>
-    <h2 style={{ fontFamily: FONTS.display, fontSize: 68, fontWeight: 700, color: COLORS.text, margin: 0, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
+    <h2 style={{ fontFamily: FONTS.display, fontSize: 60, fontWeight: 700, color: COLORS.text, margin: 0, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
       {title}
     </h2>
-    {subtitle && <p style={{ fontFamily: FONTS.sans, fontSize: 26, color: COLORS.textMuted, marginTop: 16, lineHeight: 1.5, maxWidth: 1500 }}>{subtitle}</p>}
+    {subtitle && <p style={{ fontFamily: FONTS.sans, fontSize: 25, color: COLORS.textMuted, margin: "12px 0 0", lineHeight: 1.5, maxWidth: 1600 }}>{subtitle}</p>}
   </div>
 );
 
@@ -101,7 +101,8 @@ export const Card: React.FC<CardProps> = ({ children, style, glow = "none", padd
         border: `1px solid ${COLORS.border}`,
         borderRadius: 18,
         padding: typeof padding === "number" ? `${padding}px` : padding,
-        boxShadow: glowMap[glow],
+        boxShadow: glow === "none" ? "0 8px 24px #273a3506" : glowMap[glow],
+        backgroundImage: glow === "none" ? undefined : `linear-gradient(125deg, ${COLORS[glow]}12, transparent 75%)`,
         position: "relative",
         overflow: "hidden",
         ...style,
@@ -160,7 +161,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "js", sty
             key={i}
             style={{
               display: "flex",
-              backgroundColor: highlightLines.includes(i) ? "rgba(0,212,255,0.08)" : "transparent",
+              backgroundColor: highlightLines.includes(i) ? `${COLORS.cyan}12` : "transparent",
               borderLeft: highlightLines.includes(i) ? `3px solid ${COLORS.cyan}` : "3px solid transparent",
               padding: "0 24px",
             }}
@@ -183,17 +184,7 @@ interface BadgeProps {
 }
 
 export const Badge: React.FC<BadgeProps> = ({ children, color = "cyan", style }) => {
-  const colorMap: Record<string, { bg: string; text: string; border: string }> = {
-    cyan: { bg: "rgba(0,212,255,0.1)", text: COLORS.cyan, border: "rgba(0,212,255,0.25)" },
-    purple: { bg: "rgba(168,85,247,0.1)", text: COLORS.purple, border: "rgba(168,85,247,0.25)" },
-    green: { bg: "rgba(16,185,129,0.1)", text: COLORS.green, border: "rgba(16,185,129,0.25)" },
-    red: { bg: "rgba(239,68,68,0.1)", text: COLORS.red, border: "rgba(239,68,68,0.25)" },
-    yellow: { bg: "rgba(245,158,11,0.1)", text: COLORS.yellow, border: "rgba(245,158,11,0.25)" },
-    orange: { bg: "rgba(249,115,22,0.1)", text: COLORS.orange, border: "rgba(249,115,22,0.25)" },
-    blue: { bg: "rgba(59,130,246,0.1)", text: COLORS.blue, border: "rgba(59,130,246,0.25)" },
-    pink: { bg: "rgba(236,72,153,0.1)", text: COLORS.pink, border: "rgba(236,72,153,0.25)" },
-  };
-  const c = colorMap[color];
+  const c = COLORS[color];
 
   return (
     <span
@@ -203,9 +194,9 @@ export const Badge: React.FC<BadgeProps> = ({ children, color = "cyan", style })
         gap: 8,
         padding: "7px 16px",
         borderRadius: 10,
-        backgroundColor: c.bg,
-        color: c.text,
-        border: `1px solid ${c.border}`,
+        backgroundColor: `${c}12`,
+        color: c,
+        border: `1px solid ${c}30`,
         fontFamily: FONTS.mono,
         fontSize: 15,
         fontWeight: 600,
@@ -242,14 +233,14 @@ export const Terminal: React.FC<TerminalProps> = ({ lines, style, title = "bash"
         borderRadius: 16,
         overflow: "hidden",
         fontFamily: FONTS.mono,
-        fontSize: 16,
+        fontSize: 18,
         border: `1px solid ${COLORS.border}`,
         ...style,
       }}
     >
       <div
         style={{
-          backgroundColor: "#11131f",
+          backgroundColor: COLORS.bgElevated,
           padding: "12px 24px",
           display: "flex",
           alignItems: "center",
@@ -295,8 +286,8 @@ export const ScreenshotFrame: React.FC<ScreenshotFrameProps> = ({ src, title = "
         borderRadius: 16,
         overflow: "hidden",
         border: `1px solid ${COLORS.borderHighlight}`,
-        backgroundColor: "#11131f",
-        boxShadow: `0 30px 80px rgba(0,0,0,0.55), 0 0 60px ${COLORS.cyan}10`,
+        backgroundColor: COLORS.bgCard,
+        boxShadow: "0 14px 36px #273a3510",
         ...style,
       }}
     >
