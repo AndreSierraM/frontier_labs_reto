@@ -1,0 +1,60 @@
+name: adapt
+
+# Agente de adaptación. Se dispara cuando el monitor detecta un cambio del
+# original (repository_dispatch) o manualmente. NO empuja a main: abre un PR.
+on:
+  repository_dispatch:
+    types: [original-changed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  adapt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar pi
+        run: npm install -g @earendil-works/pi-coding-agent@1.1.0
+
+      - name: Instalar dependencias
+        run: npm install --no-audit --no-fund
+
+      - name: Adaptar con el agente
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          MONITOR_URL: https://frontier-labs-reto.vercel.app
+          MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
+          URL_API_ENTRYPOINT: ${{ secrets.URL_API_ENTRYPOINT }}
+          TOKEN_CAJA_NEGRA: ${{ secrets.TOKEN_CAJA_NEGRA }}
+        run: node agent/adapt.mjs
+
+      - name: Abrir PR con la adaptación
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "El agente no produjo cambios."
+            exit 0
+          fi
+          branch="auto/adapt-$(date -u +%Y%m%dT%H%M%S)"
+          git config user.name "adapt-agent"
+          git config user.email "adapt-agent@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "auto: adaptar reemplazo al cambio detectado"
+          git push origin "$branch"
+          gh pr create \
+            --title "auto: adaptación al cambio del original" \
+            --body "PR generado por el agente de adaptación. Revisar el diff y que los tests pasen antes de mergear (merge dispara deploy en Vercel)." \
+            --base main --head "$branch"

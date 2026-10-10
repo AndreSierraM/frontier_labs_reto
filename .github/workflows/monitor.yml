@@ -8,12 +8,16 @@ on:
     - cron: "*/15 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Disparar monitor
+        id: monitor
         env:
           MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
         run: |
@@ -24,3 +28,14 @@ jobs:
           echo "HTTP ${code}"
           cat /tmp/monitor.json
           test "${code}" = "200"
+          changed=$(jq -r '.changes | length' /tmp/monitor.json)
+          echo "changed=${changed}" >> "$GITHUB_OUTPUT"
+          echo "Cambios detectados: ${changed}"
+
+      - name: Despertar al agente de adaptación
+        if: steps.monitor.outputs.changed != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/dispatches" \
+            -f event_type=original-changed

@@ -26,3 +26,6 @@ reto2-investigacion/logs/*.jsonl
 
 # Vercel local link
 .vercel
+
+# Evidencia generada por el agente de adaptación
+agent/evidence.json
