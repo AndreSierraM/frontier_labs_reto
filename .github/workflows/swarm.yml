@@ -38,6 +38,9 @@ jobs:
       - name: "Fase 2 · Instalar pi (agente)"
         run: npm install -g @earendil-works/pi-coding-agent@1.1.0
 
+      - name: "Fase 2 · Instalar Vercel CLI (para leer logs)"
+        run: npm install -g vercel@54
+
       - name: "Fase 2 · Dependencias Node"
         run: npm install --no-audit --no-fund
 
@@ -50,6 +53,7 @@ jobs:
           echo "pi:     $(pi --version 2>/dev/null || echo FALTA)"
           echo "node:   $(node --version)"
           echo "python: $(python3 --version)"
+          echo "vercel: $(vercel --version 2>/dev/null || echo FALTA)"
           test -f agent/swarm.mjs && echo "swarm.mjs: ok" || { echo "falta agent/swarm.mjs"; exit 1; }
 
       # ---- Fase 4 · Ejecución del enjambre ------------------------------
@@ -60,6 +64,9 @@ jobs:
           MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
           URL_API_ENTRYPOINT: ${{ secrets.URL_API_ENTRYPOINT }}
           TOKEN_CAJA_NEGRA: ${{ secrets.TOKEN_CAJA_NEGRA }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT: frontier-labs-reto
+          VERCEL_SCOPE: cabalastechhub
           MAX_SCOUTS: "2"
           MAX_FIX_ROUNDS: "2"
           SWARM_AGENT_TIMEOUT_MS: "300000"

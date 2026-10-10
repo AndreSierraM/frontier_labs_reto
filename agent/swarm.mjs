@@ -21,6 +21,7 @@ import { fileURLToPath } from "node:url";
 import { runPi } from "./lib/pi.mjs";
 import { makeRunDir, save } from "./lib/runstate.mjs";
 import { verifyAgainstOriginal } from "./lib/verify.mjs";
+import { fetchVercelLogs } from "./lib/logs.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MONITOR_URL = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
@@ -107,7 +108,12 @@ async function main() {
     return;
   }
 
-  // ---- Fase 1: scouts en paralelo ---------------------------------------
+  // ---- Fase 1: logs de Vercel (errores reales de nuestra API) ------------
+  const vercelLogs = fetchVercelLogs({ root: ROOT });
+  save(runDir, "vercel-errors.jsonl", vercelLogs.text);
+  log(`logs de Vercel: ${vercelLogs.ok ? "consultados" : "no disponibles"}`);
+
+  // ---- Fase 2: scouts en paralelo ---------------------------------------
   const scouts = await Promise.all(
     changes.slice(0, MAX_SCOUTS).map(async (ch) => {
       const task = `Investiga la etiqueta "${ch.label}" del servicio original.\n\n${changeText(ch)}\n\nReproduce, aísla la regla y entrega el informe.`;
@@ -118,7 +124,7 @@ async function main() {
     })
   );
 
-  // ---- Fase 2: analista --------------------------------------------------
+  // ---- Fase 3: analista --------------------------------------------------
   const analystTask = [
     "Diagnóstico para adaptar el reemplazo.",
     "",
@@ -127,6 +133,11 @@ async function main() {
     "",
     "## Informes de los exploradores",
     scouts.join("\n\n"),
+    "",
+    "## Errores recientes de nuestra API desplegada (logs de Vercel)",
+    "```",
+    vercelLogs.text.slice(0, 8000),
+    "```",
     "",
     "Spec vigente: `reto2-investigacion/SPEC.md`. Dominio: `reemplazo/src/domain.js`.",
   ].join("\n");
