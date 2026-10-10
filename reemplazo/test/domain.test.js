@@ -55,6 +55,24 @@ test("TRANSFER límite -> E506", () => {
   d.processMessage(s, "DEPOSITO;AC-0001;200000;" + d.control("DEPOSITO;AC-0001;200000"));
   assert.strictEqual(d.processMessage(s, "TRANSFER;AC-0001;AC-0002;100001;" + d.control("TRANSFER;AC-0001;AC-0002;100001")).code, "E506");
 });
+test("E506 expone el mensaje vigente", () => {
+  assert.deepStrictEqual(d.ERRORES.E506, [
+    422,
+    { error: "E506", mensaje: "limite superado en el servicio" },
+  ]);
+});
+test("TRANSFER 100001 -> E506 con mensaje nuevo", () => {
+  const s = st();
+  d.processMessage(s, "ALTA;A;" + d.control("ALTA;A"));
+  d.processMessage(s, "ALTA;B;" + d.control("ALTA;B"));
+  d.processMessage(s, "DEPOSITO;AC-0001;200000;" + d.control("DEPOSITO;AC-0001;200000"));
+  const r = d.processMessage(
+    s,
+    "TRANSFER;AC-0001;AC-0002;100001;" + d.control("TRANSFER;AC-0001;AC-0002;100001")
+  );
+  assert.strictEqual(r.code, "E506");
+  assert.strictEqual(d.ERRORES.E506[1].mensaje, "limite superado en el servicio");
+});
 test("TRANSFER saldo -> E507", () => {
   const s = st();
   d.processMessage(s, "ALTA;A;" + d.control("ALTA;A"));

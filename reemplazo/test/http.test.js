@@ -76,4 +76,20 @@ test("contrato HTTP local: auth, rutas, mensajes y reset", async (t) => {
   await message("CONSULTA;AC-0001", 404,
     { error: "E401", mensaje: "cuenta inexistente" });
   await message("ALTA;B", 201, { cuentaId: "AC-0001" });
+
+  // E506: mensaje vigente del servicio (sin tilde) y umbral exacto.
+  await check("/__reset", { method: "POST" }, 200, { ok: true });
+  await message("ALTA;A", 201, { cuentaId: "AC-0001" });
+  await message("ALTA;B", 201, { cuentaId: "AC-0002" });
+  await message("TRANSFER;AC-0001;AC-0002;100001", 422,
+    { error: "E506", mensaje: "limite superado en el servicio" });
+  await check("/__reset", { method: "POST" }, 200, { ok: true });
+  await message("ALTA;A", 201, { cuentaId: "AC-0001" });
+  await message("ALTA;B", 201, { cuentaId: "AC-0002" });
+  await message("TRANSFER;AC-0001;AC-0002;100000", 422,
+    { error: "E507", mensaje: "saldo insuficiente" });
+  await check("/__reset", { method: "POST" }, 200, { ok: true });
+  await message("ALTA;A", 201, { cuentaId: "AC-0001" });
+  await message("DEPOSITO;AC-0001;200000", 200,
+    { status: "recieved", operacionId: "OP-0001" });
 });

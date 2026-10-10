@@ -24,7 +24,7 @@ const ERRORES = {
   E401: [404, { error: "E401", mensaje: "cuenta inexistente" }],
   E402: [404, { error: "E402", mensaje: "operación inexistente" }],
   E404: [404, { error: "E404", mensaje: "ruta desconocida" }],
-  E506: [422, { error: "E506", mensaje: "límite excedido" }],
+  E506: [422, { error: "E506", mensaje: "limite superado en el servicio" }],
   E507: [422, { error: "E507", mensaje: "saldo insuficiente" }],
   E510: [409, { error: "E510", mensaje: "cuenta bloqueada" }],
 };
