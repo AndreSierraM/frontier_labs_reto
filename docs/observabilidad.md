@@ -10,8 +10,12 @@ detectar cambios) y **nuestro** servicio (para ver cómo funciona y auto-corregi
 | Batería (`monitor/probes.js` · `PROBES.battery`) | 31 puntos: contrato, comandos, límites, bloqueo, anulaciones | Función serverless (`/api/monitor/run`), rápido |
 | Mapa ampliado (`monitor/probes.js` · `PROBES.all`) | 101 sondas: batería + **descubrimiento** de comandos, rutas, montos y controles nuevos | GitHub Actions (`agent/recon.mjs`), sin límite de 60s |
 
-Datos vs lógica: `monitor/probes.js` es el **catálogo** (editable, auto-ensanchable);
-`monitor/observe.js` es el **runner** (HTTP, ejecución, diff).
+Datos vs lógica: `monitor/probes.js` es el **catálogo** (editable, auto-ensanchable)
+con su **referencia de control congelada** (ISO 7064), sin depender del dominio del
+reemplazo; `monitor/observe.js` es el **runner** (HTTP, ejecución) y
+`monitor/compare.js` el **núcleo puro** de comparación (canonical, hashing, diff).
+La taxonomía de eventos vive en `monitor/kinds.js`, y la puerta de verificación
+(`agent/lib/verify.mjs`) es una función pura con adaptadores para el proceso y el monitor.
 
 - Cada corrida guarda un **snapshot** o un **mapa** en Neon y lo compara con el
   anterior. Un valor **nuevo** o **cambiado** registra un evento y despierta al
@@ -41,8 +45,10 @@ Endpoints (protegidos con `MONITOR_TOKEN`):
 - El **dashboard** (`/monitor`) es interactivo: pestañas (Nuestro servicio,
   Original, Enjambre), auto-refresh, log en vivo de transacciones, errores,
   eventos del monitor y **corridas del enjambre con su revisión**.
-- El enjambre reporta cada corrida (`status`, etiquetas, revisión) vía
-  `POST /api/monitor/agent`, y el panel lo muestra.
+- El enjambre reporta cada corrida (`status`, etiquetas, revisión y **logs**:
+  scout, diagnóstico, fixer, revisión y cuerpo del PR) vía
+  `POST /api/monitor/agent`. En el panel, el botón **logs** de cada corrida abre
+  un modal con lo que el agente **dijo e hizo**, más el enlace a Actions y al PR.
 - El enjambre además lee los **logs de Vercel** (`agent/lib/logs.mjs`) para ver
   errores de runtime de la API desplegada.
 
