@@ -2,7 +2,7 @@
 
 const { test } = require("node:test");
 const assert = require("node:assert");
-const { canonical, stable, fingerprint, hasInfra, diff } = require("./compare");
+const { canonical, stable, fingerprint, hasInfra, withoutInfra, diff } = require("./compare");
 
 test("canonical ordena claves de forma independiente (anidado)", () => {
   assert.deepStrictEqual(canonical({ b: 1, a: 2 }), { a: 2, b: 1 });
@@ -43,4 +43,11 @@ test("hasInfra detecta 429 e inaccesible (status 0)", () => {
   assert.strictEqual(hasInfra({ x: { status: 0, response: "unreachable" } }), true);
   assert.strictEqual(hasInfra({ x: { status: 200, response: "ok" } }), false);
   assert.strictEqual(hasInfra({}), false);
+});
+
+test("withoutInfra quita solo las muestras de infraestructura", () => {
+  const m = { a: { status: 200 }, b: { status: 429 }, c: { status: 0 }, d: { status: 404 } };
+  assert.deepStrictEqual(withoutInfra(m), { a: { status: 200 }, d: { status: 404 } });
+  assert.deepStrictEqual(withoutInfra({}), {});
+  assert.deepStrictEqual(withoutInfra(null), {});
 });

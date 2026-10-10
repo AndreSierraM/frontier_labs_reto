@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import observe from "../monitor/observe.js";
 
-const { runAll, hasInfra } = observe;
+const { runAll } = observe;
 
 const MONITOR_URL = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
 const MONITOR_TOKEN = process.env.MONITOR_TOKEN || "";
@@ -23,10 +23,11 @@ function out(k, v) {
     console.error("[recon] faltan URL_API_ENTRYPOINT / TOKEN_CAJA_NEGRA");
     process.exit(2);
   }
-  const map = await runAll(URL, TOKEN, { abortOnInfra: true, sleepMs: 40 });
-  console.log(`[recon] ${Object.keys(map).length} sondas ejecutadas`);
+  const map = await runAll(URL, TOKEN, { sleepMs: 40 });
+  const valid = observe.withoutInfra(map);
+  console.log(`[recon] ${Object.keys(map).length} sondas ejecutadas, ${Object.keys(valid).length} válidas`);
 
-  if (hasInfra(map)) {
+  if (Object.keys(valid).length === 0) {
     console.log("[recon] sin baseline: el original está rate-limited (429/infra)");
     out("changed", "0");
     return;
@@ -35,7 +36,7 @@ function out(k, v) {
   const res = await fetch(MONITOR_URL + "/api/monitor/map", {
     method: "POST",
     headers: { Authorization: "Bearer " + MONITOR_TOKEN, "Content-Type": "application/json" },
-    body: JSON.stringify({ map }),
+    body: JSON.stringify({ map: valid }),
     signal: AbortSignal.timeout(30000),
   });
   const j = await res.json();

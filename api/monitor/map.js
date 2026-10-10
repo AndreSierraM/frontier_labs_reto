@@ -35,34 +35,38 @@ module.exports = async (req, res) => {
   const map = payload && payload.map;
   if (!map || typeof map !== "object") return json(res, 400, { error: "E102", mensaje: "falta map" });
 
-  // Un mapa con rate-limit no es válido: no se guarda ni compara.
-  if (observe.hasInfra(map)) {
+  // Filtra las muestras de infraestructura: un mapa parcial sigue sirviendo
+  // para detectar cambios; solo se descarta si NADA respondió.
+  const clean = observe.withoutInfra(map);
+  if (Object.keys(clean).length === 0) {
     await store.recordEvent(pool, kinds.KIND.MAP_RATELIMITED, null, null, null, "recon topó con 429/infra");
     return json(res, 200, { ok: true, skipped: "rate-limited", changed: false, added: [], changedLabels: [] });
   }
 
   const prev = await store.lastMap(pool);
-  const d = prev ? observe.diff(prev.map, map) : { added: [], changed: [], removed: [], diffs: [] };
-  const saved = await store.saveMap(pool, observe.fingerprint(map), map);
+  const baseline = prev ? observe.withoutInfra(prev.map) : null;
+  const d = baseline ? observe.diff(baseline, clean) : { added: [], changed: [], removed: [], diffs: [] };
+  const merged = { ...(baseline || {}), ...clean };
+  const saved = await store.saveMap(pool, observe.fingerprint(merged), merged);
 
-  if (prev && (d.added.length || d.changed.length)) {
+  if (baseline && (d.added.length || d.changed.length)) {
     await store.recordEvent(pool, kinds.KIND.MAP_CHANGED, null, null, null,
       `nuevos: ${d.added.length}, cambiados: ${d.changed.length}, removidos: ${d.removed.length}`);
     for (const diff of d.diffs) {
-      const kind = kinds.classify(prev.map, map, diff.label);
+      const kind = kinds.classify(baseline, clean, diff.label);
       await store.recordEvent(pool, kind, diff.label, diff.before, diff.after, kind === kinds.KIND.NEW_COMMAND ? "comando nuevo" : kind === kinds.KIND.NEW_ROUTE ? "ruta nueva" : "respuesta cambiada");
     }
   }
 
-  const changed = Boolean(prev && (d.added.length || d.changed.length));
+  const changed = Boolean(baseline && (d.added.length || d.changed.length));
   json(res, 200, {
     ok: true,
-    baseline: Boolean(prev),
+    baseline: Boolean(baseline),
     changed,
     added: d.added,
     changedLabels: d.changed,
     removed: d.removed,
-    total: Object.keys(map).length,
+    total: Object.keys(clean).length,
     mapId: saved.id,
   });
 };

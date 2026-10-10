@@ -90,6 +90,12 @@ jobs:
     outputs:
       changed: ${{ steps.loop.outputs.changed || steps.tick.outputs.changed }}
     steps:
+      - name: "Fase 0 · Checkout"
+        uses: actions/checkout@v4
+      - name: "Fase 0 · Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
       # Bloque 1: un tick inmediato, para no esperar 15 min al primer chequeo.
       - name: "Fase 1 · Tick inmediato"
         id: tick
@@ -116,7 +122,10 @@ jobs:
         id: loop
         if: steps.tick.outputs.changed == '0'
         env:
+          MONITOR_URL: https://frontier-labs-reto.vercel.app
           MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
+          URL_API_ENTRYPOINT: ${{ secrets.URL_API_ENTRYPOINT }}
+          TOKEN_CAJA_NEGRA: ${{ secrets.TOKEN_CAJA_NEGRA }}
           MINUTES: ${{ github.event.inputs.loop_minutes }}
         run: |
           set -euo pipefail
@@ -136,6 +145,18 @@ jobs:
                 found=1
                 echo "::warning::cambio detectado (${c}) -> se dispara el enjambre"
               fi
+            fi
+            # El mapa ampliado (comandos/rutas nuevos) cada ~1 h, para no
+            # depender solo de la batería durante la ventana del incidente.
+            if [ $((tick % 4)) -eq 0 ]; then
+              echo "::group::recon tick ${tick}"
+              rec=$(node agent/recon.mjs 2>&1) || true
+              echo "${rec}"
+              if echo "${rec}" | grep -qE '\[recon\] (NUEVOS|CAMBIADOS):'; then
+                found=1
+                echo "::warning::el mapa ampliado detectó cambios -> se dispara el enjambre"
+              fi
+              echo "::endgroup::"
             fi
             echo "::endgroup::"
             [ "$found" = "1" ] && break

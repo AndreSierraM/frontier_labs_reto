@@ -9,7 +9,7 @@
 
 const probes = require("./probes");
 const compare = require("./compare");
-const { hasInfra } = compare;
+const { hasInfra, withoutInfra } = compare;
 
 const PROBES = probes.catalog();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -77,19 +77,55 @@ const request = (base, token, path, body, timeoutMs, tries, throttle) =>
   requestRaw(base, token, "POST", path, body, timeoutMs, tries, throttle);
 
 // ---------------------------------------------------------------- runner
-async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries = 2, abortOnInfra = false, concurrency = 1, throttle = true } = {}) {
+async function run(
+  base,
+  token,
+  list,
+  {
+    sleepMs = 40,
+    timeoutMs = 15000,
+    tries = 2,
+    abortOnInfra = false,
+    concurrency = 1,
+    throttle = true,
+    infraRetries = 1,
+    infraWaitMs = 3000,
+    infraAbortAfter = 3,
+  } = {}
+) {
   const map = {};
   const record = (p, raw) => {
     map[p.label] = p.path === "/__reset" && raw.status === 200 ? { status: 200, response: "reset" } : raw;
   };
-  const infra = (raw) => abortOnInfra && (raw.status === 429 || raw.status === 0);
+  const isInfra = (raw) => raw.status === 429 || raw.status === 0;
+  let infraRun = 0;
+
+  // Repite la sonda si topa con rate-limit, para tolerar 429 intermitentes.
+  const probe = async (p) => {
+    let raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries, throttle);
+    for (let n = 0; n < infraRetries && isInfra(raw); n++) {
+      await sleep(infraWaitMs * (n + 1));
+      raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries, throttle);
+    }
+    return raw;
+  };
+  // Aborta solo si el original está limitado de forma persistente (no puntual):
+  // así un 429 aislado no descarta toda la observación.
+  const stop = (raw) => {
+    if (!isInfra(raw)) {
+      infraRun = 0;
+      return false;
+    }
+    infraRun += 1;
+    return abortOnInfra || infraRun >= infraAbortAfter;
+  };
 
   // Secuencial: obligatorio para la batería (tiene estado).
   if (concurrency <= 1) {
     for (const p of list) {
-      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries, throttle);
+      const raw = await probe(p);
       record(p, raw);
-      if (infra(raw)) return map; // al primer 429 la muestra ya no sirve
+      if (stop(raw)) return map;
       if (sleepMs) await sleep(sleepMs);
     }
     return map;
@@ -101,9 +137,9 @@ async function run(base, token, list, { sleepMs = 40, timeoutMs = 15000, tries =
   const worker = async () => {
     while (next < list.length && !aborted) {
       const p = list[next++];
-      const raw = await requestRaw(base, token, p.method, p.path, p.body, timeoutMs, tries, throttle);
+      const raw = await probe(p);
       record(p, raw);
-      if (infra(raw)) aborted = true;
+      if (stop(raw)) aborted = true;
     }
   };
   await Promise.all(Array.from({ length: Math.min(concurrency, list.length) }, worker));
@@ -115,7 +151,9 @@ const runBattery = (base, token, opts) => run(base, token, PROBES.battery, { sle
 // Batería secuencial (estado) + descubrimiento/rutas en paralelo (sin estado).
 async function runAll(base, token, opts = {}) {
   const battery = await runBattery(base, token, opts);
-  if (opts.abortOnInfra && hasInfra(battery)) return battery;
+  // Si la batería no obtuvo NINGUNA muestra válida, el original está caído:
+  // no tiene sentido gastar el descubrimiento.
+  if (hasInfra(battery) && Object.keys(withoutInfra(battery)).length === 0) return battery;
   const rest = await run(base, token, [...PROBES.discovery, ...PROBES.routes], {
     sleepMs: 0,
     ...opts,

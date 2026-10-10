@@ -63,21 +63,27 @@ module.exports = async (req, res) => {
     alerted: false,
   };
 
-  // 1) Original (aborta rápido ante 429/infra para no agotar el tiempo).
-  const foto = await observe.runBattery(originalUrl, originalToken, { abortOnInfra: true });
+  // 1) Original: tolerante a 429 puntuales. Solo se omite si NADA respondió;
+  //    las muestras válidas se comparan y se funden con el baseline anterior
+  //    (así un rate-limit parcial no oculta el cambio).
+  const foto = await observe.runBattery(originalUrl, originalToken, {});
+  const valid = observe.withoutInfra(foto);
   result.original.samples = Object.keys(foto).length;
-  result.original.rateLimited = observe.hasInfra(foto);
+  result.original.valid = Object.keys(valid).length;
+  result.original.rateLimited = result.original.valid === 0;
   if (result.original.rateLimited) {
     await store.recordEvent(pool, kinds.KIND.ORIGINAL_RATELIMITED, null, null, null, "la sonda topó con 429/infra; detección omitida");
     return json(res, 200, { ok: true, ...result, omitted: true });
   }
 
   const prev = await store.lastSnapshot(pool);
-  result.changes = prev ? observe.diff(prev.foto, foto).diffs : [];
-  result.original.fingerprint = observe.fingerprint(foto);
+  const baseline = prev ? observe.withoutInfra(prev.foto) : null;
+  result.changes = baseline ? observe.diff(baseline, valid).diffs : [];
+  const merged = { ...(baseline || {}), ...valid };
+  result.original.fingerprint = observe.fingerprint(merged);
   result.original.changed = result.changes.length > 0;
 
-  const snap = await store.saveSnapshot(pool, originalUrl, result.original.fingerprint, foto);
+  const snap = await store.saveSnapshot(pool, originalUrl, result.original.fingerprint, merged);
   result.original.snapshotId = snap.id;
   result.original.takenAt = snap.taken_at;
   result.original.baseline = prev ? prev.id : null;

@@ -147,9 +147,13 @@ No publicar `.env`, tokens, DB locales ni capturas con credenciales.
   (**OK**). Entregables en `public/entregas/03-*` y `public/entregas/04-*`.
 - El evaluador usa 100 tests, reset antes de cada test y máximo 5s por paso;
   compara status y cuerpo.
-- **Rate-limit de infraestructura:** el original responde `429 {"infra":"rate-limit"}`
-  (no es comportamiento del servicio, SPEC I-11); el monitor lo detecta y no lo
-  toma como cambio.
+- **Rate-limit del original:** cada token admite **10 req/s y 8.000/día**
+  (`frontier-reto-2/README.md`). El monitor lo respeta con un **limitador global
+  a 8 req/s** (`MONITOR_RPS`), reintenta con backoff y **no descarta la toma por
+  un 429 puntual**: filtra las muestras de infra (`withoutInfra`) y compara/mezcla
+  el baseline, así un rate-limit parcial no oculta un cambio real. Solo omite la
+  detección si NINGUNA sonda respondió (SPEC I-11). El bucle de vigilancia corre
+  además el **mapa ampliado** cada ~1 h para descubrir comandos/rutas nuevos.
 - El enjambre **abre PR, no mergea**; mergear dispara deploy en Vercel.
 - Persistencia: una fila JSONB en Postgres con `SELECT ... FOR UPDATE`
   (serializa escrituras). SQLite/Node 24 son propuestas, no runtime actual.

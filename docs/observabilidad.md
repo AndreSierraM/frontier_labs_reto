@@ -25,7 +25,9 @@ La taxonomía de eventos vive en `monitor/kinds.js`, y la puerta de verificació
   añade además una **sonda de regresión** a `monitor/probes.js`, de modo que el
   mapa sigue vigilando el comportamiento nuevo y la verificación lo cubre.
 - La verificación exige 0 divergencias contra el original en **batería + mapa**.
-- Se ignora `429/infra` (SPEC I-11): no es comportamiento del servicio.
+- Se ignora `429/infra` (SPEC I-11): no es comportamiento del servicio. El 429 no
+  descarta la toma completa: se filtran las muestras de infra (`withoutInfra`) y se
+  compara el resto, de modo que un rate-limit parcial no oculta cambios.
 
 Endpoints (protegidos con `MONITOR_TOKEN`):
 

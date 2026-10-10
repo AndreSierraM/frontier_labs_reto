@@ -26,6 +26,19 @@ function hasInfra(map) {
   return Object.values(map || {}).some((s) => s && (s.status === 429 || s.status === 0));
 }
 
+/**
+ * Copia el mapa sin las muestras de infraestructura (429/inaccesible).
+ * Permite comparar/detectar cambios aunque el original esté parcialmente
+ * rate-limited, en vez de descartar toda la observación.
+ */
+function withoutInfra(map) {
+  const out = {};
+  for (const [k, v] of Object.entries(map || {})) {
+    if (v && v.status !== 429 && v.status !== 0) out[k] = v;
+  }
+  return out;
+}
+
 /** Diferencia dos mapas: agregados, cambiados, removidos y la lista de diffs. */
 function diff(prev, next) {
   const added = [];
@@ -44,4 +57,4 @@ function diff(prev, next) {
   return { added, changed, removed, diffs };
 }
 
-module.exports = { canonical, stable, fingerprint, hasInfra, diff };
+module.exports = { canonical, stable, fingerprint, hasInfra, withoutInfra, diff };
