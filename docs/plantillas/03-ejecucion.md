@@ -30,19 +30,19 @@ Completar los comandos reales después de elegir stack; no afirmar que están ve
 
 | Evidencia | Valor/ubicación |
 |---|---|
-| Repo y commit de entrega | [PENDIENTE] |
-| URL pública/entrypoint | [PENDIENTE] |
-| `experimentos.jsonl` real | [PENDIENTE] |
-| Spec con citas de IDs | [08-spec-reto-2.md](08-spec-reto-2.md) |
-| Resultados propios y oficiales | [PENDIENTE] |
-| Video público | [PENDIENTE] |
-| Adaptación al incidente | [07-incidente.md](07-incidente.md) |
+| Repo y commit de entrega | https://github.com/AndreSierraM/frontier_labs_reto (público); commit final pendiente de fijar pre-cierre (#8) |
+| URL pública/entrypoint | https://frontier-labs-reto.vercel.app (verificada 20/20 + 116/116 el 2026-10-10) |
+| `experimentos.jsonl` real | `reto2-investigacion/experimentos.jsonl` (347 líneas; ampliación en #3) |
+| Spec con citas de IDs | [SPEC real](../../reto2-investigacion/SPEC.md) (mejora de formato en #4; [08](08-spec-reto-2.md) archivada) |
+| Resultados propios y oficiales | Tabla en [04-evaluaciones](04-evaluaciones.md); `/evento/resultados` pendiente de comprobar (#8) |
+| Video público | [PENDIENTE] (#7) |
+| Adaptación al incidente | [07-incidente.md](07-incidente.md) + BITACORA §4 (incidente 15:30 aún no ocurre; #9) |
 
 ## Smoke final
 
-- [ ] URL pública responde health con token válido.
-- [ ] Auth inválida, reset, rutas inexistentes y parsing coinciden con observaciones del original.
-- [ ] La secuencia de ejemplos y regresiones propias coincide desde estado recién reseteado.
-- [ ] No hay llamadas, URL ni credenciales del original en la imagen/runtime desplegado.
-- [ ] Sólo hay una instancia o el estado está coordinado de forma compatible.
-- [ ] El video muestra ejecución real, una dificultad observada y resultados medidos.
+- [x] URL pública responde health con token válido (200 `{"ok":true}`, verificado 2026-10-10).
+- [x] Auth inválida, reset, rutas inexistentes y parsing coinciden con observaciones del original (verificado en vivo; citas numéricas en #3).
+- [x] La secuencia de ejemplos y regresiones propias coincide desde estado recién reseteado (20/20, 116/116 local y prod).
+- [x] No hay llamadas, URL ni credenciales del original en la imagen/runtime desplegado (`reemplazo/` limpio por grep; monitor es tooling aparte, se pausa en #8).
+- [x] Sólo hay una instancia o el estado está coordinado de forma compatible (Postgres compartido, `api/index.js`).
+- [ ] El video muestra ejecución real, una dificultad observada y resultados medidos (#7).

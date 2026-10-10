@@ -22,7 +22,7 @@ JavaScript/CommonJS, Node ≥18, sin dependencias npm de producción. Docker con
 Desde este directorio:
 
 ```bash
-TOKEN_API_ENTRYPOINT=local-test PORT=3000 npm start
+TOKEN_API_ENTRYPOINT=local-test PORT=3111 npm start
 ```
 
 `local-test` es un token ficticio. Para producción configurar el token real del equipo por un canal seguro, no incluirlo en comandos publicados ni en el repositorio.
@@ -45,11 +45,11 @@ npm test
 
 Ejecuta las pruebas de dominio y un smoke HTTP local con timeout de cinco segundos por llamada. No consulta el original, no necesita tokens reales y no escribe logs de investigación.
 
-Para validar los ejemplos y la batería completa, desde la raíz del repo y con el servicio arrancado en `:3000`:
+Para validar los ejemplos y la batería completa, desde la raíz del repo y con el servicio arrancado en `:3111`:
 
 ```bash
 python3 reto2-investigacion/scripts/validar.py \
-  --url http://localhost:3000 --token local-test
+  --url http://localhost:3111 --token local-test
 ```
 
 Las dependencias de ese verificador están en `reto2-investigacion/requirements.txt`. Es una herramienta de desarrollo, no una dependencia del paquete entregado.

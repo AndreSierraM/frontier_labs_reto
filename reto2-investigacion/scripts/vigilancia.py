@@ -62,27 +62,61 @@ BATERIA = [
 ]
 
 
-def reset(base, token, tries=4):
+def es_infra(r):
+    """True si la respuesta es de la infraestructura (rate-limit), no del servicio."""
+    if r is None:
+        return True
+    if r.status_code == 429:
+        return True
+    if r.headers.get("x-frontier-infra") == "rate-limit":
+        return True
+    try:
+        if r.json().get("infra") == "rate-limit":
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def reset(base, token, tries=6):
+    """Resetea con verificación: aborta (sin snapshot) si no hay estado limpio."""
+    last = None
     for i in range(tries):
         try:
-            return requests.post(f"{base}/__reset", headers={"Authorization": f"Bearer {token}"}, timeout=25)
-        except requests.RequestException:
-            time.sleep(1.0 * (i + 1))
+            r = requests.post(f"{base}/__reset",
+                              headers={"Authorization": f"Bearer {token}"}, timeout=25)
+            if not es_infra(r):
+                if r.status_code == 200:
+                    return r
+                if r.status_code in (401, 403, 404):
+                    raise SystemExit(f"ABORTADO: reset responde {r.status_code} "
+                                     f"(token o ruta mal). No se guarda snapshot.")
+            last = f"infra/estado {r.status_code}"
+        except requests.RequestException as e:
+            last = e
+        time.sleep(1.5 * (i + 1))
+    raise SystemExit(f"ABORTADO: reset sin estado limpio tras {tries} intentos "
+                     f"({last}). No se guarda snapshot.")
 
 
-def send(base, token, m, tries=4):
+def send(base, token, m, tries=6):
     last = ""
     for i in range(tries):
         try:
             r = requests.post(f"{base}/msg", headers={"Authorization": f"Bearer {token}"}, json={"m": m}, timeout=25)
+            if es_infra(r):
+                last = f"infra {r.status_code}"
+                time.sleep(1.5 * (i + 1))
+                continue
             try:
                 return r.status_code, r.json()
             except Exception:
                 return r.status_code, r.text
         except requests.RequestException as e:
             last = e
-            time.sleep(1.0 * (i + 1))
-    raise requests.RequestException(str(last))
+            time.sleep(1.5 * (i + 1))
+    raise SystemExit(f"ABORTADO: /msg bajo rate-limit tras {tries} intentos "
+                     f"({last}). No se guarda snapshot.")
 
 
 def correr(base, token, sleep=0.16):
@@ -114,14 +148,20 @@ def main():
                 env[k.strip()] = v.strip()
         args.url = args.url or env.get("URL_API_ENTRYPOINT")
         args.token = args.token or env.get("TOKEN_CAJA_NEGRA")
-    base = args.url.rstrip("/")
+    base = (args.url or "").rstrip("/")
+    if not base or not args.token:
+        raise SystemExit("ABORTADO: falta --url/--token o URL_API_ENTRYPOINT/TOKEN_CAJA_NEGRA en .env.")
 
     SNAP_DIR.mkdir(parents=True, exist_ok=True)
     previos = sorted(SNAP_DIR.glob("*.json"))
     anterior = json.loads(previos[-1].read_text()) if previos else None
 
     t0 = time.time()
-    foto = correr(base, args.token, args.sleep)
+    try:
+        foto = correr(base, args.token, args.sleep)
+    except SystemExit as e:
+        print(e)
+        return 3
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out = SNAP_DIR / f"{stamp}.json"
     out.write_text(json.dumps({"url": base, "tomado": stamp, "foto": foto}, indent=2, ensure_ascii=False))

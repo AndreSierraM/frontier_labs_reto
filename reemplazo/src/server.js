@@ -49,17 +49,19 @@ const PORT = Number(process.env.PORT || 3000);
 const MAX_BODY = 8191; // bytes; >= 8192 -> E101
 
 // ---------- utilidades HTTP ----------
-const json = (res, status, obj, extraHeaders = {}) => {
+// Con HEAD se responde mismo status y headers pero sin cuerpo,
+// como el original (verificado: HEAD /health -> 404 de 0 bytes).
+const json = (res, status, obj, extraHeaders = {}, noBody = false) => {
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     ...extraHeaders,
   });
-  res.end(JSON.stringify(obj));
+  res.end(noBody ? undefined : JSON.stringify(obj));
 };
 
-const send = (res, code, headers = {}) => {
+const send = (res, code, headers = {}, noBody = false) => {
   const [status, body] = dominio.ERRORES[code];
-  json(res, status, body, headers);
+  json(res, status, body, headers, noBody);
 };
 
 // ---------- lectura de cuerpo con límite ----------
@@ -95,21 +97,22 @@ function readBody(req, max) {
 
 // ---------- manejo de POST /msg ----------
 async function handleMsg(req, res, storage) {
+  const head = req.method === "HEAD";
   let raw;
   try {
     raw = await readBody(req, MAX_BODY);
   } catch (code) {
-    return send(res, code);
+    return send(res, code, {}, head);
   }
 
   let payload;
   try {
     payload = JSON.parse(raw.toString("utf8"));
   } catch (_) {
-    return send(res, "E100");
+    return send(res, "E100", {}, head);
   }
   if (!payload || typeof payload !== "object" || typeof payload.m !== "string") {
-    return send(res, "E102");
+    return send(res, "E102", {}, head);
   }
 
   const out = await storage.mutate((state, xreq) => {
@@ -122,9 +125,9 @@ async function handleMsg(req, res, storage) {
   if (r.code) {
     const [status, base] = dominio.ERRORES[r.code];
     const body = r.sugerencia ? { ...base, sugerencia: r.sugerencia } : base;
-    return json(res, status, body, headers);
+    return json(res, status, body, headers, head);
   }
-  return json(res, r.status || 200, r.ok, headers);
+  return json(res, r.status || 200, r.ok, headers, head);
 }
 
 // ---------- aplicación HTTP (reutilizable por local y Vercel) ----------
@@ -133,25 +136,26 @@ function createHandler(storage) {
     try {
       const routePath = new URL(req.url, "http://localhost").pathname;
       const auth = req.headers["authorization"] || "";
+      const head = req.method === "HEAD";
       if (TEAM_TOKEN === "" || auth !== `Bearer ${TEAM_TOKEN}`) {
-        return send(res, "E001");
+        return send(res, "E001", {}, head);
       }
 
       if (req.method === "GET" && routePath === "/health") {
-        return json(res, 200, { ok: true });
+        return json(res, 200, { ok: true }, {}, head);
       }
       if (req.method === "POST" && routePath === "/__reset") {
         await storage.reset();
-        return json(res, 200, { ok: true });
+        return json(res, 200, { ok: true }, {}, head);
       }
       if (req.method === "POST" && routePath === "/msg") {
         return handleMsg(req, res, storage);
       }
 
-      return send(res, "E404");
+      return send(res, "E404", {}, head);
     } catch (err) {
       console.error("handler error:", err);
-      if (!res.headersSent) json(res, 500, { error: "E500", mensaje: "error interno" });
+      if (!res.headersSent) json(res, 500, { error: "E500", mensaje: "error interno" }, {}, req.method === "HEAD");
       else res.end();
     }
   };

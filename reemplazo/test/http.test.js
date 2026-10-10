@@ -44,6 +44,23 @@ test("contrato HTTP local: auth, rutas, mensajes y reset", async (t) => {
   const head = await request("/health", { method: "HEAD" });
   assert.equal(head.status, 404);
   assert.equal(await head.text(), "");
+  // fetch oculta el cuerpo en HEAD: comprobar a nivel TCP que son 0 bytes,
+  // como el original (HEAD /health -> 404 sin cuerpo).
+  const http = require("node:http");
+  const rawHead = await new Promise((resolve, reject) => {
+    let bytes = 0;
+    const req = http.request(
+      base + "/health",
+      { method: "HEAD", headers: { Authorization: "Bearer local-http-test" } },
+      (res) => {
+        res.on("data", (c) => { bytes += c.length; });
+        res.on("end", () => resolve({ status: res.statusCode, bytes }));
+      });
+    req.on("error", reject);
+    req.end();
+  });
+  assert.equal(rawHead.status, 404);
+  assert.equal(rawHead.bytes, 0);
   await check("/msg", { method: "POST", body: "not json" }, 400,
     { error: "E100", mensaje: "json inválido" });
   await check("/msg", { method: "POST", body: JSON.stringify({ m: 123 }) }, 400,

@@ -1,6 +1,9 @@
 # 09 · Plan de descubrimiento — La caja negra
 
-**Estado:** plan, no log de experimentos ejecutados. No se ha consultado el original.
+> **Plan ejecutado (2026-10-10).** El log real está en
+> [`experimentos.jsonl`](../../reto2-investigacion/experimentos.jsonl) (347 líneas,
+> append-only) y la spec con citas en [`SPEC.md`](../../reto2-investigacion/SPEC.md).
+> Este documento fue el plan inicial; se conserva como historial.
 
 ## Bloqueantes de acceso
 
@@ -51,4 +54,4 @@ La prueba no cuenta como coincidencia si el estado inicial es desconocido o el o
 
 ## Salidas del trabajo
 
-Log oficial real + spec con citas + casos reproducibles + resultados por commit. Hoy ninguno existe aún; este documento solo prepara su generación.
+Log oficial real + spec con citas + casos reproducibles + resultados por commit. Ver salidas reales enlazadas arriba (antes: "ninguno existe aún").

@@ -59,7 +59,15 @@ Si hay salidas no deterministas: definir repeticiones, criterio de juicio y vari
 
 | Fecha / commit | Conjunto y tamaño | Métrica | Baseline | Solución | Cumple umbral | Fallos relevantes |
 | --- | --- | --- | --- | --- | --- | --- |
-| [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | No medido | No medido | No evaluado | [PENDIENTE] |
+| 2026-10-10 / `f3b924f` (+cambios P0 sin commitear) | 20 ejemplos oficiales | 20/20 | verificar.py | reemplazo local y prod | Sí | ninguno |
+| 2026-10-10 | validación 20+34+62 = 116 | 116/116 | validar.py | local y entrypoint prod | Sí | ninguno |
+| 2026-10-10 | 34 pares de control | 34/34 | control.py | ISO 7064 | Sí | ninguno |
+| 2026-10-10 | diferencial 78 casos | 75/78 | prueba_diferencial.py | original vs reemplazo | Parcial | 3 por reintentos ante timeouts del original (desincronizan contadores; no lógica) |
+| 2026-10-10 | dominio + HTTP | 21+1 | npm test | reemplazo | Sí | ninguno |
+| 2026-10-10 | vigilancia 31 puntos | sin cambios | vigilancia.py vs snapshot 15:40 UTC | original (pre-incidente) | Sí | ninguno |
+
+Casos reservados (no usados para inferir reglas): pendientes de fijar y medir aparte;
+su resultado se reporta separado del 116/116. Reejecutar todo tras el incidente 15:30 (#9).
 
 No publicar cifras hasta ejecutar las pruebas. Registrar fallos además de éxitos.
 

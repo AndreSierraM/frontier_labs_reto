@@ -1,5 +1,11 @@
 # 08 · Spec + log — solo Reto 2
 
+> **ARCHIVADA como plantilla inicial (2026-10-10).** La spec activa está en
+> [`reto2-investigacion/SPEC.md`](../../reto2-investigacion/SPEC.md), con el log real en
+> [`experimentos.jsonl`](../../reto2-investigacion/experimentos.jsonl) y la cronología en
+> [`BITACORA.md`](../../reto2-investigacion/BITACORA.md). Este documento se conserva
+> como historial del formato de partida; **no es un entregable**.
+
 **Entregable obligatorio del Reto 2. Cierre:** 20:00, con ejecución.
 **Estado:** plantilla sin observaciones; no describe un servicio real todavía. Adaptar al formato del README del material antes de entregar.
 

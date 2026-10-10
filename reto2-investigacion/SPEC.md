@@ -126,7 +126,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | ID | Comportamiento | Evidencia | Confianza |
 | --- | --- | --- | --- |
 | K-U1 | → `400 {"error":"E301","mensaje":"comando desconocido "}` (con **espacio final**). | 291–308, 337–347 | confirmado |
-| K-U2 | Si algún comando está a distancia de edición (Levenshtein, en mayúsculas) ≤ 2, añade `"sugerencia":"<COMANDO>"` al más cercano. | 291–308, 337–347 | confirmado |
+| K-U2 | Si algún comando está a distancia de edición (Levenshtein, en mayúsculas) ≤ 2, añade `"sugerencia":"<COMANDO>"` al más cercano. Desempate ante dos comandos a igual distancia: indeterminado; el reemplazo elige el primero de `PING, ALTA, CONSULTA, DEPOSITO, TRANSFER, ANULA`. | 291–308, 337–347 | confirmado el umbral; **supuesto** el desempate |
 
 ## 4 · Memoria entre requests
 
@@ -139,26 +139,26 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 
 ## 5 · Errores
 
-| ID | Status | Cuerpo exacto | Cuándo |
-| --- | --- | --- | --- |
-| E001 | 401 | `{"error":"E001","mensaje":"no autorizado"}` | token ausente/incorrecto |
-| E100 | 400 | `{"error":"E100","mensaje":"json inválido"}` | JSON no parseable / cuerpo vacío |
-| E101 | 413 | `{"error":"E101","mensaje":"cuerpo demasiado grande"}` | cuerpo > 8191 bytes |
-| E102 | 400 | `{"error":"E102","mensaje":"falta m"}` | JSON sin `m` string |
-| E103 | 400 | `{"error":"E103","mensaje":"falta control"}` | mensaje sin `;` |
-| E104 | 400 | `{"error":"E104","mensaje":"segmento vacío"}` | algún segmento vacío |
-| E201 | 400 | `{"error":"E201","mensaje":"control mal formado"}` | control no `^\d{1,2}$` |
-| E202 | 400 | `{"error":"E202","mensaje":"control inválido"}` | control con formato válido pero incorrecto |
-| E301 | 400 | `{"error":"E301","mensaje":"comando desconocido "}` (+`sugerencia`) | comando no reconocido |
-| E302 | 400 | `{"error":"E302","mensaje":"aridad inválida"}` | nº de segmentos incorrecto |
-| E303 | 400 | `{"error":"E303","mensaje":"monto inválido"}` | monto no válido |
-| E304 | 400 | `{"error":"E304","mensaje":"origen y destino iguales"}` | transferencia al mismo id |
-| E401 | 404 | `{"error":"E401","mensaje":"cuenta inexistente"}` | cuenta no existe |
-| E402 | 404 | `{"error":"E402","mensaje":"operación inexistente"}` | operación no existe |
-| E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos |
-| E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 100000 |
-| E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo |
-| E510 | 409 | `{"error":"E510","mensaje":"cuenta bloqueada"}` | cuenta con 3 fallos de transferencia |
+| ID | Status | Cuerpo exacto | Cuándo | Evidencia | Confianza |
+| --- | --- | --- | --- | --- | --- |
+| E001 | 401 | `{"error":"E001","mensaje":"no autorizado"}` | token ausente/incorrecto | pendiente #3 (observado en probe_recon, sin id) | probable |
+| E100 | 400 | `{"error":"E100","mensaje":"json inválido"}` | JSON no parseable / cuerpo vacío | pendiente #3 (observado en probe_recon, sin id) | probable |
+| E101 | 413 | `{"error":"E101","mensaje":"cuerpo demasiado grande"}` | cuerpo > 8191 bytes | pendiente #3 (borde medido, sin id) | probable |
+| E102 | 400 | `{"error":"E102","mensaje":"falta m"}` | JSON sin `m` string | pendiente #3 (observado en probe_recon, sin id) | probable |
+| E103 | 400 | `{"error":"E103","mensaje":"falta control"}` | mensaje sin `;` | 1–16 | confirmado |
+| E104 | 400 | `{"error":"E104","mensaje":"segmento vacío"}` | algún segmento vacío | 1–16 | confirmado |
+| E201 | 400 | `{"error":"E201","mensaje":"control mal formado"}` | control no `^\d{1,2}$` | 1–16 | confirmado |
+| E202 | 400 | `{"error":"E202","mensaje":"control inválido"}` | control con formato válido pero incorrecto | 1–16 | confirmado |
+| E301 | 400 | `{"error":"E301","mensaje":"comando desconocido "}` (+`sugerencia`) | comando no reconocido | 291–308, 337–347 | confirmado |
+| E302 | 400 | `{"error":"E302","mensaje":"aridad inválida"}` | nº de segmentos incorrecto | 17–46 | confirmado |
+| E303 | 400 | `{"error":"E303","mensaje":"monto inválido"}` | monto no válido | 65–86, 279–290 | confirmado |
+| E304 | 400 | `{"error":"E304","mensaje":"origen y destino iguales"}` | transferencia al mismo id | 122–163 | confirmado |
+| E401 | 404 | `{"error":"E401","mensaje":"cuenta inexistente"}` | cuenta no existe | 58–64, 87–100 | confirmado |
+| E402 | 404 | `{"error":"E402","mensaje":"operación inexistente"}` | operación no existe | 101–116, 240–278 | confirmado |
+| E404 | 404 | `{"error":"E404","mensaje":"ruta desconocida"}` | ruta/método no definidos | pendiente #3 (observado en probe_recon, sin id) | probable |
+| E506 | 422 | `{"error":"E506","mensaje":"límite excedido"}` | transferencia > 100000 | 87–100, 122–163 | confirmado |
+| E507 | 422 | `{"error":"E507","mensaje":"saldo insuficiente"}` | transferencia > saldo | 87–100, 122–163 | confirmado |
+| E510 | 409 | `{"error":"E510","mensaje":"cuenta bloqueada"}` | cuenta con 3 fallos de transferencia | 164–239, 240–278, 309–336 | confirmado |
 
 Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 `E201`/`E202` → `E301` → `E302` → `E303` → `E304` → `E401` → `E510` → `E506` → `E507`
@@ -166,20 +166,19 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 
 ## 6 · Cambios durante el día
 
-- `E510 "cuenta bloqueada"` no aparece en los 20 ejemplos de la mañana ni en el
-  material; se descubrió por experimentación (secuencias `bloqueo`/`bloqueo4`).
-  Es un comportamiento de estado que un cliente nuevo no debería heredar sin
-  documentarlo (ver §7).
-- No se observaron cambios del algoritmo de control durante la sesión
-  (los controles de los ejemplos siguen vigentes a las 15:36 UTC).
+| ID | Comportamiento | Evidencia | Confianza |
+| --- | --- | --- | --- |
+| C-01 | `E510 "cuenta bloqueada"` no aparece en los 20 ejemplos de la mañana ni en el material; se descubrió por experimentación (secuencias `bloqueo`/`bloqueo4`). Comportamiento de estado preexistente, no el cambio anunciado (ver C-03). | 122–163, 164–278, 309–336 | confirmado |
+| C-02 | Algoritmo de control sin cambios durante la sesión: los controles de los ejemplos siguen vigentes (verificado 15:36 UTC). | ejemplos 1–20 de `frontier-reto-2/pruebas/ejemplos.jsonl`, `data/pares_control.jsonl` | confirmado |
+| C-03 | Cambio anunciado de las 15:30 BOG: pendiente de detectar con `scripts/vigilancia.py`; al detectarlo se registra en `BITACORA.md` §4 y se adapta el reemplazo. | — | pendiente (#9) |
 
 ## 7 · Riesgos
 
-| ID | Riesgo | Cómo se cerraría |
-| --- | --- | --- |
-| R-01 | El bloqueo por 3 fallos penaliza reintentos legítimos y puede dejar cuentas inutilizables. | Reemplazar por rate-limit/backoff explícito y errores idempotentes. |
-| R-02 | El control ISO 7064 sobre un conjunto de caracteres limitado (letras/dígitos) se puede falsificar trivialmente. | Usar firma criptográfica (HMAC) o TOTP por mensaje. |
-| R-03 | `ANULA` revierte saldos sin auditoría ni límites; permite "deshacer" transferencias. | Trazabilidad append-only y reversos como operación nueva. |
-| R-04 | Estado en memoria de un solo proceso: `__reset` global y pérdida al reiniciar. | Persistencia transaccional por token. |
-| R-05 | Contadores de id predecibles y sin control de concurrencia. | UUIDs/seq por token y transacciones. |
-| R-06 | `x-req` global y `__reset` no lo reinicia: fuga de información de actividad. | Contador por token y reinicio coherente. |
+| ID | Riesgo | Cómo se cerraría | Evidencia | Confianza |
+| --- | --- | --- | --- | --- |
+| R-01 | El bloqueo por 3 fallos penaliza reintentos legítimos y puede dejar cuentas inutilizables. | Reemplazar por rate-limit/backoff explícito y errores idempotentes. | 164–278 | confirmado |
+| R-02 | El control ISO 7064 sobre un conjunto de caracteres limitado (letras/dígitos) se puede falsificar trivialmente. | Usar firma criptográfica (HMAC) o TOTP por mensaje. | C-06, `data/pares_control.jsonl` | confirmado |
+| R-03 | `ANULA` revierte saldos sin auditoría ni límites; permite "deshacer" transferencias. | Trazabilidad append-only y reversos como operación nueva. | 101–116 | confirmado |
+| R-04 | Estado en memoria de un solo proceso: `__reset` global y pérdida al reiniciar. | Persistencia transaccional por token. | 117–121 | confirmado |
+| R-05 | Contadores de id predecibles y sin control de concurrencia. | UUIDs/seq por token y transacciones. | 47–57, 117–121 | confirmado |
+| R-06 | `x-req` global y `__reset` no lo reinicia: fuga de información de actividad. | Contador por token y reinicio coherente. | pendiente #3 (observado en probe_xreq, sin id) | probable |

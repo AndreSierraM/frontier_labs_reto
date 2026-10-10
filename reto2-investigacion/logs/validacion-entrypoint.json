@@ -1,0 +1,23 @@
+{
+  "fecha": "2026-10-10T17:19:41.823316+00:00",
+  "url": "https://frontier-labs-reto.vercel.app",
+  "resumen": {
+    "ejemplos": [
+      20,
+      20
+    ],
+    "control": [
+      34,
+      34
+    ],
+    "bateria": [
+      62,
+      62
+    ],
+    "total": [
+      116,
+      116
+    ]
+  },
+  "fallos": []
+}
