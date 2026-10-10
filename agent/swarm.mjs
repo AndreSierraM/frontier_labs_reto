@@ -8,9 +8,27 @@
  */
 import { runSwarm } from "./pipeline.mjs";
 
+// Estados operacionales del pipeline: no son errores técnicos del CI.
+const OK_STATUSES = new Set([
+  "no-change",
+  "dry-run",
+  "no-patch",
+  "inconclusive",
+  "needs-review",
+  "failed",
+  "done",
+]);
+
 runSwarm()
-  .then((r) => process.exit(r.status === "failed" ? 1 : 0))
+  .then((r) => {
+    if (OK_STATUSES.has(r.status)) {
+      console.log("[swarm] terminó con estado:", r.status);
+      process.exit(0);
+    }
+    console.error("[swarm] estado inesperado:", r.status);
+    process.exit(1);
+  })
   .catch((e) => {
-    console.error("[swarm] error:", e.message);
+    console.error("[swarm] error técnico:", e.message);
     process.exit(1);
   });

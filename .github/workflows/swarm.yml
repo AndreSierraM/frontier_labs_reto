@@ -74,6 +74,19 @@ jobs:
           PI_TELEMETRY: "0"
         run: node agent/swarm.mjs
 
+      # ---- Fase 4b · Estado del enjambre --------------------------------
+      - name: "Fase 4b · Leer estado del enjambre"
+        id: swarm_state
+        if: always()
+        run: |
+          dir="$(ls -dt agent/state/* 2>/dev/null | head -1 || true)"
+          status="error"
+          if [ -n "$dir" ] && [ -f "$dir/summary.json" ]; then
+            status="$(jq -r '.status' "$dir/summary.json")"
+          fi
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          echo "swarm_status=${status}" >> "$GITHUB_ENV"
+
       # ---- Fase 5 · Evidencia -------------------------------------------
       - name: "Fase 5 · Subir artefactos del enjambre"
         if: always()
@@ -87,7 +100,7 @@ jobs:
       # ---- Fase 6 · PR ---------------------------------------------------
       - name: "Fase 6 · Abrir PR con la adaptación"
         id: pr
-        if: success()
+        if: success() && steps.swarm_state.outputs.status == 'done'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

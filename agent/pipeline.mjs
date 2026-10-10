@@ -31,7 +31,8 @@ async function scoutsPhase(changes, runDir) {
   const reports = await Promise.all(
     changes.slice(0, config.maxScouts).map(async (ch) => {
       const task = `Investiga la etiqueta "${ch.label}" del servicio original.\n\n${changeText(ch)}\n\nReproduce, aísla la regla y entrega el informe.`;
-      const r = await runPhase({ role: "scout", task, label: `scout:${ch.label}`, runDir, file: `scout-${ch.label}.md` });
+      const safeLabel = ch.label.replace(/[<>:"|*?\r\n]/g, "-");
+      const r = await runPhase({ role: "scout", task, label: `scout:${ch.label}`, runDir, file: `scout-${safeLabel}.md` });
       if (r.timedOut) log(`aviso: scout ${ch.label} agotó el tiempo`);
       return `### Informe scout · ${ch.label}${r.timedOut ? " (TIMEOUT)" : ""}\n\n${r.out || "(sin salida)"}`;
     })
