@@ -146,4 +146,4 @@ function hasInfra(foto) {
   return Object.values(foto || {}).some((s) => s && (s.status === 429 || s.status === 0));
 }
 
-module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint, hasInfra, canonical, stable };
+module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint, hasInfra, canonical, stable, request };

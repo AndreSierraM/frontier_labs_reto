@@ -27,6 +27,29 @@ async function ensure(pool) {
        message text
      )`
   );
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS monitor_maps (
+       id serial PRIMARY KEY,
+       taken_at timestamptz NOT NULL DEFAULT now(),
+       fingerprint text NOT NULL,
+       map jsonb NOT NULL
+     )`
+  );
+}
+
+async function lastMap(pool) {
+  const { rows } = await pool.query(
+    `SELECT id, taken_at, fingerprint, map FROM monitor_maps ORDER BY id DESC LIMIT 1`
+  );
+  return rows[0] || null;
+}
+
+async function saveMap(pool, fp, map) {
+  const { rows } = await pool.query(
+    `INSERT INTO monitor_maps (fingerprint, map) VALUES ($1, $2) RETURNING id, taken_at`,
+    [fp, JSON.stringify(map)]
+  );
+  return rows[0];
 }
 
 async function lastSnapshot(pool) {
@@ -69,4 +92,57 @@ async function history(pool, limit = 20) {
   return rows;
 }
 
-module.exports = { ensure, lastSnapshot, saveSnapshot, recordEvent, recordEvents, history };
+// ---------- observación del propio servicio ----------
+async function runtimeSummary(pool, minutes = 60) {
+  const totals = await pool.query(
+    `SELECT count(*)::int AS n,
+            count(*) FILTER (WHERE status >= 500)::int AS errors5xx,
+            count(*) FILTER (WHERE status >= 400)::int AS errors4xx,
+            coalesce(round(avg(ms)), 0)::int AS avg_ms,
+            coalesce(max(ms), 0)::int AS max_ms
+       FROM runtime_log
+      WHERE at > now() - ($1 * interval '1 minute')`,
+    [minutes]
+  );
+  const byPath = await pool.query(
+    `SELECT path,
+            count(*)::int AS n,
+            count(*) FILTER (WHERE status >= 400)::int AS errors,
+            coalesce(round(avg(ms)), 0)::int AS avg_ms
+       FROM runtime_log
+      WHERE at > now() - ($1 * interval '1 minute')
+      GROUP BY path ORDER BY n DESC LIMIT 12`,
+    [minutes]
+  );
+  const recentErrors = await pool.query(
+    `SELECT at, method, path, status, ms
+       FROM runtime_log
+      WHERE status >= 400 AND at > now() - interval '1 day'
+      ORDER BY id DESC LIMIT 10`
+  );
+  const recentTx = await pool.query(
+    `SELECT at, method, path, status, ms
+       FROM runtime_log
+      WHERE path IN ('/msg', '/__reset')
+      ORDER BY id DESC LIMIT 10`
+  );
+  return {
+    window_minutes: minutes,
+    totals: totals.rows[0],
+    byPath: byPath.rows,
+    recentErrors: recentErrors.rows,
+    recentTransactions: recentTx.rows,
+  };
+}
+
+module.exports = {
+  ensure,
+  lastSnapshot,
+  saveSnapshot,
+  recordEvent,
+  recordEvents,
+  history,
+  runtimeSummary,
+  lastMap,
+  saveMap,
+};

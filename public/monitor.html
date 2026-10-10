@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monitor · Frontier Labs Reto 2</title>
+<style>
+  :root{
+    --bg:#eef2f6;
+    --surface:#ffffff;
+    --ink:#0f2233;
+    --muted:#64788a;
+    --line:#dde6ee;
+    --line-soft:#eef3f8;
+    --accent:#0e7490;
+    --accent-soft:#e0f2f7;
+    --ok:#0f766e;
+    --ok-soft:#d9f2ee;
+    --warn:#b45309;
+    --warn-soft:#fdf0dd;
+    --bad:#b42318;
+    --bad-soft:#fde8e6;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(15,34,51,.05), 0 8px 24px -12px rgba(15,34,51,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+    font-size:15px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 64px}
+
+  header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+  header.top h1{margin:0;font-size:22px;letter-spacing:-.4px;font-weight:700}
+  header.top p{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .status-line{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 3px rgba(100,120,138,.12)}
+  .dot.live{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+  .dot.err{background:var(--bad);box-shadow:0 0 0 3px var(--bad-soft)}
+
+  .bar{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px;box-shadow:var(--shadow);margin-bottom:22px;
+  }
+  .bar label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .bar input{
+    flex:1 1 260px;min-width:0;padding:10px 12px;border:1px solid var(--line);
+    border-radius:10px;font:inherit;background:#f9fbfd;color:var(--ink);
+  }
+  .bar input:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
+  button{
+    font:inherit;font-weight:600;cursor:pointer;border:1px solid transparent;
+    padding:10px 18px;border-radius:10px;background:var(--accent);color:#fff;
+    transition:background .15s ease, transform .05s ease;
+  }
+  button:hover{background:#0b5d75}
+  button:active{transform:translateY(1px)}
+  button.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+  button.ghost:hover{background:var(--line-soft)}
+
+  .banner{
+    display:none;margin-bottom:20px;padding:12px 16px;border-radius:12px;
+    font-size:13.5px;font-weight:600;
+  }
+  .banner.show{display:block}
+  .banner.bad{background:var(--bad-soft);color:var(--bad);border:1px solid #f4c7c3}
+  .banner.info{background:var(--accent-soft);color:var(--accent);border:1px solid #bfe3ee}
+
+  .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:22px}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;box-shadow:var(--shadow);
+  }
+  .card h2{margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line-soft)}
+  .kv:last-child{border-bottom:0}
+  .kv .k{color:var(--muted);font-size:13px}
+  .kv .v{font-weight:600;text-align:right;word-break:break-word}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px}
+  .stat{background:#f8fbfd;border:1px solid var(--line-soft);border-radius:11px;padding:12px 13px;min-width:0}
+  .stat .num{font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
+  .stat .lab{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
+  .stat.bad .num{color:var(--bad)}
+  .stat.warn .num{color:var(--warn)}
+  .stat.ok .num{color:var(--ok)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);color:var(--accent);
+    border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600}
+  .chip .c{background:rgba(255,255,255,.7);border-radius:999px;padding:0 7px;font-size:11.5px}
+  .chip.empty{background:var(--line-soft);color:var(--muted)}
+  .empty-note{color:var(--muted);font-size:13px;font-style:italic}
+
+  .panel{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;
+  }
+  .panel h2{margin:0;padding:15px 18px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+  th,td{padding:10px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line-soft)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:#f7fafc;font-weight:700}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:#f9fbfd}
+  td.msg{white-space:normal;min-width:200px;color:var(--muted)}
+  .tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+  .tag.k-change{background:var(--warn-soft);color:var(--warn)}
+  .tag.k-div{background:var(--bad-soft);color:var(--bad)}
+  .tag.k-ok{background:var(--ok-soft);color:var(--ok)}
+  .tag.k-default{background:var(--accent-soft);color:var(--accent)}
+  .s-ok{color:var(--ok);font-weight:700}
+  .s-redir{color:var(--accent);font-weight:700}
+  .s-client{color:var(--warn);font-weight:700}
+  .s-server{color:var(--bad);font-weight:700}
+  .placeholder{padding:22px 18px;color:var(--muted);font-size:13.5px}
+
+  @media(max-width:640px){
+    .wrap{padding:16px 12px 48px}
+    header.top h1{font-size:19px}
+    .bar{padding:12px}
+    .bar button{flex:1 1 auto}
+    .stat .num{font-size:21px}
+    th,td{padding:9px 11px}
+    .hide-sm{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Monitor de servicio</h1>
+      <p>Original vs. nuestro reemplazo · eventos, transacciones y errores</p>
+    </div>
+    <div class="status-line"><span class="dot" id="dot"></span><span id="statusText">Sin datos</span></div>
+  </header>
+
+  <div class="bar">
+    <label for="token">Token</label>
+    <input id="token" type="password" placeholder="MONITOR_TOKEN" autocomplete="off" spellcheck="false">
+    <button id="loadBtn">Cargar</button>
+    <button id="clearBtn" class="ghost">Olvidar token</button>
+  </div>
+
+  <div id="banner" class="banner"></div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Estado del original</h2>
+      <div id="originalBody" class="placeholder">Carga los datos para ver el estado.</div>
+    </section>
+
+    <section class="card">
+      <h2>Nuestro servicio</h2>
+      <div id="serviceBody" class="placeholder">Carga los datos para ver el estado.</div>
+    </section>
+
+    <section class="card">
+      <h2>Contadores de eventos</h2>
+      <div id="countersBody" class="placeholder">Carga los datos para ver los contadores.</div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Eventos recientes</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>At</th><th>Kind</th><th>Label</th><th>Message</th></tr></thead>
+        <tbody id="eventsBody"><tr><td colspan="4" class="placeholder">Sin datos.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Transacciones recientes</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>At</th><th>Method</th><th>Path</th><th>Status</th><th>ms</th></tr></thead>
+        <tbody id="txBody"><tr><td colspan="5" class="placeholder">Sin datos.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Errores recientes</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>At</th><th>Method</th><th>Path</th><th>Status</th><th>ms</th></tr></thead>
+        <tbody id="errorsBody"><tr><td colspan="5" class="placeholder">Sin datos.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var ENDPOINT = "/api/monitor/dashboard";
+  var STORAGE_KEY = "monitor_token";
+  var REFRESH_MS = 15000;
+
+  var els = {
+    token: document.getElementById("token"),
+    load: document.getElementById("loadBtn"),
+    clear: document.getElementById("clearBtn"),
+    banner: document.getElementById("banner"),
+    dot: document.getElementById("dot"),
+    statusText: document.getElementById("statusText"),
+    original: document.getElementById("originalBody"),
+    service: document.getElementById("serviceBody"),
+    counters: document.getElementById("countersBody"),
+    events: document.getElementById("eventsBody"),
+    tx: document.getElementById("txBody"),
+    errors: document.getElementById("errorsBody")
+  };
+
+  var timer = null;
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    return d.toLocaleString("es-MX", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  }
+
+  function num(v) {
+    return v == null ? "—" : String(v);
+  }
+
+  function statusClass(status) {
+    if (status >= 500) return "s-server";
+    if (status >= 400) return "s-client";
+    if (status >= 300) return "s-redir";
+    if (status >= 200) return "s-ok";
+    return "";
+  }
+
+  function kindClass(kind) {
+    var k = String(kind || "").toLowerCase();
+    if (k.indexOf("div") !== -1 || k.indexOf("error") !== -1 || k.indexOf("fail") !== -1) return "k-div";
+    if (k.indexOf("change") !== -1 || k.indexOf("cambio") !== -1 || k.indexOf("drift") !== -1) return "k-change";
+    if (k.indexOf("ok") !== -1 || k.indexOf("recover") !== -1) return "k-ok";
+    return "k-default";
+  }
+
+  function showBanner(text, type) {
+    if (!text) { els.banner.className = "banner"; els.banner.textContent = ""; return; }
+    els.banner.className = "banner show " + (type || "info");
+    els.banner.textContent = text;
+  }
+
+  function setDot(state) {
+    els.dot.className = "dot" + (state ? " " + state : "");
+  }
+
+  function renderOriginal(original) {
+    var box = els.original;
+    box.className = "";
+    box.textContent = "";
+
+    var o = original || {};
+    var snap = o.lastSnapshot || null;
+
+    var rows = [
+      ["URL original", o.url || "—", true],
+      ["ID snapshot", snap ? num(snap.id) : "—", false],
+      ["Fecha snapshot", snap ? fmtDate(snap.taken_at) : "—", false]
+    ];
+    if (snap && snap.fingerprint) rows.push(["Fingerprint", snap.fingerprint, true]);
+
+    if (!snap) rows.push(["Estado", "Sin snapshots registrados", false]);
+
+    rows.forEach(function (r) {
+      var row = el("div", "kv");
+      row.appendChild(el("span", "k", r[0]));
+      var v = el("span", "v" + (r[2] ? " mono" : ""), r[1]);
+      row.appendChild(v);
+      box.appendChild(row);
+    });
+  }
+
+  function renderService(replacement) {
+    var box = els.service;
+    box.className = "";
+    box.textContent = "";
+
+    var rep = replacement || {};
+    var rt = rep.runtime || null;
+
+    var urlRow = el("div", "kv");
+    urlRow.appendChild(el("span", "k", "URL servicio"));
+    urlRow.appendChild(el("span", "v mono", rep.url || "—"));
+    box.appendChild(urlRow);
+
+    if (!rt) {
+      box.appendChild(el("div", "placeholder", "Sin métricas de runtime disponibles."));
+      return;
+    }
+
+    var t = rt.totals || {};
+    var windowRow = el("div", "kv");
+    windowRow.appendChild(el("span", "k", "Ventana"));
+    windowRow.appendChild(el("span", "v", num(rt.window_minutes) + " min"));
+    box.appendChild(windowRow);
+
+    var stats = el("div", "stats");
+    stats.style.marginTop = "12px";
+    [
+      ["Requests", t.n, "ok"],
+      ["Errores 4xx", t.errors4xx, t.errors4xx ? "warn" : "ok"],
+      ["Errores 5xx", t.errors5xx, t.errors5xx ? "bad" : "ok"],
+      ["Latencia media", num(t.avg_ms) + " ms", "ok"],
+      ["Latencia máx", num(t.max_ms) + " ms", ""]
+    ].forEach(function (s) {
+      var card = el("div", "stat" + (s[2] ? " " + s[2] : ""));
+      card.appendChild(el("div", "num", num(s[1])));
+      card.appendChild(el("div", "lab", s[0]));
+      stats.appendChild(card);
+    });
+    box.appendChild(stats);
+  }
+
+  function renderCounters(events) {
+    var box = els.counters;
+    box.className = "";
+    box.textContent = "";
+
+    var list = Array.isArray(events) ? events : [];
+    if (!list.length) {
+      box.className = "placeholder";
+      box.textContent = "Sin eventos registrados.";
+      return;
+    }
+
+    var counts = {};
+    list.forEach(function (e) {
+      var k = e && e.kind ? String(e.kind) : "desconocido";
+      counts[k] = (counts[k] || 0) + 1;
+    });
+
+    var total = el("div", "kv");
+    total.appendChild(el("span", "k", "Eventos listados"));
+    total.appendChild(el("span", "v", String(list.length)));
+    box.appendChild(total);
+
+    var chips = el("div", "chips");
+    chips.style.marginTop = "12px";
+    Object.keys(counts).sort().forEach(function (k) {
+      var chip = el("span", "chip");
+      chip.appendChild(document.createTextNode(k));
+      chip.appendChild(el("span", "c", String(counts[k])));
+      chips.appendChild(chip);
+    });
+    box.appendChild(chips);
+  }
+
+  function renderEvents(events) {
+    var list = Array.isArray(events) ? events : [];
+    els.events.textContent = "";
+    if (!list.length) {
+      var r = el("tr");
+      var c = el("td", "placeholder", "Sin eventos.");
+      c.colSpan = 4;
+      r.appendChild(c);
+      els.events.appendChild(r);
+      return;
+    }
+    list.forEach(function (e) {
+      var tr = el("tr");
+      tr.appendChild(el("td", "", fmtDate(e.detected_at)));
+      var tdKind = el("td");
+      tdKind.appendChild(el("span", "tag " + kindClass(e.kind), e.kind || "—"));
+      tr.appendChild(tdKind);
+      tr.appendChild(el("td", "", e.label || "—"));
+      tr.appendChild(el("td", "msg", e.message || "—"));
+      els.events.appendChild(tr);
+    });
+  }
+
+  function renderTx(rows) {
+    var list = Array.isArray(rows) ? rows : [];
+    els.tx.textContent = "";
+    if (!list.length) {
+      var r = el("tr");
+      var c = el("td", "placeholder", "Sin transacciones.");
+      c.colSpan = 5;
+      r.appendChild(c);
+      els.tx.appendChild(r);
+      return;
+    }
+    list.forEach(function (t) {
+      var tr = el("tr");
+      tr.appendChild(el("td", "", fmtDate(t.at)));
+      tr.appendChild(el("td mono", "", t.method || "—"));
+      tr.appendChild(el("td mono", "", t.path || "—"));
+      tr.appendChild(el("td", statusClass(t.status), num(t.status)));
+      tr.appendChild(el("td", "", num(t.ms)));
+      els.tx.appendChild(tr);
+    });
+  }
+
+  function renderErrors(rows) {
+    var list = Array.isArray(rows) ? rows : [];
+    els.errors.textContent = "";
+    if (!list.length) {
+      var r = el("tr");
+      var c = el("td", "placeholder", "Sin errores recientes.");
+      c.colSpan = 5;
+      r.appendChild(c);
+      els.errors.appendChild(r);
+      return;
+    }
+    list.forEach(function (t) {
+      var tr = el("tr");
+      tr.appendChild(el("td", "", fmtDate(t.at)));
+      tr.appendChild(el("td mono", "", t.method || "—"));
+      tr.appendChild(el("td mono", "", t.path || "—"));
+      tr.appendChild(el("td", statusClass(t.status), num(t.status)));
+      tr.appendChild(el("td", "", num(t.ms)));
+      els.errors.appendChild(tr);
+    });
+  }
+
+  function render(data) {
+    var rep = data.replacement || {};
+    renderOriginal(data.original);
+    renderService(rep);
+    renderCounters(data.events);
+    renderEvents(data.events);
+    var rt = rep.runtime || {};
+    renderTx(rt.recentTransactions);
+    renderErrors(rt.recentErrors);
+  }
+
+  function stopTimer() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function scheduleRefresh() {
+    stopTimer();
+    timer = setInterval(function () {
+      var token = els.token.value.trim();
+      if (token) fetchDashboard(token, true);
+    }, REFRESH_MS);
+  }
+
+  function fetchDashboard(token, isAuto) {
+    if (!token) {
+      showBanner("Ingresa un token para cargar el panel.", "info");
+      return;
+    }
+    setDot("");
+    els.statusText.textContent = "Cargando…";
+
+    fetch(ENDPOINT + "?token=" + encodeURIComponent(token), {
+      headers: { "Accept": "application/json" }
+    }).then(function (res) {
+      if (res.status === 401) {
+        var err = new Error("unauthorized");
+        err.status = 401;
+        throw err;
+      }
+      if (!res.ok) {
+        var e2 = new Error("http " + res.status);
+        e2.status = res.status;
+        throw e2;
+      }
+      return res.json();
+    }).then(function (data) {
+      showBanner("");
+      render(data || {});
+      setDot("live");
+      els.statusText.textContent = "Actualizado " + new Date().toLocaleTimeString("es-MX");
+    }).catch(function (err) {
+      setDot("err");
+      if (err && err.status === 401) {
+        els.statusText.textContent = "No autorizado";
+        showBanner("token inválido", "bad");
+      } else {
+        els.statusText.textContent = "Error de conexión";
+        if (!isAuto) showBanner("No se pudo cargar el panel: " + (err && err.message ? err.message : "error desconocido"), "bad");
+      }
+    });
+  }
+
+  function load() {
+    var token = els.token.value.trim();
+    if (token) { try { localStorage.setItem(STORAGE_KEY, token); } catch (_) {} }
+    fetchDashboard(token, false);
+    scheduleRefresh();
+  }
+
+  els.load.addEventListener("click", load);
+  els.token.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); load(); }
+  });
+  els.clear.addEventListener("click", function () {
+    stopTimer();
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    els.token.value = "";
+    showBanner("Token olvidado.", "info");
+    setDot("");
+    els.statusText.textContent = "Sin datos";
+  });
+
+  try {
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      els.token.value = saved;
+      fetchDashboard(saved, false);
+      scheduleRefresh();
+    }
+  } catch (_) {}
+})();
+</script>
+</body>
+</html>

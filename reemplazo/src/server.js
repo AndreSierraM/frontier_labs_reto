@@ -130,10 +130,25 @@ async function handleMsg(req, res, storage) {
 }
 
 // ---------- aplicación HTTP (reutilizable por local y Vercel) ----------
-function createHandler(storage) {
+// `hooks.onRequest({method, path, status, ms})` permite observar cada request
+// (instrumentación del propio servicio) sin tocar el contrato.
+function createHandler(storage, hooks = {}) {
+  const onRequest = hooks.onRequest || null;
   return async function handler(req, res) {
+    const started = Date.now();
+    let path = req.url;
     try {
-      const routePath = new URL(req.url, "http://localhost").pathname;
+      path = new URL(req.url, "http://localhost").pathname;
+    } catch (_) {}
+    if (onRequest) {
+      res.on("finish", () => {
+        try {
+          onRequest({ method: req.method, path, status: res.statusCode, ms: Date.now() - started });
+        } catch (_) {}
+      });
+    }
+    try {
+      const routePath = path;
       const auth = req.headers["authorization"] || "";
       const head = req.method === "HEAD";
       if (TEAM_TOKEN === "" || auth !== `Bearer ${TEAM_TOKEN}`) {
