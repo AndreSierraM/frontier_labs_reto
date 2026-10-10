@@ -1,8 +1,6 @@
 {
   "rewrites": [
-    { "source": "/health", "destination": "/api/index" },
-    { "source": "/msg", "destination": "/api/index" },
-    { "source": "/__reset", "destination": "/api/index" }
+    { "source": "/(.*)", "destination": "/api/index" }
   ],
   "headers": [
     {
