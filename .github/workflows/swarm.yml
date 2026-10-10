@@ -86,6 +86,7 @@ jobs:
 
       # ---- Fase 6 · PR ---------------------------------------------------
       - name: "Fase 6 · Abrir PR con la adaptación"
+        id: pr
         if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,7 +113,31 @@ jobs:
               --base main --head "$branch")
           fi
           echo "PR: ${pr_url}"
+          echo "pr_url=${pr_url}" >> "$GITHUB_OUTPUT"
           review_file="$(ls -t agent/state/*/review.md 2>/dev/null | head -1 || true)"
           if [ -n "$review_file" ] && [ -s "$review_file" ]; then
             gh pr comment "$pr_url" --body-file "$review_file" || true
           fi
+
+      - name: "Fase 7 · Reportar al monitor"
+        if: always()
+        env:
+          MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
+        run: |
+          set -euo pipefail
+          dir="$(ls -dt agent/state/* 2>/dev/null | head -1 || true)"
+          status="failed"; labels=""
+          if [ -n "$dir" ] && [ -f "$dir/summary.json" ]; then
+            status="$(jq -r '.status' "$dir/summary.json")"
+            labels="$(jq -r '(.labels // []) | join(",")' "$dir/summary.json")"
+          fi
+          review=""
+          if [ -n "$dir" ] && [ -f "$dir/review.md" ]; then review="$(cat "$dir/review.md")"; fi
+          jq -n --arg s "$status" --arg l "$labels" --arg r "$review" --arg ru "$RUN_URL" --arg pu "$PR_URL" \
+            '{status:$s, labels:($l|split(",")|map(select(length>0))), review:$r, runUrl:$ru, prUrl:$pu}' \
+            > /tmp/agent.json
+          curl -sS -X POST "https://frontier-labs-reto.vercel.app/api/monitor/agent" \
+            -H "Authorization: Bearer ${MONITOR_TOKEN}" -H "Content-Type: application/json" \
+            --data @/tmp/agent.json || true

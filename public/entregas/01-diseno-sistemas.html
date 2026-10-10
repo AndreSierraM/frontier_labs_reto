@@ -40,7 +40,7 @@ a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 </head>
 <body><main>
 <header><h1>La caja negra · Reemplazo compatible</h1>
-<p class="meta">Frontier Labs · Reto 2 · Systems Design (30%) · cierre 12:00 · diseño, criterios de aceptación y arquitectura de persistencia</p></header>
+<p class="meta">Frontier Labs · Reto 2 · Systems Design (30%) · cierre 20:00 · diseño, criterios de aceptación y arquitectura de persistencia</p></header>
 
 <p class="lead"><b>Objetivo:</b> sustituir un servicio HTTP heredado sin cambiar sus clientes. La unidad de corrección es <b>respuesta + estado posterior</b>: <code>δ(S, evento) = (S′, respuesta)</code>. Se preservan anomalías observadas; no se rediseñan las reglas de negocio.</p>
 
@@ -73,7 +73,7 @@ a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 
 <section aria-labelledby="evolucion"><h2 id="evolucion">Cambios de API: detectar y adaptar</h2>
 <p class="small"><b>Plan:</b> vigilancia externa cada 15 min hasta 20:00, token de exploración exclusivo, reset verificado y batería fija de 31 puntos. Comparar status/cuerpo y efectos posteriores; confirmar diferencias, excluir rate-limit y versionar capturas UTC. Respetar cuota.</p>
-<p class="small"><b>Adaptación controlada:</b> transporte → adaptador; reglas → núcleo; datos → migración de <code>storage.js</code>. Añadir regresión del cambio; actualizar SPEC/fixtures versionados; probar candidato aislado con 0 divergencias y cada paso &lt;5 s; aprobar y desplegar. Objetivo de detección: ≤15 min + batería. No autoaprendizaje ni llamadas al original desde producción. Tras 20:00: health propio y evaluación oficial. <a href="../03-evolucion-api.md">Plan y pendientes</a>.</p>
+<p class="small"><b>Adaptación controlada:</b> transporte → adaptador; reglas → núcleo; datos → migración de <code>storage.js</code>. Añadir regresión del cambio; actualizar SPEC/fixtures versionados; probar candidato aislado con 0 divergencias y cada paso &lt;5 s; aprobar y desplegar. Objetivo de detección: ≤15 min + batería. No autoaprendizaje ni llamadas al original desde producción. Tras 20:00: health propio y evaluación oficial. <a href="https://github.com/AndreSierraM/frontier_labs_reto/blob/main/reto2-investigacion/BITACORA.md">Plan y pendientes (bitácora)</a>.</p>
 </section>
 </div><div>
 

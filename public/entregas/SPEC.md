@@ -9,9 +9,9 @@ original**.
 - **probable**: visto una vez o inferido de la evidencia.
 - **supuesto**: no probado; es el default del reemplazo.
 
-La evidencia se verifica automáticamente: `python3 scripts/validar_spec.py` comprueba
-que cada ID citado existe y que la respuesta observada corresponde al comportamiento
-(ver [`scripts/validar_spec.py`](scripts/validar_spec.py)).
+La evidencia se verifica automáticamente con `reto2-investigacion/scripts/validar_spec.py`:
+comprueba que cada ID citado existe y que la respuesta observada corresponde al
+comportamiento.
 
 Secuencias del log: `integridad` (1–16), `aridad` (17–46), `alta` (47–57),
 `consulta` (58–64), `deposito` (65–86), `transfer` (87–100), `anula` (101–116),

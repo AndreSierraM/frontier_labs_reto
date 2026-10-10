@@ -3,7 +3,7 @@
  * → reporter. Devuelve un estado y reporta la corrida al monitor.
  */
 import { config } from "./lib/config.mjs";
-import { fetchChanges, ack, reportRun } from "./lib/monitorClient.mjs";
+import { fetchChanges, ack } from "./lib/monitorClient.mjs";
 import { makeRunDir, save } from "./lib/runstate.mjs";
 import { runPhase } from "./lib/phase.mjs";
 import { runTests } from "./lib/tests.mjs";
@@ -137,14 +137,10 @@ const reporterTask = (changes, diagnosis, fixerOut, verification, review) =>
   ].join("\n");
 
 // ---- Orquestador ---------------------------------------------------------
-async function finish(status, labels, runDir, extra = {}) {
+// El reporte al monitor lo hace el workflow (tiene run-id y PR-url del CI).
+function finish(status, labels, runDir, extra = {}) {
   const summary = { status, labels, ...extra, at: new Date().toISOString() };
   if (runDir) save(runDir, "summary.json", summary);
-  try {
-    await reportRun(summary);
-  } catch (e) {
-    log("aviso: no se pudo reportar la corrida:", e.message);
-  }
   return { status, ...extra };
 }
 

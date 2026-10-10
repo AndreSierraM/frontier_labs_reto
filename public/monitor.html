@@ -130,7 +130,7 @@
 
   <section class="panel" id="panel-agent">
     <h3>Corridas del enjambre</h3>
-    <table><thead><tr><th>Hora</th><th>Estado</th><th>Etiquetas</th><th>Revisión</th></tr></thead><tbody id="runs"></tbody></table>
+    <table><thead><tr><th>Hora</th><th>Estado</th><th>Etiquetas</th><th>Revisión</th><th>Run</th><th>PR</th></tr></thead><tbody id="runs"></tbody></table>
     <h3>Última revisión</h3>
     <pre id="lastReview">—</pre>
   </section>
@@ -201,9 +201,11 @@ function render(d) {
     `<tr><td class="mono">${fmt(e.detected_at)}</td><td>${pill(e.kind)}</td><td class="mono">${esc(e.label||"—")}</td>
          <td class="muted">${esc(detail(e))}</td></tr>`).join("") || empty(4);
 
+  const link = (u, label) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${label}</a>` : `<span class="muted">—</span>`;
   document.querySelector("#runs").innerHTML = runs.map(r =>
     `<tr><td class="mono">${fmt(r.at)}</td><td>${pill(r.status)}</td><td class="mono">${esc(r.labels||"—")}</td>
-         <td><button class="ghost" onclick="showReview(${r.id})">ver</button></td></tr>`).join("") || empty(4);
+         <td><button class="ghost" onclick="showReview(${r.id})">ver</button></td>
+         <td>${link(r.run_url, "Actions")}</td><td>${link(r.pr_url, "PR")}</td></tr>`).join("") || empty(6);
   window.__runs = runs;
   $("lastReview").textContent = (runs[0] && runs[0].review) || "—";
 }
@@ -232,13 +234,13 @@ document.querySelectorAll(".tab").forEach(tab => tab.onclick = () => {
 });
 $("reload").onclick = load;
 $("token").addEventListener("change", load);
-$("auto").onclick = () => {
-  const on = !timer;
-  $("auto").textContent = on ? "⏸ Auto" : "▶ Auto";
+function setAuto(on) {
+  $("auto").textContent = on ? "⏸ Auto 3s" : "▶ Auto";
   $("auto").classList.toggle("active", on);
-  if (on) { load(); timer = setInterval(load, 5000); } else { clearInterval(timer); timer = null; }
-};
-if (TOKEN) load();
+  if (on) { load(); timer = setInterval(load, 3000); } else { clearInterval(timer); timer = null; }
+}
+$("auto").onclick = () => setAuto(!timer);
+if (TOKEN) setAuto(true);
 </script>
 </body>
 </html>
