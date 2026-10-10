@@ -1,9 +1,9 @@
 {
-  "fecha": "2026-10-10T20:13:32.842524+00:00",
-  "url": "https://frontier-labs-reto.vercel.app",
+  "fecha": "2026-10-10T23:21:40.470094+00:00",
+  "url": "http://localhost:3111",
   "resumen": {
     "ejemplos": [
-      20,
+      12,
       20
     ],
     "control": [
@@ -11,13 +11,263 @@
       34
     ],
     "bateria": [
-      62,
-      62
+      67,
+      72
     ],
     "total": [
-      116,
-      116
+      113,
+      126
     ]
   },
-  "fallos": []
+  "fallos": [
+    {
+      "n": 5,
+      "m": "CONSULTA;AC-0001;14",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "cuenta_id": "AC-0001",
+          "saldo": 0
+        }
+      ],
+      "obtenido": [
+        200,
+        {
+          "cuenta_id": "AC-0001",
+          "saldo": "0.00"
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "m": "CONSULTA;AC-0002;11",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "cuenta_id": "AC-0002",
+          "saldo": 40000
+        }
+      ],
+      "obtenido": [
+        200,
+        {
+          "cuenta_id": "AC-0002",
+          "saldo": "400.00"
+        }
+      ]
+    },
+    {
+      "n": 10,
+      "m": "TRANSFER;AC-0001;AC-0002;100000;12",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "status": "recieved",
+          "operacionId": "OP-0003"
+        }
+      ],
+      "obtenido": [
+        422,
+        {
+          "error": "E506",
+          "mensaje": "límite excedido"
+        }
+      ]
+    },
+    {
+      "n": 11,
+      "m": "CONSULTa;AC-0001;14",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "cuenta_id": "AC-0001",
+          "saldo": 110000
+        }
+      ],
+      "obtenido": [
+        200,
+        {
+          "cuenta_id": "AC-0001",
+          "saldo": "2100.00"
+        }
+      ]
+    },
+    {
+      "n": 13,
+      "m": "ANULA;OP-0003;66",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "ok": true,
+          "anulada": "OP-0003"
+        }
+      ],
+      "obtenido": [
+        404,
+        {
+          "error": "E402",
+          "mensaje": "operación inexistente"
+        }
+      ]
+    },
+    {
+      "n": 14,
+      "m": "ANULA;OP-0003;66",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "ok": false,
+          "motivo": "ya anulada"
+        }
+      ],
+      "obtenido": [
+        404,
+        {
+          "error": "E402",
+          "mensaje": "operación inexistente"
+        }
+      ]
+    },
+    {
+      "n": 18,
+      "m": "DEPOSITO;AC-0002;700;35",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "status": "recieved",
+          "operacionId": "OP-0004"
+        }
+      ],
+      "obtenido": [
+        200,
+        {
+          "status": "recieved",
+          "operacionId": "OP-0003"
+        }
+      ]
+    },
+    {
+      "n": 19,
+      "m": "CONSULTA;AC-0002;11",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "cuenta_id": "AC-0002",
+          "saldo": 40700
+        }
+      ],
+      "obtenido": [
+        200,
+        {
+          "cuenta_id": "AC-0002",
+          "saldo": "407.00"
+        }
+      ]
+    },
+    {
+      "seq": "alta",
+      "m": "CONSULTA;AC-0001;14",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "cuenta_id": "AC-0001",
+          "saldo": 0
+        }
+      ],
+      "obtenido": [
+        200,
+        {
+          "cuenta_id": "AC-0001",
+          "saldo": "0.00"
+        }
+      ]
+    },
+    {
+      "seq": "transfer",
+      "m": "TRANSFER;AC-0001;AC-0002;100000;12",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "status": "recieved",
+          "operacionId": "OP-0002"
+        }
+      ],
+      "obtenido": [
+        422,
+        {
+          "error": "E506",
+          "mensaje": "límite excedido"
+        }
+      ]
+    },
+    {
+      "seq": "transfer",
+      "m": "CONSULTA;AC-0002;11",
+      "ok": false,
+      "esperado": [
+        200,
+        {
+          "cuenta_id": "AC-0002",
+          "saldo": "1000.00"
+        }
+      ],
+      "obtenido": [
+        200,
+        {
+          "cuenta_id": "AC-0002",
+          "saldo": "0.00"
+        }
+      ]
+    },
+    {
+      "seq": "bloqueo",
+      "m": "TRANSFER;AC-0001;AC-0002;101;21",
+      "ok": false,
+      "esperado": [
+        423,
+        {
+          "error": "E510",
+          "mensaje": "cuenta bloqueada"
+        }
+      ],
+      "obtenido": [
+        423,
+        {
+          "error": "E510",
+          "mensaje": "cuenta bloqueada",
+          "intentos": 1
+        }
+      ]
+    },
+    {
+      "seq": "bloqueo",
+      "m": "TRANSFER;AC-0001;AC-0002;10;13",
+      "ok": false,
+      "esperado": [
+        423,
+        {
+          "error": "E510",
+          "mensaje": "cuenta bloqueada"
+        }
+      ],
+      "obtenido": [
+        423,
+        {
+          "error": "E510",
+          "mensaje": "cuenta bloqueada",
+          "intentos": 2
+        }
+      ]
+    }
+  ]
 }

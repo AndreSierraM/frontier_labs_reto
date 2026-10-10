@@ -49,7 +49,7 @@ function createMemoryStorage() {
     },
     async reset() {
       state = dominio.freshState();
-      xreq = 0;
+      // v2: xreq es global y monótono; __reset NO lo reinicia (SPEC I-10, M-04).
     },
   };
 }
@@ -129,9 +129,9 @@ function createPostgresStorage(pool, table = "estado") {
 
     async reset() {
       mem = dominio.freshState();
-      memXreq = 0;
-      dirty = false;
-      await pool.query(UPDATE_SQL, [JSON.stringify(toJSON(mem)), 0]);
+      // v2: xreq es global y monótono; __reset NO lo reinicia (SPEC I-10, M-04).
+      dirty = true;
+      await pool.query(UPDATE_SQL, [JSON.stringify(toJSON(mem)), memXreq]);
     },
 
     // Expuesto para tests / diagnóstico.
