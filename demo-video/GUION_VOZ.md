@@ -1,140 +1,51 @@
-# 🎬 Guion de Voz en Off — La Caja Negra
+# Demo de resultados — La Caja Negra
 
-> **Video:** `out/demo-final-v8.mp4` · 1920×1080 @ 30fps · **93.5 s**
-> **10 escenas** con transiciones · **logos reales** (Node, PostgreSQL, Neon, Vercel, GitHub Actions)
-> **Syntax highlighting** real en la escena de código
+Video: `out/demo-resultados-v15.mp4` · 1920×1080 · 30 fps · **67,5 segundos**.
 
-Timestamps con el solape de transiciones (0.5 s c/u).
+Formato entregado: demo visual sin voz. Los títulos, cifras y documentos cuentan
+el resultado por sí mismos. La locución de abajo es opcional para una grabación
+humana; no está incluida en el MP4.
 
----
+## Montaje
 
-## ESCENA 1 · Intro — `0:00 → 0:06`
+| Tiempo | Pantalla | Mensaje |
+| --- | --- | --- |
+| 0:00–0:05,5 | Presentación | Reemplazo HTTP, pruebas y entregables. |
+| 0:05,5–0:15 | El reto | Recrear un servicio sin ver su código; cambios registrados con IDs de evidencia. |
+| 0:15–0:30,5 | Resultados | 21 pruebas de dominio, 5 de HTTP/aislamiento, 390 observaciones y 78 reglas con evidencia. |
+| 0:30,5–0:42 | La solución | Servicio, persistencia, vigilancia y agentes que proponen un PR. |
+| 0:42–0:59,5 | Entregables | Capturas de diseño, arquitectura e índice de documentación. |
+| 0:59,5–1:07,5 | Cierre | Código, demo y evidencia disponibles en los enlaces mostrados. |
 
-**Visual:** Título gigante "La Caja Negra", logo, 3 tags.
+## Locución opcional
 
-**Voz:**
-> "La Caja Negra. Reto 2 de Frontier Labs. Un reemplazo HTTP compatible, modelado como máquina de estados pura, con vigilancia autónoma y un enjambre de agentes que se adapta solo."
+**Presentación:** “La Caja Negra: estos son los resultados del reto dos de Frontier Labs.”
 
----
+**El reto:** “Construimos un reemplazo de un servicio sin acceso a su código. La bitácora registra cambios en saldos, límites y errores, junto con la evidencia y su adaptación.”
 
-## ESCENA 2 · El Problema — `0:05.5 → 0:14.5`
+**Resultados:** “Las pruebas locales pasan: veintiuna de dominio y cinco de HTTP y aislamiento. El log contiene trescientas noventa observaciones y la especificación, setenta y ocho reglas con evidencia. El proyecto registra además ciento dieciséis casos de validación aprobados.”
 
-**Visual:** Dos cards + 3 métricas + terminal con `curl`.
+**La solución:** “El servicio conserva su estado en PostgreSQL. Un monitor detecta cambios y los agentes proponen adaptaciones mediante pull requests, sin hacer merge automático.”
 
-**Voz:**
-> "El problema: un servicio HTTP cuya especificación solo existe en sus respuestas. No hay código, no hay documentación. Cada petición es una hipótesis. Hicimos trescientas sesenta y seis observaciones para descifrar su comportamiento."
+**Entregables:** “Entregamos el diseño de sistemas, el diagrama de arquitectura, la especificación y el log de experimentos. Las decisiones se pueden rastrear hasta sus observaciones.”
 
----
+**Cierre:** “El código, la demo y la evidencia están disponibles para revisión.”
 
-## ESCENA 3 · Arquitectura — `0:14 → 0:24`
+## Alcance de las cifras
 
-**Visual:** Diagrama por 3 capas con logos reales:
-- **Capa 1 · Plataforma:** Cliente → Vercel → Node (domain.js) → Neon PostgreSQL
-- **Capa 2 · Vigilancia:** Laboratorio → Monitor (31 puntos) → GitHub Actions
-- **Capa 3 · Adaptación:** Enjambre (5 roles → 1 PR)
+- `npm --prefix reemplazo test`: comprobación local de 21 pruebas de dominio y 5 de HTTP/aislamiento.
+- `python3 reto2-investigacion/scripts/validar_spec.py`: comprobación sin red de 390 observaciones y 78 filas con evidencia.
+- `116/116`: validación registrada en `README.md`; no se presenta como una ejecución en vivo ni como un resultado del evaluador externo.
+- Los cambios de saldo, límite y E510 proceden de la tabla del incidente en `reto2-investigacion/BITACORA.md`.
+- No se afirma compatibilidad universal ni cero divergencias generales.
 
-**Voz:**
-> "La arquitectura se organiza en tres capas. La plataforma de servicio: el cliente entra por el API en Vercel, el mensaje llega a domain.js, que es un motor de estados en Node puro, y el estado persiste en Neon, PostgreSQL, como JSONB con select for update. La segunda capa es la vigilancia: el monitor prueba el original en el laboratorio y GitHub Actions corre cada quince minutos. Y la tercera capa es la adaptación: el enjambre de agentes que investiga, parchea y abre un pull request."
+Las escenas técnicas de código, monitor, enjambre y pipeline siguen disponibles
+como composiciones individuales, pero no alargan la demo principal.
 
-**Tono:** Señalando cada capa. Pausa al cambiar de capa.
+## Render
 
----
-
-## ESCENA 4 · El Código — `0:23.5 → 0:36.5` ⭐
-
-**Visual:** `processMessage` con **syntax highlighting real** (keywords púrpura, strings verde, números naranja) y stepper de 4 fases con mini-diagrama de guardas.
-
-**Voz (sigue el stepper):**
-> "Miremos el código. `processMessage` recibe el estado y el mensaje.
->
-> **Uno:** separamos el cuerpo y el dígito de control con el último punto y coma.
->
-> **Dos:** guardas de forma. Un segmento vacío devuelve E104; el comando se normaliza a mayúsculas.
->
-> **Tres:** verificamos el control con ISO 7064 módulo noventa y siete, menos diez, el algoritmo del IBAN. Formato inválido, E201; cálculo distinto, E202.
->
-> **Cuatro:** despachamos por comando. Cada rama valida aridad, montos y cuentas, y muta el estado. Un depósito reinicia el contador de fallos; un transfer que supera cien mil incrementa fallos y devuelve E506."
-
----
-
-## ESCENA 5 · Monitor — `0:36 → 0:47`
-
-**Visual:** Terminal de la batería + captura real del dashboard + badges.
-
-**Voz:**
-> "El monitor corre cada quince minutos en GitHub Actions. Ejecuta la batería de treinta y un puntos contra el original, compara el snapshot con el anterior usando SHA-256 y, si el hash cambia, dispara el enjambre. Los resultados viven en Neon como JSONB. El cuatrocientos veintinueve de infraestructura se ignora: no es comportamiento del servicio."
-
----
-
-## ESCENA 6 · Enjambre de Agentes — `0:46.5 → 0:58.5`
-
-**Visual:** Pipeline de 5 roles con logos + terminal de logs.
-
-**Voz:**
-> "Cuando hay un cambio, entran los agentes. Los scouts investigan en paralelo. El analista diagnostica y decide: parche sí o no. El fixer escribe el código, el test y actualiza el SPEC. El verificador arranca el reemplazo local y exige cero divergencias contra el snapshot: si el fixer alucina, lo rechaza. Y el reporter abre el pull request. El enjambre abre PR, nunca mergea."
-
----
-
-## ESCENA 7 · Flujo Completo — `0:58 → 1:08` ⭐ (rediseñada)
-
-**Visual:** Pipeline numerado de **12 pasos** en 3 fases, con números, logos, flechas rectas y conectores etiquetados ("si cambió", "0 divergencias").
-
-**Voz:**
-> "El pipeline completo tiene doce pasos. Vigilancia: el cron dispara el monitor, corre la batería, guarda el snapshot y compara el hash. Si cambió, se pasa a investigación: los scouts exploran, el analista diagnostica, el fixer parchea y el verificador confirma cero divergencias. Y si todo pasa, la entrega: el reporter redacta el PR, se abre el pull request y el merge despliega en producción."
-
-**Tono:** Rítmico, siguiendo los números en pantalla.
-
----
-
-## ESCENA 8 · Evidencia — `1:07.5 → 1:17.5`
-
-**Visual:** Capturas reales rotando (Diseño, Arquitectura, Entregables) en marcos de navegador.
-
-**Voz:**
-> "Y todo queda documentado. El diseño de sistemas con decisiones y trade-offs. El diagrama de arquitectura con la topología desplegada. Y el índice que enlaza SPEC, bitácora y el log de experimentos."
-
----
-
-## ESCENA 9 · Resultados — `1:17 → 1:27`
-
-**Visual:** Cuatro métricas grandes + terminal de tests + stack.
-
-**Voz:**
-> "Los números finales. Veintiún tests unitarios. Ciento dieciséis validaciones de extremo a extremo. Trescientas sesenta y seis observaciones documentadas. Y cero divergencias. Node, PostgreSQL, Vercel, GitHub Actions y modelos vía OpenRouter."
-
----
-
-## ESCENA 10 · Cierre — `1:26.5 → 1:33.5`
-
-**Visual:** Logo, título, links.
-
-**Voz:**
-> "La Caja Negra. En GitHub y desplegada en Vercel. Máquina de estados, vigilancia autónoma, enjambre de agentes."
-
----
-
-## 💡 Tips de grabación
-
-1. **Escena 3 (arquitectura):** pausa entre cada capa ("plataforma… vigilancia… adaptación").
-2. **Escena 4 (código):** el corazón técnico. Habla lento y deja que el highlight avance.
-3. **Escena 7 (flujo):** sigue los números 1..12, sube el ritmo.
-4. **Pausas técnicas:** antes/después de "ISO 7064", "SHA-256", "JSONB", "E506".
-
----
-
-## 🛠️ Comandos
-
-```bash
+```sh
 cd demo-video
-
-./node_modules/.bin/remotion studio src/index.ts --no-open
-./node_modules/.bin/remotion render src/index.ts la-caja-negra-demo out/demo-final-v8.mp4 --codec=h264
-./node_modules/.bin/remotion render src/index.ts 07-flujo out/flujo.mp4
+npm run lint
+npx remotion render src/index.ts la-caja-negra-demo out/demo-resultados-v15.mp4 --codec=h264
 ```
-
-## 📁 Assets
-
-- `public/logos/*.svg` — logos oficiales (Node, PostgreSQL, Neon, Vercel, GH Actions, GitHub, OpenRouter)
-- `public/captures/*.png` — capturas reales del sistema
-- `src/TechLogos.tsx` — componente `TechLogo` + `LogoNode`
-- `src/CodeHighlight.tsx` — tokenizer JS con colores reales

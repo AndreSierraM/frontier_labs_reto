@@ -24,19 +24,16 @@ const T = 15;
 
 const DUR = {
   intro: 6 * fps,
-  problema: 9 * fps,
-  arquitectura: 10 * fps,
+  problema: 10 * fps,
+  arquitectura: 12 * fps,
   codigo: 13 * fps,
   monitor: 11 * fps,
   enjambre: 12 * fps,
   flujo: 10 * fps,
-  capturas: 10 * fps,
-  resultados: 10 * fps,
-  cierre: 7 * fps,
+  capturas: 18 * fps,
+  resultados: 16 * fps,
+  cierre: 8 * fps,
 };
-
-const totalFrames =
-  DUR.intro + DUR.problema + DUR.arquitectura + DUR.codigo + DUR.monitor + DUR.enjambre + DUR.flujo + DUR.capturas + DUR.resultados + DUR.cierre - 9 * T;
 
 const SCENES = [
   { id: "01-intro", Component: SceneIntro, duration: DUR.intro },
@@ -51,27 +48,30 @@ const SCENES = [
   { id: "10-cierre", Component: SceneCierre, duration: DUR.cierre },
 ];
 
-const DEMO_SCENES = SCENES.map((scene, index) => ({
+// Keep technical scenes editable separately; the submission leads with results.
+const RESULT_SCENES = [SCENES[0], SCENES[1], SCENES[8], SCENES[2], SCENES[7], SCENES[9]];
+const DEMO_SCENES = RESULT_SCENES.map((scene, index) => ({
   ...scene,
-  duration: index === SCENES.length - 1 ? scene.duration : scene.duration - T,
-  from: SCENES.slice(0, index).reduce((total, preceding) => total + preceding.duration - T, 0),
+  duration: index === RESULT_SCENES.length - 1 ? scene.duration : scene.duration - T,
+  from: RESULT_SCENES.slice(0, index).reduce((total, preceding) => total + preceding.duration - T, 0),
 }));
+const totalFrames = DEMO_SCENES.reduce((total, scene) => total + scene.duration, 0);
+const closingFrame = DEMO_SCENES[DEMO_SCENES.length - 1].from;
 
 const CHAPTERS = [
-  { label: "Descubrir", from: DEMO_SCENES[1].from, color: COLORS.orange },
-  { label: "Construir", from: DEMO_SCENES[2].from, color: COLORS.cyan },
-  { label: "Vigilar", from: DEMO_SCENES[4].from, color: COLORS.green },
-  { label: "Adaptar", from: DEMO_SCENES[5].from, color: COLORS.purple },
-  { label: "Demostrar", from: DEMO_SCENES[7].from, color: COLORS.blue },
+  { label: "El reto", from: DEMO_SCENES[1].from, color: COLORS.orange },
+  { label: "Resultados", from: DEMO_SCENES[2].from, color: COLORS.green },
+  { label: "La solución", from: DEMO_SCENES[3].from, color: COLORS.cyan },
+  { label: "Entregables", from: DEMO_SCENES[4].from, color: COLORS.purple },
 ];
 
 const ChapterGuide: React.FC = () => {
   const frame = useCurrentFrame();
-  if (frame < CHAPTERS[0].from || frame >= DEMO_SCENES[9].from) return null;
+  if (frame < CHAPTERS[0].from || frame >= closingFrame) return null;
   return (
     <div style={{ position: "absolute", bottom: 16, left: 110, right: 110, display: "flex", gap: 24, pointerEvents: "none" }}>
       {CHAPTERS.map((chapter, index) => {
-        const end = CHAPTERS[index + 1]?.from ?? DEMO_SCENES[9].from;
+        const end = CHAPTERS[index + 1]?.from ?? closingFrame;
         const progress = Math.max(0, Math.min(1, (frame - chapter.from) / (end - chapter.from)));
         const active = frame >= chapter.from && frame < end;
         return (

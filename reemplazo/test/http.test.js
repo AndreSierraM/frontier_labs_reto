@@ -142,6 +142,16 @@ test("v2: saldo decimal, E510 423+intentos, HALT (E520) y NOTAS", async (t) => {
     { status: "recieved", operacionId: "OP-0002" });
   await message("TRANSFER;AC-0001;AC-0002;50001", 422,
     { error: "E506", mensaje: "límite excedido" });
+  // v2 (quirk): con el MISMO nombre en origen y destino, E506 no aplica (solo E507).
+  await check("/__reset", { method: "POST" }, 200, { ok: true });
+  await message("ALTA;A", 201, { cuentaId: "AC-0001" });
+  await message("ALTA;A", 201, { cuentaId: "AC-0002" });
+  await message("DEPOSITO;AC-0001;100000", 200,
+    { status: "recieved", operacionId: "OP-0001" });
+  await message("TRANSFER;AC-0001;AC-0002;50001", 200,
+    { status: "recieved", operacionId: "OP-0002" });
+  await message("TRANSFER;AC-0001;AC-0002;200000", 422,
+    { error: "E507", mensaje: "saldo insuficiente" });
   // v2: match de comando ASCII-only (pıng con i sin punto NO es PING).
   await check("/msg", { method: "POST", body: JSON.stringify({ m: "pıng;XX" }) }, 400,
     { error: "E201", mensaje: "control mal formado" });

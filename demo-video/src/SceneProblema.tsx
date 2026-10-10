@@ -26,7 +26,7 @@ export const SceneProblema: React.FC = () => {
       <GlowOrb color={COLORS.red} size={400} style={{ top: "8%", right: "5%", opacity: 0.1 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "70px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="01 / El Problema" title="Un servicio sin especificación" subtitle="Solo hay una forma de descubrirlo: observar, experimentar y modelar." color={COLORS.red} />
+        <SectionHeader label="01 / El reto" title="Recrear un servicio sin ver su código" subtitle="Descubrir su contrato HTTP, construir el reemplazo y detectar cambios de comportamiento." color={COLORS.red} />
 
         <div style={{ flex: 1, display: "flex", gap: 36 }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
@@ -51,7 +51,7 @@ export const SceneProblema: React.FC = () => {
                   <div>
                     <h3 style={{ fontFamily: FONTS.sans, fontSize: 28, fontWeight: 700, color: COLORS.text, margin: "0 0 10px 0" }}>El Reto</h3>
                     <p style={{ fontFamily: FONTS.sans, fontSize: 20, color: COLORS.textMuted, lineHeight: 1.55, margin: 0 }}>
-                      Construir un reemplazo 100% compatible, modelado como máquina de estados, con vigilancia autónoma que detecta cambios y se auto-adapta.
+                      Reproducir respuestas y estado; detectar diferencias y proponer adaptaciones verificables mediante pull requests.
                     </p>
                   </div>
                 </div>
@@ -61,7 +61,7 @@ export const SceneProblema: React.FC = () => {
             <div style={{ transform: `translateY(${a3.y}px)`, opacity: a3.o }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                 {[
-                  { icon: "clipboard" as IconName, label: "Especificación", value: "366 obs.", c: COLORS.cyan },
+                  { icon: "clipboard" as IconName, label: "Observaciones", value: "390", c: COLORS.cyan },
                   { icon: "flask" as IconName, label: "Validación", value: "116/116", c: COLORS.green },
                   { icon: "microscope" as IconName, label: "Experimentos", value: "JSONL log", c: COLORS.purple },
                 ].map((item) => (
@@ -81,23 +81,22 @@ export const SceneProblema: React.FC = () => {
 
           <div style={{ flex: 1.1, opacity: a2.o }}>
             <Terminal
-              title="curl — ingeniería inversa"
+              title="Cambios registrados · bitácora del proyecto"
               style={{ height: "100%" }}
               lines={[
-                { text: "curl -X POST https://api.servicio/m/msg", type: "cmd", prefix: "$" },
-                { text: "-H 'Authorization: Bearer ***'", type: "output" },
-                { text: "-d '{\"m\":\"PING\"}'", type: "output" },
+                { text: "ANTES → DESPUÉS", type: "comment", prefix: "#", color: COLORS.cyan },
                 { text: "", type: "output" },
-                { text: '{"ok": true}', type: "output", color: COLORS.green },
+                { text: "Saldo: 100 → \"1.00\"", type: "output", color: COLORS.text },
+                { text: "Evidencia: observaciones 370 y 372", type: "output" },
                 { text: "", type: "output" },
-                { text: "Probando combinaciones...", color: COLORS.yellow, type: "comment", prefix: "#" },
-                { text: "ALTA|Test       → AC-0001", type: "output", color: COLORS.green },
-                { text: "DEPOSITO|...|100 → saldo: 100", type: "output", color: COLORS.green },
-                { text: "TRANSFER|...    → OP-0001", type: "output", color: COLORS.green },
+                { text: "Límite TRANSFER: 100.000 → 50.000", type: "output", color: COLORS.text },
+                { text: "Evidencia: observaciones 375 y 376", type: "output" },
                 { text: "", type: "output" },
-                { text: "¿Qué pasa al 3er fallo?", color: COLORS.yellow, type: "comment", prefix: "#" },
-                { text: "¿Cuál es el algoritmo del control?", color: COLORS.yellow, type: "comment", prefix: "#" },
-                { text: "366 observaciones guardadas...", color: COLORS.yellow, type: "comment", prefix: "#" },
+                { text: "E510: HTTP 409 → 423 + intentos", type: "output", color: COLORS.text },
+                { text: "Evidencia: observaciones 380 y 381", type: "output" },
+                { text: "", type: "output" },
+                { text: "Adaptación registrada: ce7aba2", type: "output", color: COLORS.green },
+                { text: "Fuente: reto2-investigacion/BITACORA.md", type: "output" },
               ]}
             />
           </div>

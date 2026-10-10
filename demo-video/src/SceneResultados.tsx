@@ -4,39 +4,33 @@ import { COLORS, FONTS, Card, GlowOrb, GridBg, SectionHeader, BigMetric } from "
 import { Icon } from "./Icons";
 
 const METRICS = [
-  { value: "21/21", label: "Tests unitarios", color: COLORS.green, icon: "check-circle" as const },
-  { value: "116/116", label: "Validación E2E", color: COLORS.greenBright, icon: "check-circle" as const },
-  { value: "366", label: "Observaciones", color: COLORS.purple, icon: "microscope" as const },
-  { value: "0", label: "Divergencias", color: COLORS.cyan, icon: "target" as const },
+  { value: "21/21", label: "Pruebas de dominio", color: COLORS.green, icon: "check-circle" as const },
+  { value: "116/116", label: "Validación registrada", color: COLORS.greenBright, icon: "check-circle" as const },
+  { value: "390", label: "Observaciones", color: COLORS.purple, icon: "microscope" as const },
+  { value: "78", label: "Reglas con evidencia", color: COLORS.cyan, icon: "target" as const },
 ];
 
-const STACK = [
-  { name: "Node.js 18+", cat: "Runtime", color: COLORS.green },
-  { name: "PostgreSQL (Neon)", cat: "DB", color: COLORS.blue },
-  { name: "Vercel Edge", cat: "Hosting", color: COLORS.cyan },
-  { name: "GitHub Actions", cat: "CI/CD", color: COLORS.orange },
-  { name: "OpenRouter + LLM", cat: "AI", color: COLORS.purple },
-  { name: "JSONB + FOR UPDATE", cat: "Persist.", color: COLORS.pink },
-  { name: "Docker", cat: "Packaging", color: COLORS.greenBright },
+const DELIVERABLES = [
+  { name: "Reemplazo del servicio HTTP", cat: "API", color: COLORS.green },
+  { name: "Estado persistente en PostgreSQL", cat: "Datos", color: COLORS.blue },
+  { name: "Monitor de cambios", cat: "Vigilar", color: COLORS.cyan },
+  { name: "Agentes que proponen un PR", cat: "Adaptar", color: COLORS.purple },
+  { name: "SPEC y log de experimentos", cat: "Evidencia", color: COLORS.orange },
 ];
 
 const TESTS = [
-  { text: "npm --prefix reemplazo test", color: COLORS.cyan, prefix: "$" },
+  { text: "COMPROBACIÓN LOCAL", color: COLORS.cyan },
   { text: "" },
-  { text: "PASS  tests/domain.test.js", color: COLORS.green },
-  { text: "  ✓ freshState inicializa", color: COLORS.textDim },
-  { text: "  ✓ control ISO 7064 MOD 97-10", color: COLORS.textDim },
-  { text: "  ✓ ALTA secuencial AC-XXXX", color: COLORS.textDim },
-  { text: "  ✓ DEPOSITO actualiza saldo", color: COLORS.textDim },
-  { text: "  ✓ TRANSFER con guardas", color: COLORS.textDim },
-  { text: "  ✓ ANULA reversión única", color: COLORS.textDim },
-  { text: "  ✓ E506 límite excedido", color: COLORS.textDim },
-  { text: "  ✓ E507 saldo insuficiente", color: COLORS.textDim },
-  { text: "  ✓ E510 cuenta bloqueada", color: COLORS.textDim },
+  { text: "✓ Dominio: 21 pruebas OK", color: COLORS.green },
+  { text: "✓ HTTP y aislamiento: 5 pruebas OK", color: COLORS.green },
+  { text: "✓ Log: 390 observaciones, IDs 1..390", color: COLORS.green },
+  { text: "✓ SPEC: 78 filas con evidencia", color: COLORS.green },
   { text: "" },
-  { text: "Test Suites: 1 passed, 1 total", color: COLORS.greenBright },
-  { text: "Tests:       21 passed, 21 total", color: COLORS.greenBright },
-  { text: "Time:        0.842 s", color: COLORS.textDim },
+  { text: "VALIDACIÓN REGISTRADA EN EL PROYECTO", color: COLORS.cyan },
+  { text: "20 ejemplos + 34 controles + 62 casos", color: COLORS.textMuted },
+  { text: "Total: 116/116 · fuente: README.md", color: COLORS.green },
+  { text: "", color: COLORS.textMuted },
+  { text: "Resumen de evidencia; no es una sesión en vivo.", color: COLORS.textDim },
 ];
 
 export const SceneResultados: React.FC = () => {
@@ -60,7 +54,7 @@ export const SceneResultados: React.FC = () => {
       <GlowOrb color={COLORS.green} size={550} style={{ top: "12%", left: "50%", transform: "translateX(-50%)", opacity: 0.11 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "54px 90px 84px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="08 / Resultados" title="Compatibilidad medida, prueba a prueba" subtitle="Resultados de la validación del reemplazo frente al servicio original." color={COLORS.green} />
+        <SectionHeader label="02 / Resultados" title="Qué entregamos y cómo lo comprobamos" subtitle="Pruebas locales y evidencia trazable. La validación de 116 casos es la registrada en el proyecto." color={COLORS.green} />
 
         {/* Métricas */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 22, marginBottom: 28 }}>
@@ -84,12 +78,11 @@ export const SceneResultados: React.FC = () => {
                 <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: COLORS.yellow, opacity: 0.7 }} />
                 <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: COLORS.green, opacity: 0.7 }} />
               </div>
-              <span style={{ color: COLORS.textDim, fontFamily: FONTS.mono, fontSize: 15 }}>npm test — salida final</span>
+              <span style={{ color: COLORS.textDim, fontFamily: FONTS.mono, fontSize: 15 }}>Resumen de pruebas y evidencia</span>
             </div>
             <div style={{ padding: "18px 24px" }}>
               {TESTS.slice(0, visibleTests).map((l, i) => (
                 <div key={i} style={{ fontFamily: FONTS.mono, fontSize: 17, lineHeight: "26px", color: l.color || COLORS.textMuted, display: "flex", gap: 10 }}>
-                  {l.prefix && <span style={{ color: COLORS.cyan }}>{l.prefix}</span>}
                   <span>{l.text}</span>
                 </div>
               ))}
@@ -101,10 +94,10 @@ export const SceneResultados: React.FC = () => {
             <Card style={{ height: "100%" }} padding="28px">
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, paddingBottom: 16, borderBottom: `1px solid ${COLORS.border}` }}>
                 <Icon name="layers" size={26} color={COLORS.cyan} />
-                <h3 style={{ fontFamily: FONTS.sans, fontSize: 24, fontWeight: 700, color: COLORS.text, margin: 0 }}>Stack Técnico</h3>
+                <h3 style={{ fontFamily: FONTS.sans, fontSize: 24, fontWeight: 700, color: COLORS.text, margin: 0 }}>Qué quedó construido</h3>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
-                {STACK.map((s) => (
+                {DELIVERABLES.map((s) => (
                   <div key={s.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", backgroundColor: COLORS.bgCode, borderRadius: 10 }}>
                     <span style={{ fontFamily: FONTS.mono, fontSize: 17, color: COLORS.text }}>{s.name}</span>
                     <span style={{ fontFamily: FONTS.mono, fontSize: 13, color: s.color, backgroundColor: `${s.color}14`, padding: "4px 11px", borderRadius: 6, fontWeight: 700 }}>{s.cat}</span>

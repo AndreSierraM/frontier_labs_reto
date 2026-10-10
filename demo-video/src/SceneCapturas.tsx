@@ -11,8 +11,9 @@ const CAPTURES = [
 export const SceneCapturas: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const captureDuration = 5.8 * fps;
 
-  const activeIdx = Math.min(CAPTURES.length - 1, Math.floor(frame / (3.2 * fps)));
+  const activeIdx = Math.min(CAPTURES.length - 1, Math.floor(frame / captureDuration));
   const active = CAPTURES[activeIdx];
 
   const headerOp = interpolate(frame, [0, 0.6 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -24,7 +25,7 @@ export const SceneCapturas: React.FC = () => {
 
       <div style={{ position: "relative", zIndex: 1, padding: "60px 110px", height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={{ opacity: headerOp }}>
-          <SectionHeader label="07 / Evidencia" title="Documentación y diagramas" subtitle="Entregables verificables: diseño, arquitectura y especificación completa." color={COLORS.cyan} />
+          <SectionHeader label="04 / Entregables" title="La evidencia también se entrega" subtitle="Capturas de los documentos: diseño, arquitectura, SPEC y log de experimentos." color={COLORS.cyan} />
         </div>
 
         <div style={{ flex: 1, display: "flex", gap: 40, alignItems: "center" }}>
@@ -36,7 +37,7 @@ export const SceneCapturas: React.FC = () => {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  opacity: i === activeIdx ? interpolate(frame % (3.2 * fps), [0, 0.3 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0,
+                  opacity: i === activeIdx ? interpolate(frame - activeIdx * captureDuration, [0, 0.3 * fps], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0,
                 }}
               >
                 <ScreenshotFrame src={cap.src} title={`frontier-labs-reto.vercel.app/${cap.path}`} scale={cap.scale} focusY={0} />

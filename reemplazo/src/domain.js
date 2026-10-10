@@ -179,7 +179,10 @@ function processMessage(state, m) {
         return { code: "E510", intentos: origen.intentos };
       }
       const monto = Number(segs[3]);
-      if (monto > 50000) {
+      // v2 (quirk del original): el límite E506 solo se aplica cuando los
+      // nombres de origen y destino DIFIEREN. Con el mismo nombre, monto>50000
+      // cae a la validación de saldo (E507).
+      if (origen.nombre !== destino.nombre && monto > 50000) {
         origen.fallos += 1;
         return { code: "E506" };
       }

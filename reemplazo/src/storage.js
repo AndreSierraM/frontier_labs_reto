@@ -24,6 +24,7 @@ function toJSON(state) {
     operaciones: [...state.operaciones.entries()],
     nextCuenta: state.nextCuenta,
     nextOperacion: state.nextOperacion,
+    halted: state.halted || false,
   };
 }
 
@@ -33,6 +34,7 @@ function fromJSON(o) {
     operaciones: new Map(o.operaciones),
     nextCuenta: o.nextCuenta,
     nextOperacion: o.nextOperacion,
+    halted: o.halted || false,
   };
 }
 

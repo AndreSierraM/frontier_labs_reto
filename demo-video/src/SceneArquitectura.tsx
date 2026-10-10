@@ -99,7 +99,7 @@ export const SceneArquitectura: React.FC = () => {
       <GlowOrb color={COLORS.purple} size={500} style={{ bottom: "8%", right: "3%", opacity: 0.08 }} />
 
       <div style={{ position: "relative", zIndex: 1, padding: "50px 90px", height: "100%", display: "flex", flexDirection: "column" }}>
-        <SectionHeader label="02 / Arquitectura" title="Sistema desplegado, extremo a extremo" subtitle="Petición HTTP → dominio puro → persistencia. En paralelo: vigilancia y adaptación autónoma." color={COLORS.cyan} />
+        <SectionHeader label="03 / La solución" title="Servicio, vigilancia y adaptación" subtitle="Reemplazo HTTP con persistencia; monitor de cambios y agentes que proponen un PR, sin merge automático." color={COLORS.cyan} />
 
         <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
           <div style={{ position: "relative", width: CW, height: CH }}>
