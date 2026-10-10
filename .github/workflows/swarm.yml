@@ -1,0 +1,77 @@
+name: swarm
+
+# Enjambre de adaptación. Se dispara cuando el monitor detecta un cambio del
+# original (repository_dispatch) o manualmente. NO empuja a main: abre un PR.
+on:
+  repository_dispatch:
+    types: [original-changed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  swarm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar pi y dependencias
+        run: |
+          npm install -g @earendil-works/pi-coding-agent@1.1.0
+          npm install --no-audit --no-fund
+          python3 -m pip install --quiet requests
+
+      - name: Correr el enjambre
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          MONITOR_URL: https://frontier-labs-reto.vercel.app
+          MONITOR_TOKEN: ${{ secrets.MONITOR_TOKEN }}
+          URL_API_ENTRYPOINT: ${{ secrets.URL_API_ENTRYPOINT }}
+          TOKEN_CAJA_NEGRA: ${{ secrets.TOKEN_CAJA_NEGRA }}
+          MAX_SCOUTS: "4"
+          MAX_FIX_ROUNDS: "2"
+        run: node agent/swarm.mjs
+
+      - name: Subir artefactos del enjambre
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swarm-artifacts
+          path: agent/state/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Abrir PR con la adaptación
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "El enjambre no produjo cambios."
+            exit 0
+          fi
+          branch="swarm/adapt-$(date -u +%Y%m%dT%H%M%S)"
+          git config user.name "swarm-agent"
+          git config user.email "swarm-agent@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "auto(swarm): adaptar reemplazo al cambio detectado"
+          git push origin "$branch"
+          body_file="$(ls -t agent/state/*/pr-body.md 2>/dev/null | head -1 || true)"
+          gh pr create \
+            --title "auto(swarm): adaptación al cambio del original" \
+            --body-file "${body_file:-/dev/null}" \
+            --body "PR generado por el enjambre. Revisar diff y tests (merge dispara deploy en Vercel)." \
+            --base main --head "$branch"
