@@ -45,9 +45,12 @@ Entradas del diagnóstico: informes de scouts + **logs de Vercel** (errores de
 runtime de la API desplegada).
 
 El **gate** no es un LLM: `agent/lib/verify.mjs` arranca el reemplazo local y lo
-compara contra el original (usando el snapshot del monitor como referencia) y
-exige **0 divergencias**. Si el fixer alucina, la verificación lo rechaza. El
-`PATCH: no` evita parchear falsos positivos.
+compara contra el original (snapshot del monitor + mapa ampliado) y exige **0
+divergencias**. Si el fixer alucina, la verificación lo rechaza. El `PATCH: no`
+evita parchear falsos positivos.
+
+**Auto-ensanche:** al adaptar un comando/ruta nuevo, el fixer añade una sonda de
+regresión a `monitor/probes.js`, así el mapa sigue vigilando lo nuevo.
 
 ## Cómo se ejecuta
 

@@ -12,7 +12,12 @@ detectar cambios) y **nuestro** servicio (para ver cómo funciona y auto-corregi
 
 - Cada corrida guarda un **snapshot** o un **mapa** en Neon y lo compara con el
   anterior. Un valor **nuevo** o **cambiado** registra un evento y despierta al
-  enjambre.
+  enjambre. Un comando candidato que deja de ser `E301` se marca `new_command`;
+  una ruta que deja de ser 404, `new_route`.
+- **Auto-ensanche:** cuando el enjambre adapta un comando/ruta nuevo, el fixer
+  añade además una **sonda de regresión** a `monitor/probes.js`, de modo que el
+  mapa sigue vigilando el comportamiento nuevo y la verificación lo cubre.
+- La verificación exige 0 divergencias contra el original en **batería + mapa**.
 - Se ignora `429/infra` (SPEC I-11): no es comportamiento del servicio.
 
 Endpoints (protegidos con `MONITOR_TOKEN`):
