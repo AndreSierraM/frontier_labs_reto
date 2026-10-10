@@ -5,6 +5,7 @@
     { "source": "/index.html", "destination": "/index.html" },
     { "source": "/monitor", "destination": "/monitor.html" },
     { "source": "/monitor.html", "destination": "/monitor.html" },
+    { "source": "/pitch", "destination": "/pitch.html" },
     { "source": "/entregas/(.*)", "destination": "/entregas/$1" },
     { "source": "/api/lab/(.*)", "destination": "/api/lab" },
     { "source": "/(.*)", "destination": "/api/index" }
