@@ -100,21 +100,32 @@ module.exports = async (req, res) => {
     await store.recordEvents(pool, "original_changed", result.changes, prev ? `vs snapshot #${prev.id}` : null);
   }
 
-  // 2) Reemplazo: diferencial + salud
+  // 2) Reemplazo: salud siempre; diferencial completo solo si el original
+  //    cambió o se pide explícitamente. La batería incluye __reset y no debe
+  //    correr en cada tick para no borrar el estado de una evaluación en curso.
   const replHealth = await health(replUrl, replToken);
   result.replacement.healthy = replHealth.ok;
   result.replacement.healthStatus = replHealth.status;
 
+  let wantDifferential = false;
   try {
-    const fotoRepl = await runBattery(replUrl, replToken);
-    result.divergences = diffLabels(fotoOrig, fotoRepl);
-    result.replacement.divergences = result.divergences.length;
-    if (result.divergences.length) {
-      await store.recordEvents(pool, "replacement_divergent", result.divergences, "original vs reemplazo");
+    wantDifferential = new URL(req.url, "http://localhost").searchParams.get("differential") === "1";
+  } catch (_) {}
+
+  if (wantDifferential || result.changes.length > 0) {
+    try {
+      const fotoRepl = await runBattery(replUrl, replToken);
+      result.divergences = diffLabels(fotoOrig, fotoRepl);
+      result.replacement.divergences = result.divergences.length;
+      if (result.divergences.length) {
+        await store.recordEvents(pool, "replacement_divergent", result.divergences, "original vs reemplazo");
+      }
+    } catch (e) {
+      result.replacement.error = String(e && e.message);
+      await store.recordEvent(pool, "replacement_unreachable", null, null, null, result.replacement.error);
     }
-  } catch (e) {
-    result.replacement.error = String(e && e.message);
-    await store.recordEvent(pool, "replacement_unreachable", null, null, null, result.replacement.error);
+  } else {
+    result.replacement.differentialSkipped = true;
   }
 
   if (!replHealth.ok) {
