@@ -1,0 +1,80 @@
+
+=== DIRECTORY TREE (max depth 3, source files only) ===
+.DS_Store
+.env
+.gitattributes
+README.md
+docs
+docs/01-diseno.md
+docs/02-arquitectura.md
+docs/03-ejecucion.md
+docs/04-evaluaciones.md
+docs/05-demo.md
+docs/06-debrief.md
+docs/07-incidente.md
+docs/08-spec-reto-2.md
+docs/09-experimentos.md
+docs/codebase
+docs/codebase/.codebase-scan.txt
+frontier-reto-2
+frontier-reto-2/.DS_Store
+frontier-reto-2/README.md
+frontier-reto-2/pruebas
+frontier-reto-2/pruebas/ejemplos.jsonl
+
+=== STACK DETECTION (manifest files) ===
+No recognized manifest files found in project root.
+
+=== ENTRY POINTS ===
+No common entry points found. Check 'main' or 'scripts.start' in manifest files above.
+
+=== LINTING AND FORMATTING CONFIG ===
+No linting or formatting config files found in project root.
+
+=== ENVIRONMENT VARIABLE TEMPLATES ===
+No .env.example or .env.template found. Identify required environment variables by searching the code and config for environment variable reads.
+
+=== TODO / FIXME / HACK (production code only, test dirs excluded) ===
+None found.
+
+=== GIT RECENT COMMITS (last 20) ===
+fdc9bb3 Initial commit
+
+=== HIGH-CHURN FILES (last 90 days, top 20) ===
+   1 .gitattributes
+
+=== MONOREPO SIGNALS ===
+No monorepo signals detected.
+
+=== CODE METRICS ===
+Total files scanned: 13
+Total lines of code: 0
+
+Files by language:
+  Other: 13
+
+Top 10 largest files:
+frontier-reto-2/README.md: 8.7KB
+docs/04-evaluaciones.md: 4.5KB
+README.md: 4.4KB
+docs/01-diseno.md: 4.1KB
+docs/03-ejecucion.md: 4.1KB
+docs/09-experimentos.md: 4.0KB
+docs/08-spec-reto-2.md: 3.3KB
+frontier-reto-2/pruebas/ejemplos.jsonl: 2.7KB
+docs/02-arquitectura.md: 2.2KB
+docs/06-debrief.md: 1.9KB
+
+=== CI/CD PIPELINES ===
+No CI/CD pipelines detected.
+
+=== CONTAINERS & ORCHESTRATION ===
+No containerization configs detected.
+
+=== SECURITY & COMPLIANCE ===
+No security configs detected.
+
+=== PERFORMANCE & TESTING ===
+No performance testing configs detected.
+
+=== SCAN COMPLETE ===

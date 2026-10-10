@@ -1,0 +1,12 @@
+{
+  "name": "caja-negra-reemplazo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reemplazo del servicio caja negra (Reto 2)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/domain.test.js && node --test test/http.test.js"
+  },
+  "engines": { "node": ">=18" }
+}

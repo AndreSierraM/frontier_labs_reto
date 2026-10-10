@@ -1,0 +1,193 @@
+{
+    "SALDOS;A": [
+        [
+            53,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;B": [
+        [
+            50,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;C": [
+        [
+            47,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;D": [
+        [
+            44,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;E": [
+        [
+            41,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;X": [
+        [
+            91,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;Z": [
+        [
+            85,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;0": [
+        [
+            56,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;1": [
+        [
+            53,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;9": [
+        [
+            29,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOSA;A": [
+        [
+            33,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOSB;A": [
+        [
+            3,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "A;A": [
+        [
+            65,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "B;A": [
+        [
+            35,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "AA;A": [
+        [
+            56,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido ",
+                "sugerencia": "ALTA"
+            }
+        ]
+    ],
+    "AB;A": [
+        [
+            26,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDO;X": [
+        [
+            40,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOSS;X": [
+        [
+            50,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ],
+    "SALDOS;F": [
+        [
+            38,
+            400,
+            {
+                "error": "E301",
+                "mensaje": "comando desconocido "
+            }
+        ]
+    ]
+}

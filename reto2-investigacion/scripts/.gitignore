@@ -1,0 +1,27 @@
+# Secretos: nunca publicar tokens
+.env
+*.env
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node y artefactos de test
+node_modules/
+coverage/
+
+# Estado local: no publicar bases ni journals
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Capturas crudas de experimentos (pueden contener tokens)
+reto2-investigacion/logs/*.jsonl

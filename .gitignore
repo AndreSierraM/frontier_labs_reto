@@ -1,0 +1,25 @@
+# Credenciales y entorno local
+.env
+.env.*
+*.env
+!.env.example
+
+# Dependencias y archivos generados
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+coverage/
+.DS_Store
+
+# Estado local y journals
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Capturas crudas: pueden incluir credenciales
+reto2-investigacion/logs/*.jsonl

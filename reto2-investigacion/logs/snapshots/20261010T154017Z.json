@@ -1,0 +1,212 @@
+{
+  "url": "https://caja-negra-production-c64f.up.railway.app",
+  "tomado": "20261010T154017Z",
+  "foto": {
+    "reset": {
+      "status": 200,
+      "response": "reset"
+    },
+    "PING": {
+      "status": 200,
+      "response": {
+        "pong": true
+      }
+    },
+    "PING-ignore": {
+      "status": 200,
+      "response": {
+        "pong": true
+      }
+    },
+    "E103": {
+      "status": 400,
+      "response": {
+        "error": "E103",
+        "mensaje": "falta control"
+      }
+    },
+    "E104": {
+      "status": 400,
+      "response": {
+        "error": "E104",
+        "mensaje": "segmento vacío"
+      }
+    },
+    "E201": {
+      "status": 400,
+      "response": {
+        "error": "E201",
+        "mensaje": "control mal formado"
+      }
+    },
+    "E202": {
+      "status": 400,
+      "response": {
+        "error": "E202",
+        "mensaje": "control inválido"
+      }
+    },
+    "E301": {
+      "status": 400,
+      "response": {
+        "error": "E301",
+        "mensaje": "comando desconocido "
+      }
+    },
+    "E301-sug": {
+      "status": 400,
+      "response": {
+        "error": "E301",
+        "mensaje": "comando desconocido ",
+        "sugerencia": "TRANSFER"
+      }
+    },
+    "ALTA": {
+      "status": 201,
+      "response": {
+        "cuentaId": "AC-0001"
+      }
+    },
+    "ALTA2": {
+      "status": 201,
+      "response": {
+        "cuentaId": "AC-0002"
+      }
+    },
+    "CONSULTA": {
+      "status": 200,
+      "response": {
+        "cuenta_id": "AC-0001",
+        "saldo": 0
+      }
+    },
+    "DEPOSITO": {
+      "status": 200,
+      "response": {
+        "status": "recieved",
+        "operacionId": "OP-0001"
+      }
+    },
+    "SALDO": {
+      "status": 200,
+      "response": {
+        "cuenta_id": "AC-0001",
+        "saldo": 100
+      }
+    },
+    "T-ok": {
+      "status": 200,
+      "response": {
+        "status": "recieved",
+        "operacionId": "OP-0002"
+      }
+    },
+    "T-limite": {
+      "status": 422,
+      "response": {
+        "error": "E506",
+        "mensaje": "límite excedido"
+      }
+    },
+    "T-saldo": {
+      "status": 422,
+      "response": {
+        "error": "E507",
+        "mensaje": "saldo insuficiente"
+      }
+    },
+    "T-mismo": {
+      "status": 400,
+      "response": {
+        "error": "E304",
+        "mensaje": "origen y destino iguales"
+      }
+    },
+    "T-inexistente": {
+      "status": 404,
+      "response": {
+        "error": "E401",
+        "mensaje": "cuenta inexistente"
+      }
+    },
+    "T-monto": {
+      "status": 400,
+      "response": {
+        "error": "E303",
+        "mensaje": "monto inválido"
+      }
+    },
+    "ANULA-op": {
+      "status": 200,
+      "response": {
+        "status": "recieved",
+        "operacionId": "OP-0003"
+      }
+    },
+    "ANULA": {
+      "status": 200,
+      "response": {
+        "ok": true,
+        "anulada": "OP-0001"
+      }
+    },
+    "E402": {
+      "status": 404,
+      "response": {
+        "error": "E402",
+        "mensaje": "operación inexistente"
+      }
+    },
+    "reset2": {
+      "status": 200,
+      "response": "reset"
+    },
+    "bloqueo-1": {
+      "status": 201,
+      "response": {
+        "cuentaId": "AC-0001"
+      }
+    },
+    "bloqueo-2": {
+      "status": 201,
+      "response": {
+        "cuentaId": "AC-0002"
+      }
+    },
+    "bloqueo-3": {
+      "status": 200,
+      "response": {
+        "status": "recieved",
+        "operacionId": "OP-0001"
+      }
+    },
+    "falta1": {
+      "status": 422,
+      "response": {
+        "error": "E507",
+        "mensaje": "saldo insuficiente"
+      }
+    },
+    "falta2": {
+      "status": 422,
+      "response": {
+        "error": "E507",
+        "mensaje": "saldo insuficiente"
+      }
+    },
+    "falta3": {
+      "status": 422,
+      "response": {
+        "error": "E507",
+        "mensaje": "saldo insuficiente"
+      }
+    },
+    "E510": {
+      "status": 409,
+      "response": {
+        "error": "E510",
+        "mensaje": "cuenta bloqueada"
+      }
+    }
+  }
+}
