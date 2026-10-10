@@ -104,11 +104,27 @@ async function health(base, token, timeoutMs = 15000) {
   }
 }
 
+// Postgres jsonb no preserva el orden de claves: comparar/hashear requiere
+// una forma canónica para no reportar falsos cambios.
+function canonical(value) {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const k of Object.keys(value).sort()) out[k] = canonical(value[k]);
+    return out;
+  }
+  return value;
+}
+
+function stable(value) {
+  return JSON.stringify(canonical(value));
+}
+
 function diffLabels(a, b) {
   const labels = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
   const out = [];
   for (const label of labels) {
-    if (JSON.stringify(a?.[label]) !== JSON.stringify(b?.[label])) {
+    if (stable(a?.[label]) !== stable(b?.[label])) {
       out.push({ label, before: a?.[label] ?? null, after: b?.[label] ?? null });
     }
   }
@@ -116,7 +132,7 @@ function diffLabels(a, b) {
 }
 
 function fingerprint(foto) {
-  return crypto.createHash("sha256").update(JSON.stringify(foto)).digest("hex");
+  return crypto.createHash("sha256").update(stable(foto)).digest("hex");
 }
 
-module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint };
+module.exports = { BATERIA, runBattery, health, diffLabels, fingerprint, canonical, stable };
