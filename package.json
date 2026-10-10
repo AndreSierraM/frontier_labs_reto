@@ -3,8 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "description": "Reemplazo de la caja negra (Reto 2) + entregables de diseño",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint": "oxlint ."
+  },
   "dependencies": {
     "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "@oxlint/plugins": "1.87.0",
+    "oxlint": "1.87.0"
   }
 }

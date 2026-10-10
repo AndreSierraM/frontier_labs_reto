@@ -8,7 +8,7 @@
 - [Entregable HTML de diagrama](entregables/02-diagrama-arquitectura.html): una página A4 horizontal.
 - PDF listos para subir: [diseño](entregables/01-diseno-sistemas.pdf) y [diagrama](entregables/02-diagrama-arquitectura.pdf) (una página cada uno).
 
-El diseño describe el protocolo, la máquina de estados y la arquitectura del servicio.
+El diseño cubre explícitamente los tres criterios: entendimiento (supuestos, límites y exclusiones), arquitectura (decisiones, alternativas y costes) y medición (casos T1–T6 y aceptación). Distingue Map implementado, SQLite propuesto y resultados locales; no afirma validación pública ni del set oculto.
 
 ## Evidencia y comportamiento
 
@@ -23,9 +23,10 @@ Sólo los dos HTML de `entregables/` (y sus PDF equivalentes) son los archivos d
 
 ## Regenerar los PDF
 
-Los PDF se generan desde los HTML respetando `@page` (A4 vertical y A4 horizontal), una página cada uno:
+Los PDF se generan desde los HTML respetando `@page` (A4 vertical y A4 horizontal), una página cada uno. Requiere Python con Playwright y Chrome; son herramientas de exportación, no dependencias del runtime. Desde la raíz:
 
 ```bash
+cd docs/entregables
 python3 - <<'PY'
 from playwright.sync_api import sync_playwright
 import pathlib
@@ -34,9 +35,9 @@ for src,dst,land in [("01-diseno-sistemas.html","01-diseno-sistemas.pdf",False),
     with sync_playwright() as p:
         b=p.chromium.launch(channel="chrome"); pg=b.new_page()
         pg.goto("file://"+str(pathlib.Path(src).resolve())); pg.emulate_media(media="print")
-        pg.pdf(path=dst, landscape=land, print_background=True, prefer_css_page_size=True)
+        pg.pdf(path=dst, landscape=land, print_background=True, prefer_css_page_size=True, tagged=True)
         b.close()
 PY
 ```
 
-Usar `prefer_css_page_size=True`; sin eso Chrome puede añadir una segunda página vacía.
+Usar `prefer_css_page_size=True` para conservar A4 y `tagged=True` para etiquetas estructurales de accesibilidad. El texto es seleccionable/extraíble, incluido el SVG: el PDF no es una captura rasterizada. Comprobar después que ambos PDF tienen una sola página y el contenido completo.

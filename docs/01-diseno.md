@@ -12,11 +12,20 @@ La documentación preserva status HTTP, cuerpo y efectos del contrato, incluso e
 
 El evaluador ejecuta 100 tests: 40 simples, 45 secuencias de 2–5 requests y 15 de 6–12; reset al iniciar cada test y límite de 5 segundos por paso. Requiere bearer, `POST /msg`, `GET /health` y `POST /__reset`, además de rutas inválidas compatibles. Cada respuesta se compara por status y cuerpo (JSON por semántica; texto exacto si no es JSON).
 
+## Supuestos, límites y exclusiones
+
+- Un proceso y una instancia, token del equipo y estado no compartido entre réplicas. No se implementa multi-tenancy.
+- La entrega actual usa Map: un reinicio pierde estado. La durabilidad entre reinicios no es un requisito explícito del reto; SQLite se propone si se exige continuidad.
+- Se excluyen comandos nuevos, correcciones de anomalías heredadas, invariantes bancarias añadidas, auditoría histórica general y escalado horizontal porque no ayudan a la compatibilidad requerida.
+- Desempates de sugerencias, efectos sobre fallos del destino y precisión acumulada siguen pendientes de confirmar; registrar defaults como supuestos y añadir casos discriminantes.
+
 ## Arquitectura hexagonal mínima
 
 1. **Adaptador HTTP:** autentica/enruta, conserva los bytes relevantes y emite respuestas exactas. No hace reglas de saldo ni normaliza IDs.
 2. **Núcleo profundo:** concentra parser, control ISO 7064, guardas en orden, transiciones y resultados detrás de una interface de mensaje/reset. Las pruebas y el adaptador cruzan la misma seam.
-3. **Seam de estado:** una ejecución transaccional conjunta para el contexto; no un repositorio CRUD público por tabla ni una interfaz por comando.
+3. **Estado actual:** Map pasado al núcleo, con transiciones síncronas en un proceso. **Seam propuesta al migrar:** una ejecución transaccional conjunta para el contexto; no un repositorio CRUD público por tabla ni una interfaz por comando.
+
+Implementación actual en `reemplazo/src/server.js` y `reemplazo/src/domain.js`. SQLite no está implementado; requiere adaptar acceso a estado, validar driver/runtime y probar la migración sin alterar reglas.
 
 Guardas, cálculo del control y handlers viven como funciones internas. No hacen falta librería FSM, ORM, event sourcing, contenedor de dependencias ni microservicios.
 
@@ -43,9 +52,9 @@ Guardas, cálculo del control y handlers viven como funciones internas. No hacen
 
 No presumir que cualquier error sea una auto-transición: `E506/E507` cambian el estado. No inventar una restricción de saldo no-negativo; las anulaciones siguen la semántica observada.
 
-## Persistencia y operación
+## Persistencia propuesta y operación
 
-Tres tablas concretas: **cuentas**, **operaciones** y **contadores**. Archivo en volumen local persistente, SQL parametrizado, transacciones, WAL y espera de lock acotada.
+SQLite es condicional a una necesidad de durabilidad, no una capacidad de la entrega actual. Tres tablas concretas: **cuentas**, **operaciones** y **contadores**. Archivo en volumen local persistente, SQL parametrizado, transacciones, WAL y espera de lock acotada.
 
 - Commit de depósito/transferencia/reverso junto con saldos, operación y contador.
 - Commit del incremento de fallos en `E506/E507` aunque la respuesta sea 422.
@@ -59,7 +68,8 @@ Tres tablas concretas: **cuentas**, **operaciones** y **contadores**. Archivo en
 | Decisión | Alternativa descartada | Coste aceptado |
 |---|---|---|
 | Máquina de estados en monolito | Framework FSM o microservicios | Concurrencia serializada; menor complejidad operativa. |
-| Persistencia transaccional local (SQLite) | Memoria exclusiva | Volumen, migración y locks; durabilidad de una instancia. |
+| Map para la entrega actual | DB inmediata: operación/migraciones sin durabilidad exigida | Reinicio pierde estado; una sola instancia. |
+| SQLite si se requiere durabilidad | PostgreSQL inicial: servidor adicional sin escrituras distribuidas | Volumen, migración y locks; un escritor. |
 | Una instancia | PostgreSQL + réplicas desde el inicio | No escala horizontalmente. Revisar sólo con necesidad real de escritura distribuida. |
 | Conservar el estado necesario | Event sourcing / ledger ideal | Sin reconstrucción histórica general; sólo lo necesario para el contrato. |
 
@@ -69,7 +79,13 @@ PostgreSQL sería una evolución si se requieren varias réplicas o mayor concur
 
 Probar por la interface completa: respuestas y estado observable mediante consultas posteriores. Cubrir `0→1→2→3` fallos, bloqueo, depósito desbloqueando, éxito reiniciando fallos, errores previos sin incrementar, primera/segunda anulación y reset.
 
-Comparar status y JSON con tipos/valores exactos, arrays ordenados; no-JSON por texto exacto. Cero timeouts y todos los pasos <5 s. Cambios de formato/rutas quedan en el adaptador; reglas, en el núcleo; datos, en una migración pequeña.
+Comparar status y JSON con tipos/valores exactos, arrays ordenados; no-JSON por texto exacto. Puerta de aceptación: 100% de pasos coincidentes y cero timeouts; medir cada paso extremo a extremo en la URL pública, todos <5 s. Una media o p95 favorable no compensa un paso que alcance el límite. Registrar esperado/obtenido, reset, status, cuerpo y duración; no reintentar mutaciones a ciegas.
+
+Antes de cada cambio, fijar resultados esperados para los casos T1–T6 del HTML: entradas/precedencia, secuencias reservadas de 2–5 y 6–12 pasos, fallos/desbloqueo, ANULA/reset, tiempo/disponibilidad y migración SQLite. De 20:00 hasta fin de demo day, health autenticado cada 60 s: cero fallos observados. Las pruebas de SQLite sólo aplican al migrar (reinicio, rollback, persistencia de errores y locks).
+
+Resultados locales disponibles: 21 pruebas de dominio + smoke HTTP; batería 116/116 (20 HTTP oficiales, 62 HTTP adicionales y 34 pares de control), con imagen Docker construida y probada. Esto no acredita el set oculto, el endpoint público ni SQLite. El plan no debe confundirse con pruebas ya completadas.
+
+Cambios de formato/rutas quedan en el adaptador; reglas, en el núcleo; persistencia requiere adaptar acceso y probar la migración, no rediseñar las reglas.
 
 ## Evidencia
 

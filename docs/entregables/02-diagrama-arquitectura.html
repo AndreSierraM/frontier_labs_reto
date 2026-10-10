@@ -106,7 +106,7 @@ a{color:var(--teal)}a:focus-visible{outline:2px solid var(--teal);outline-offset
 <text class="text" x="918" y="417">Sólo si se exige durabilidad</text>
 <text class="small" x="918" y="441">Cuentas / operaciones / contadores</text>
 <text class="small" x="918" y="461">Volumen, WAL, SQL parametrizado</text>
-<text class="small" x="918" y="481">Commit de cambios, incluso con 422</text>
+<text class="small" x="918" y="481">Commit de E506/E507 aunque sea 422</text>
 <text class="small" x="918" y="501">Rollback sólo por fallo interno</text>
 <text class="small" x="918" y="521">Probar reinicio, reset y locks &lt;5 s</text>
 <text class="small" x="18" y="555">Línea continua: flujo actual. Línea discontinua: propuesta. Monto, igualdad y existencia preceden al bloqueo; sus errores no suman fallos.</text>
@@ -121,7 +121,7 @@ a{color:var(--teal)}a:focus-visible{outline:2px solid var(--teal);outline-offset
 <section><h2>Verificación por la superficie pública</h2>
 <p><b>Casos:</b> entradas y precedencia; secuencias de 2–5 y 6–12 pasos; tercer fallo y bloqueo; depósito desbloqueando; primera/segunda ANULA; reset completo.</p>
 <p><b>Aceptación:</b> 100% de status/cuerpos y efectos posteriores coincidentes, cero timeouts y <b>cada request &lt;5 s</b> en el endpoint público. Reset explícito por secuencia; no reintentar mutaciones a ciegas.</p>
-<p><b>Adaptabilidad:</b> transporte cambia en el adaptador; reglas en el núcleo; SQLite requiere una migración y pruebas, no una reescritura del dominio.</p>
+<p><b>Adaptabilidad:</b> transporte cambia en el adaptador; reglas en el núcleo; SQLite exige adaptar acceso a estado y probar la migración, sin rediseñar reglas.</p>
 </section></div>
 <footer>Complementa el <a href="01-diseno-sistemas.html">documento de diseño</a>, donde se detallan supuestos, exclusiones y pruebas T1–T6. Fuente: contrato oficial + <code>reto2-investigacion/SPEC.md</code> y su log. Implementación actual en <code>reemplazo/</code>; SQLite propuesto no acredita persistencia actual.</footer>
 </main></body></html>

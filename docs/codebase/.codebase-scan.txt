@@ -1,0 +1,295 @@
+
+=== DIRECTORY TREE (max depth 3, source files only) ===
+.env
+.gitattributes
+.gitignore
+.vercel
+.vercel/README.txt
+.vercel/project.json
+.vercelignore
+README.md
+api
+api/index.js
+docs
+docs/01-diseno.md
+docs/02-arquitectura.md
+docs/README.md
+docs/archivo
+docs/archivo/README.md
+docs/archivo/mapa-inicial
+docs/archivo/mapa-inicial/.codebase-scan.txt
+docs/archivo/mapa-inicial/ARCHITECTURE.md
+docs/archivo/mapa-inicial/CONCERNS.md
+docs/archivo/mapa-inicial/CONVENTIONS.md
+docs/archivo/mapa-inicial/INTEGRATIONS.md
+docs/archivo/mapa-inicial/STACK.md
+docs/archivo/mapa-inicial/STRUCTURE.md
+docs/archivo/mapa-inicial/TESTING.md
+docs/codebase
+docs/codebase/.codebase-scan.txt
+docs/entregables
+docs/entregables/01-diseno-sistemas.html
+docs/entregables/01-diseno-sistemas.pdf
+docs/entregables/02-diagrama-arquitectura.html
+docs/entregables/02-diagrama-arquitectura.pdf
+docs/index.html
+docs/plantillas
+docs/plantillas/03-ejecucion.md
+docs/plantillas/04-evaluaciones.md
+docs/plantillas/05-demo.md
+docs/plantillas/06-debrief.md
+docs/plantillas/07-incidente.md
+docs/plantillas/08-spec-reto-2.md
+docs/plantillas/09-experimentos.md
+docs/plantillas/README.md
+frontier-reto-2
+frontier-reto-2/README.md
+frontier-reto-2/pruebas
+frontier-reto-2/pruebas/ejemplos.jsonl
+package-lock.json
+package.json
+public
+public/entregables
+public/entregables/01-diseno-sistemas.html
+public/entregables/01-diseno-sistemas.pdf
+public/entregables/02-diagrama-arquitectura.html
+public/entregables/02-diagrama-arquitectura.pdf
+public/index.html
+reemplazo
+reemplazo/.dockerignore
+reemplazo/.env.example
+reemplazo/Dockerfile
+reemplazo/README.md
+reemplazo/package.json
+reemplazo/src
+reemplazo/src/domain.js
+reemplazo/src/server.js
+reemplazo/src/storage.js
+reemplazo/test
+reemplazo/test/domain.test.js
+reemplazo/test/http.test.js
+reto2-investigacion
+reto2-investigacion/.env.example
+reto2-investigacion/BITACORA.md
+reto2-investigacion/README.md
+reto2-investigacion/SPEC.md
+reto2-investigacion/data
+reto2-investigacion/data/control_cache.json
+reto2-investigacion/data/ctl_cache_full.json
+reto2-investigacion/data/ctl_cache_rapido.json
+reto2-investigacion/data/pares_control.jsonl
+reto2-investigacion/experimentos.jsonl
+reto2-investigacion/logs
+reto2-investigacion/logs/fingerprint.md
+reto2-investigacion/logs/snapshots
+reto2-investigacion/logs/snapshots/20261010T154017Z.json
+reto2-investigacion/logs/snapshots/20261010T154053Z.json
+reto2-investigacion/logs/validacion.json
+reto2-investigacion/requirements.txt
+reto2-investigacion/scripts
+reto2-investigacion/scripts/.gitignore
+reto2-investigacion/scripts/README.md
+reto2-investigacion/scripts/bloqueo.py
+reto2-investigacion/scripts/bloqueo_conteo.py
+reto2-investigacion/scripts/bloqueo_precedencia.py
+reto2-investigacion/scripts/bloqueo_reset.py
+reto2-investigacion/scripts/client.py
+reto2-investigacion/scripts/collect_full.py
+reto2-investigacion/scripts/collect_full_range.py
+reto2-investigacion/scripts/collect_rapido.py
+reto2-investigacion/scripts/control.py
+reto2-investigacion/scripts/crack_control_bruteforce.py
+reto2-investigacion/scripts/explorar.py
+reto2-investigacion/scripts/extraer_pares.py
+reto2-investigacion/scripts/historico
+reto2-investigacion/scripts/historico/crack_afin.py
+reto2-investigacion/scripts/historico/crack_basico.py
+reto2-investigacion/scripts/historico/crack_crc.py
+reto2-investigacion/scripts/historico/crack_hashfuncs.py
+reto2-investigacion/scripts/historico/crack_rolling.py
+reto2-investigacion/scripts/historico/crack_tabla.py
+reto2-investigacion/scripts/probe_recon.py
+reto2-investigacion/scripts/probe_xreq.py
+reto2-investigacion/scripts/prueba_diferencial.py
+reto2-investigacion/scripts/scan_control.py
+reto2-investigacion/scripts/validar.py
+reto2-investigacion/scripts/verificar.py
+reto2-investigacion/scripts/vigilancia.py
+vercel.json
+
+=== STACK DETECTION (manifest files) ===
+
+--- package-lock.json ---
+{
+  "name": "frontier-labs-reto",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "frontier-labs-reto",
+      "version": "1.0.0",
+      "dependencies": {
+        "pg": "^8.11.5"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/pg": {
+      "version": "8.23.1",
+      "resolved": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+      "integrity": "sha512-aL96AHANtWjPLDOLqnhx+ngp9+UK7ETEU8VJrDCGvsSSi/mGLcWYsS6Herg7lmaBJe4uwrfqsa7gTEFaSizDoQ==",
+      "license": "MIT",
+      "dependencies": {
+        "pg-connection-string": "^2.14.1",
+        "pg-pool": "^3.14.0",
+        "pg-protocol": "^1.16.1",
+        "pg-types": "2.2.0",
+        "pgpass": "1.0.5"
+      },
+      "engines": {
+        "node": ">= 16.0.0"
+      },
+      "optionalDependencies": {
+        "pg-cloudflare": "^1.4.1"
+      },
+      "peerDependencies": {
+        "pg-native": ">=3.0.1"
+      },
+      "peerDependenciesMeta": {
+        "pg-native": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/pg-cloudflare": {
+      "version": "1.4.1",
+      "resolved": "https://registry.npmjs.org/pg-cloudflare/-/pg-cloudflare-1.4.1.tgz",
+      "integrity": "sha512-6PQbsFWZcp9EmJEwy5cGQ2La+AMWpP46lgbb8X+U/XsHIUweYDNCpeuKck5RxL2MdVFi7krbbEi5nX4Zh7JhrQ==",
+      "license": "MIT",
+      "optional": true
+    },
+    "node_modules/pg-connection-string": {
+      "version": "2.14.1",
+      "resolved": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+      "integrity": "sha512-qR3kGNPBLpCNtz0evbKA0Y/MRFXwSSdT+pTJvYp/bXTcReZbvX1kzF0IyTc1QnxqF7AZbOeBhNL8R5mYQZV/MA==",
+      "license": "MIT"
+    },
+    "node_modules/pg-int8": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+      "integrity": "sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==",
+      "license": "ISC",
+      "engines": {
+        "node": ">=4.0.0"
+      }
+    },
+    "node_modules/pg-pool": {
+      "version": "3.14.0",
+      "resolved": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+      "integrity": "sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==",
+      "license": "MIT",
+      "peerDependencies": {
+        "pg": ">=8.0"
+      }
+    },
+    "node_modules/pg-protocol": {
+      "version": "1.16.1",
+      "resolved": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+      "integrity": "sha512-p9VOFMiHB/ZbJATetbg+99PxssTVSQRnyuPSQ67mN1+1KBOjZaZ83ZQzltnxPhJwSsC3nwVjJ10DVJlerbFzLg==",
+      "license": "MIT"
+    },
+
+[TRUNCATED] Showing first 80 of 164 lines.
+--- package.json ---
+{
+  "name": "frontier-labs-reto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reemplazo de la caja negra (Reto 2) + entregables de diseño",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "pg": "^8.11.5"
+  }
+}
+
+=== ENTRY POINTS ===
+No common entry points found. Check 'main' or 'scripts.start' in manifest files above.
+
+=== LINTING AND FORMATTING CONFIG ===
+No linting or formatting config files found in project root.
+
+=== ENVIRONMENT VARIABLE TEMPLATES ===
+No .env.example or .env.template found. Identify required environment variables by searching the code and config for environment variable reads.
+
+=== TODO / FIXME / HACK (production code only, test dirs excluded) ===
+reto2-investigacion/scripts/probe_recon.py:31: print("\n===== RUTAS / METODOS =====")
+
+=== GIT RECENT COMMITS (last 20) ===
+db1f11b chore: route all paths to API handler (static files win by filesystem)
+a8f5c62 feat: persist state in Postgres (Neon) for Vercel serverless API
+2b41c2f chore: configure Vercel for static docs + stateless API
+5ea9a05 chore: add Vercel config for unified docs + API deploy
+72d470f docs: add index.html for GitHub Pages navigation
+fdc9bb3 Initial commit
+
+=== HIGH-CHURN FILES (last 90 days, top 20) ===
+   3 vercel.json
+   2 .gitignore
+   2 api/index.js
+   2 docs/entregables/01-diseno-sistemas.html
+   2 docs/entregables/01-diseno-sistemas.pdf
+   2 docs/entregables/02-diagrama-arquitectura.html
+   2 reemplazo/src/server.js
+   1 .vercelignore
+   1 package-lock.json
+   1 package.json
+   1 reemplazo/src/storage.js
+   1 README.md
+   1 docs/01-diseno.md
+   1 docs/02-arquitectura.md
+   1 docs/README.md
+   1 docs/archivo/README.md
+   1 docs/archivo/mapa-inicial/.codebase-scan.txt
+   1 docs/archivo/mapa-inicial/ARCHITECTURE.md
+   1 docs/archivo/mapa-inicial/CONCERNS.md
+   1 docs/archivo/mapa-inicial/CONVENTIONS.md
+
+=== MONOREPO SIGNALS ===
+No monorepo signals detected.
+
+=== CODE METRICS ===
+Total files scanned: 88
+Total lines of code: 3348
+
+Files by language:
+  Other: 57
+  Python: 25
+  JavaScript: 6
+
+Top 10 largest files:
+public/entregables/01-diseno-sistemas.pdf: 465.8KB
+docs/entregables/02-diagrama-arquitectura.pdf: 257.6KB
+public/entregables/02-diagrama-arquitectura.pdf: 252.4KB
+docs/entregables/01-diseno-sistemas.pdf: 236.0KB
+reto2-investigacion/experimentos.jsonl: 73.1KB
+public/entregables/02-diagrama-arquitectura.html: 13.8KB
+reto2-investigacion/SPEC.md: 12.7KB
+reto2-investigacion/README.md: 12.7KB
+public/entregables/01-diseno-sistemas.html: 11.3KB
+docs/entregables/02-diagrama-arquitectura.html: 10.5KB
+
+=== CI/CD PIPELINES ===
+No CI/CD pipelines detected.
+
+=== CONTAINERS & ORCHESTRATION ===
+No containerization configs detected.
+
+=== SECURITY & COMPLIANCE ===
+No security configs detected.
+
+=== PERFORMANCE & TESTING ===
+No performance testing configs detected.
+
+=== SCAN COMPLETE ===
