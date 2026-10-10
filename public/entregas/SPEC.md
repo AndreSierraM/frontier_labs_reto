@@ -116,7 +116,7 @@ control (`E201`/`E202`, salvo `PING`) → `E301` (comando desconocido) → `E302
 | K-T2 | Monto inválido → `400 E303` (igual que depósito). | 93, 94, 95, 96 | confirmado |
 | K-T3 | Origen = destino → `400 {"error":"E304","mensaje":"origen y destino iguales"}` (antes de límite/saldo). | 97, 131 | confirmado |
 | K-T4 | Origen o destino inexistente → `404 E401`. | 98, 99 | confirmado |
-| K-T5 | Monto > 50000 → `422 {"error":"E506","mensaje":"límite excedido"}` (v2: el umbral bajó de 100000 a 50000). | 91, 100, 374–377 | confirmado |
+| K-T5 | Monto > 50000 → `422 {"error":"E506","mensaje":"límite excedido"}` (v2: el umbral bajó de 100000 a 50000) **solo si los nombres de origen y destino difieren**; si coinciden, E506 no aplica y cae a E507. | 91, 100, 374–377, 391–394 | confirmado |
 | K-T6 | Monto > saldo → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. `E506` tiene prioridad sobre `E507`. | 100, 126, 127 | confirmado |
 | K-T7 | Éxito: resta del origen, suma al destino, reinicia el contador de fallos del origen. | 92, 240–278 | confirmado |
 
@@ -185,7 +185,7 @@ Precedencia observada: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` →
 **Cambio del evento (15:30 BOG / 20:30 UTC).** Cuando el monitor lo detecte, añadir una fila con evidencia real (el validador exige que los IDs existan y correspondan):
 
 ```text
-| X-04 | **Cambio v2 (incidente #FR-0153, detectado 2026-10-10T21:51Z):** (a) `CONSULTA` devuelve `saldo` como cadena decimal `"S.DD"` (centavos), (b) umbral `E506` baja de `>100000` a `>50000`, (c) `E510` pasa a status `423` y añade `intentos`, (d) comandos nuevos `HALT` (`409 E520`) y `NOTAS` (200 con notas), (e) match de comando ASCII-only (`pıng` ≠ `PING`), (f) `HALT;1` apaga el servicio (`503 E599`) hasta `__reset`. Adaptado en `reemplazo/src/domain.js` (commit `46fa1fc`). | 370, 372, 374–379, 380, 381, 385–390 | confirmado |
+| X-04 | **Cambio v2 (incidente #FR-0153, detectado 2026-10-10T21:51Z):** (a) `CONSULTA` devuelve `saldo` como cadena decimal `"S.DD"` (centavos), (b) umbral `E506` baja de `>100000` a `>50000` **y solo aplica si los nombres de origen y destino difieren**, (c) `E510` pasa a status `423` y añade `intentos`, (d) comandos nuevos `HALT` (`409 E520`) y `NOTAS` (200 con notas), (e) match de comando ASCII-only (`pıng` ≠ `PING`), (f) `HALT;1` apaga el servicio (`503 E599`) hasta `__reset`. Adaptado en `reemplazo/src/domain.js` (commit `1f22e74`). | 370, 372, 374–379, 380, 381, 385–394 | confirmado |
 ```
 
 ## 7 · Riesgos

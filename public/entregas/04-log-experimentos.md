@@ -1,6 +1,6 @@
 # La caja negra · Log de experimentos
 
-Frontier Labs · Reto 2 · **390 observaciones reales** contra el original · JSONL validado · evidencia verificada · IDs 1–390.
+Frontier Labs · Reto 2 · **394 observaciones reales** contra el original · JSONL validado · evidencia verificada · IDs 1–394.
 
 **Qué es:** una línea JSON por cada request enviado al servicio original, con la hipótesis, el request, el status y el cuerpo exacto de la respuesta. Es la fuente de evidencia del [SPEC](SPEC.md) y se puede descargar íntegro.
 
@@ -8,10 +8,10 @@ Frontier Labs · Reto 2 · **390 observaciones reales** contra el original · JS
 
 | Métrica | Valor |
 | --- | --- |
-| Observaciones | 390 (IDs 1–390) |
+| Observaciones | 394 (IDs 1–394) |
 | Secuencias | 17 |
 | Códigos de error | 20 |
-| Status observados | 200×107, 201×70, 400×114, 401×2, 404×26, 409×19, 413×1, 422×46, 423×2, 429×1, 503×2 |
+| Status observados | 200×109, 201×72, 400×114, 401×2, 404×26, 409×19, 413×1, 422×46, 423×2, 429×1, 503×2 |
 
 ## Esquema del registro
 
@@ -46,7 +46,7 @@ Frontier Labs · Reto 2 · **390 observaciones reales** contra el original · JS
 | `bloqueo4` | 309–336 | 28 | E303, E304, E401, E507, E510 | E401 #1 |
 | `sugerencia2` | 337–347 | 11 | E301 | umbral sugerencia ALTXXX |
 | `gaps` | 348–366 | 19 | E001, E100, E101, E102, E404 | __reset limpia estado |
-| `incidente-v2` | 367–390 | 24 | E201, E301, E404, E506, E510, E520, E599 | reset del estado |
+| `incidente-v2` | 367–394 | 28 | E201, E301, E404, E506, E510, E520, E599 | reset del estado |
 
 ## Organizado por error
 
@@ -84,7 +84,7 @@ Frontier Labs · Reto 2 · **390 observaciones reales** contra el original · JS
 
 ## Descarga y reproducibilidad
 
-- Log completo: [`experimentos.jsonl`](experimentos.jsonl) (JSONL, 390 líneas).
+- Log completo: [`experimentos.jsonl`](experimentos.jsonl) (JSONL, 394 líneas).
 - Especificación: [`SPEC.md`](SPEC.md) · [versión HTML](03-especificacion-servicio.html).
 - Validador (esquema + evidencia): `reto2-investigacion/scripts/validar_spec.py` → **OK**.
 - Generación: `tools/build-entregas.py` reconstruye este informe desde el JSONL; crece con cada observación nueva.

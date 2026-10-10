@@ -388,3 +388,7 @@
 {"id":388,"seq":"incidente-v2","x_req":null,"hipotesis":"servicio apagado: PING responde 503 E599","request":{"m":"PING;64"},"status":503,"response":{"error":"E599","mensaje":"service halted"},"conclusion":""}
 {"id":389,"seq":"incidente-v2","x_req":null,"hipotesis":"reset limpia el apagado","request":{"method":"POST","path":"/__reset"},"status":200,"response":{"ok":true},"conclusion":""}
 {"id":390,"seq":"incidente-v2","x_req":null,"hipotesis":"PING tras reset: servicio normal","request":{"m":"PING;64"},"status":200,"response":{"pong":true},"conclusion":""}
+{"id":391,"seq":"incidente-v2","x_req":null,"hipotesis":"mismo nombre: alta 1","request":{"m":"ALTA;A;62"},"status":201,"response":{"cuentaId":"AC-0001"},"conclusion":""}
+{"id":392,"seq":"incidente-v2","x_req":null,"hipotesis":"mismo nombre: alta 2","request":{"m":"ALTA;A;62"},"status":201,"response":{"cuentaId":"AC-0002"},"conclusion":""}
+{"id":393,"seq":"incidente-v2","x_req":null,"hipotesis":"mismo nombre: deposito","request":{"m":"DEPOSITO;AC-0001;100000;6"},"status":200,"response":{"status":"recieved","operacionId":"OP-0001"},"conclusion":""}
+{"id":394,"seq":"incidente-v2","x_req":null,"hipotesis":"mismo nombre: transfer 50001 NO da E506 (solo E507)","request":{"m":"TRANSFER;AC-0001;AC-0002;50001;56"},"status":200,"response":{"status":"recieved","operacionId":"OP-0002"},"conclusion":"quirk: E506 solo si los nombres difieren"}
