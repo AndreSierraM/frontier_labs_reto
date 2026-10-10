@@ -118,7 +118,9 @@ async function handleMsg(req, res, storage, maxBody) {
   const r = out.r;
   if (r.code) {
     const [status, base] = dominio.ERRORES[r.code];
-    const body = r.sugerencia ? { ...base, sugerencia: r.sugerencia } : base;
+    const body = { ...base };
+    if (r.sugerencia) body.sugerencia = r.sugerencia;
+    if (r.intentos !== undefined) body.intentos = r.intentos;
     return json(res, status, body, headers, head);
   }
   return json(res, r.status || 200, r.ok, headers, head);

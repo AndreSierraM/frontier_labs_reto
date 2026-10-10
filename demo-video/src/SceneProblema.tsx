@@ -65,10 +65,14 @@ export const SceneProblema: React.FC = () => {
                   { icon: "flask" as IconName, label: "Validación", value: "116/116", c: COLORS.green },
                   { icon: "microscope" as IconName, label: "Experimentos", value: "JSONL log", c: COLORS.purple },
                 ].map((item) => (
-                  <Card key={item.label} padding="20px" style={{ textAlign: "center" }}>
-                    <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}><Icon name={item.icon} size={30} color={item.c} /></div>
-                    <div style={{ fontFamily: FONTS.sans, fontSize: 15, color: COLORS.textDim, marginBottom: 4 }}>{item.label}</div>
-                    <div style={{ fontFamily: FONTS.mono, fontSize: 18, color: COLORS.cyan, fontWeight: 700 }}>{item.value}</div>
+                  <Card key={item.label} padding="18px">
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <Icon name={item.icon} size={32} color={item.c} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontFamily: FONTS.sans, fontSize: 17, color: COLORS.textDim, marginBottom: 5, whiteSpace: "nowrap" }}>{item.label}</div>
+                        <div style={{ fontFamily: FONTS.mono, fontSize: 21, color: item.c, fontWeight: 700, whiteSpace: "nowrap" }}>{item.value}</div>
+                      </div>
+                    </div>
                   </Card>
                 ))}
               </div>
