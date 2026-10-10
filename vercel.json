@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/monitor", "destination": "/monitor.html" },
     { "source": "/api/lab/(.*)", "destination": "/api/lab" },
     { "source": "/(.*)", "destination": "/api/index" }
   ],
