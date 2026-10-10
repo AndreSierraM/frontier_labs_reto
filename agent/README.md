@@ -32,6 +32,26 @@ Actions es gratis para repos públicos, arranca por evento y no hay que mantener
 Se usa un **workflow reutilizable** (`workflow_call`) porque `GITHUB_TOKEN` no
 puede disparar otro workflow (`repository_dispatch` desde un workflow se ignora).
 
+## Estructura
+
+```
+agent/
+  swarm.mjs           entrypoint: ejecuta el pipeline y traduce el estado a exit code
+  pipeline.mjs        fases: scouts → analista → fixer → verificación → reporter
+  recon.mjs           mapeo ampliado (GitHub Actions)
+  roles/*.md          prompts de rol
+  lib/
+    config.mjs        entorno resuelto una vez
+    monitorClient.mjs cambios pendientes + ack
+    phase.mjs         ejecuta un agente y guarda su informe
+    pi.mjs            wrapper headless de pi (modelo fijo + timeout)
+    verify.mjs        verificación determinista (batería + mapa)
+    logs.mjs          logs de Vercel
+    tests.mjs         `npm test`
+    roles.mjs         carga de prompts
+    runstate.mjs      artefactos de la corrida
+```
+
 ## Roles
 
 | Rol | Archivo | Hace | No hace |
@@ -84,10 +104,11 @@ y se sube como artefacto del workflow (`swarm-artifacts`, 7 días).
 
 ## Pruebas
 
-- [`docs/lab-e2e/README.md`](../docs/lab-e2e/README.md): original falso con un
+- **Original falso** controlable en `api/lab` (`/api/lab`): se introduce un
   cambio real → `PATCH: yes` → parche + verificación.
-- [`docs/lab-e2e/cadena-automatica.md`](../docs/lab-e2e/cadena-automatica.md):
-  monitor → enjambre → **PR automático**, con runs y PRs.
+- **Cadena automática**: el monitor detecta el cambio, `workflow_call` dispara el
+  enjambre y se abre un **PR automático**. Evidencia en los runs de
+  [GitHub Actions](https://github.com/AndreSierraM/frontier_labs_reto/actions).
 
 ## Límites
 

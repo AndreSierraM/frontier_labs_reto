@@ -5,18 +5,16 @@
  */
 import { spawn } from "node:child_process";
 import observe from "../../monitor/observe.js";
+import { config } from "./config.mjs";
 
 const { runBattery, runAll, diff, hasInfra } = observe;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const MONITOR_URL = (process.env.MONITOR_URL || "https://frontier-labs-reto.vercel.app").replace(/\/$/, "");
-const MONITOR_TOKEN = process.env.MONITOR_TOKEN || "";
-
 async function monitorGet(path) {
-  if (!MONITOR_TOKEN) return null;
+  if (!config.monitorToken) return null;
   try {
-    const r = await fetch(MONITOR_URL + path, {
-      headers: { Authorization: "Bearer " + MONITOR_TOKEN },
+    const r = await fetch(config.monitorUrl + path, {
+      headers: { Authorization: "Bearer " + config.monitorToken },
       signal: AbortSignal.timeout(15000),
     });
     if (!r.ok) return null;
