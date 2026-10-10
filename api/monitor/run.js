@@ -100,9 +100,9 @@ module.exports = async (req, res) => {
     await store.recordEvents(pool, "original_changed", result.changes, prev ? `vs snapshot #${prev.id}` : null);
   }
 
-  // 2) Reemplazo: salud siempre; diferencial completo solo si el original
-  //    cambió o se pide explícitamente. La batería incluye __reset y no debe
-  //    correr en cada tick para no borrar el estado de una evaluación en curso.
+  // 2) Reemplazo: sólo salud (no destructivo). El diferencial completo se
+  //    ejecuta únicamente con ?differential=1: la batería incluye __reset y
+  //    durante el demo day no debe borrar el estado de un test en curso.
   const replHealth = await health(replUrl, replToken);
   result.replacement.healthy = replHealth.ok;
   result.replacement.healthStatus = replHealth.status;
@@ -112,7 +112,7 @@ module.exports = async (req, res) => {
     wantDifferential = new URL(req.url, "http://localhost").searchParams.get("differential") === "1";
   } catch (_) {}
 
-  if (wantDifferential || result.changes.length > 0) {
+  if (wantDifferential) {
     try {
       const fotoRepl = await runBattery(replUrl, replToken);
       result.divergences = diffLabels(fotoOrig, fotoRepl);
