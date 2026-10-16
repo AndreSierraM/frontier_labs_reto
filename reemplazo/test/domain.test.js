@@ -75,6 +75,26 @@ test("3 fallos -> E510 y depósito desbloquea", () => {
   d.processMessage(s, "DEPOSITO;AC-0001;1;" + d.control("DEPOSITO;AC-0001;1"));
   assert.ok(d.processMessage(s, "TRANSFER;AC-0001;AC-0002;1;" + d.control("TRANSFER;AC-0001;AC-0002;1")).ok);
 });
+test("umbral de bloqueo = 3 fallos (no 2): el 3.º E506 sigue en 422", () => {
+  const s = st();
+  d.processMessage(s, "ALTA;A;" + d.control("ALTA;A"));
+  d.processMessage(s, "ALTA;B;" + d.control("ALTA;B"));
+  for (let i = 0; i < 3; i++) {
+    assert.strictEqual(
+      d.processMessage(s, "TRANSFER;AC-0001;AC-0002;100001;" + d.control("TRANSFER;AC-0001;AC-0002;100001")).code,
+      "E506"
+    );
+  }
+  assert.strictEqual(s.cuentas.get("AC-0001").fallos, 3);
+  assert.deepStrictEqual(
+    d.processMessage(s, "TRANSFER;AC-0001;AC-0002;1;" + d.control("TRANSFER;AC-0001;AC-0002;1")),
+    { code: "E510", intentos: 1 }
+  );
+  assert.deepStrictEqual(
+    d.processMessage(s, "TRANSFER;AC-0001;AC-0002;1;" + d.control("TRANSFER;AC-0001;AC-0002;1")),
+    { code: "E510", intentos: 2 }
+  );
+});
 test("ANULA revierte depósito y es idempotente", () => {
   const s = st();
   d.processMessage(s, "ALTA;A;" + d.control("ALTA;A"));

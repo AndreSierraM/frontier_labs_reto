@@ -11,6 +11,7 @@ const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
 const observe = require("../../monitor/observe");
 const kinds = require("../../monitor/kinds");
+const guard = require("./guard");
 const { json, authorized, readJson } = require("../../monitor/serverless");
 
 module.exports = async (req, res) => {
@@ -41,6 +42,12 @@ module.exports = async (req, res) => {
   if (Object.keys(clean).length === 0) {
     await store.recordEvent(pool, kinds.KIND.MAP_RATELIMITED, null, null, null, "recon topó con 429/infra");
     return json(res, 200, { ok: true, skipped: "rate-limited", changed: false, added: [], changedLabels: [] });
+  }
+  // Mapa parcial o con el reset fallido: sus muestras son de estados distintos.
+  // No se guarda como referencia para no mezclar corridas (falsos cambios).
+  if (!guard.cleanRun(clean, observe.PROBES.all.length)) {
+    await store.recordEvent(pool, kinds.KIND.MAP_RATELIMITED, null, null, null, "mapa parcial/incoherente; no actualizado");
+    return json(res, 200, { ok: true, skipped: "contaminated", changed: false, added: [], changedLabels: [] });
   }
 
   const prev = await store.lastMap(pool);
