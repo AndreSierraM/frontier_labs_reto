@@ -13,6 +13,7 @@ const { getPool } = require("../../monitor/db");
 const store = require("../../monitor/store");
 const observe = require("../../monitor/observe");
 const kinds = require("../../monitor/kinds");
+const guard = require("./guard");
 const { json, authorized } = require("../../monitor/serverless");
 
 const normalize = (url) => String(url || "").replace(/\/$/, "");
@@ -73,6 +74,15 @@ module.exports = async (req, res) => {
   result.original.rateLimited = result.original.valid === 0;
   if (result.original.rateLimited) {
     await store.recordEvent(pool, kinds.KIND.ORIGINAL_RATELIMITED, null, null, null, "la sonda topó con 429/infra; detección omitida");
+    return json(res, 200, { ok: true, ...result, omitted: true });
+  }
+  // Una corrida parcial o con el reset fallido no es una foto fiable: sus
+  // muestras corrieron sobre un estado arrastrado. Fusionarla con el baseline
+  // contamina la referencia (falsos cambios y divergencias espurias).
+  if (!guard.cleanRun(valid, observe.PROBES.battery.length)) {
+    result.original.contaminated = true;
+    result.original.expected = observe.PROBES.battery.length;
+    await store.recordEvent(pool, kinds.KIND.ORIGINAL_RATELIMITED, null, null, null, "corrida parcial/incoherente; snapshot no actualizado");
     return json(res, 200, { ok: true, ...result, omitted: true });
   }
 

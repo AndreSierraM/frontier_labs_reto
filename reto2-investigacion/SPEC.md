@@ -235,3 +235,4 @@ precede a todo. Después: `E001` → `E100`/`E101`/`E102` → `E103` → `E104` 
 | R-04 | Estado en memoria de un solo proceso: `__reset` global y pérdida al reiniciar. | Persistencia transaccional por token. | 117–121 | confirmado |
 | R-05 | Contadores de id predecibles y sin control de concurrencia. | UUIDs/seq por token y transacciones. | 5, 120 | confirmado |
 | R-06 | `x-req` global y `__reset` no lo reinicia: fuga de información de actividad. | Contador por token y reinicio coherente. | 361–364 | confirmado |
+| R-07 | La referencia del monitor puede contaminarse si fusiona corridas parciales (`429`): una corrida sin `__reset` válido mezcla estados y produce cambios/divergencias falsas. La verificación determinista debe descartar esas fotos. | `api/monitor/guard.js` rechaza corridas incompletas o con anclas de estado incoherentes (`__reset`, `ALTA`=`AC-0001`, …); no se guardan como referencia. | 365 (I-11), `falta1..E510` | confirmado |
