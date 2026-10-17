@@ -87,4 +87,60 @@ test("comando desconocido -> E301 con sugerencia", () => {
   assert.deepStrictEqual(d.processMessage(st(), "TRANSFERIR;x;" + d.control("TRANSFERIR;x")), { code: "E301", sugerencia: "TRANSFER" });
 });
 
+console.log("\nregresión · contrato v2 (incidente 2026-10-17T22:32Z)");
+// El incidente solo aportó ruido de observación (contadores/secuencia
+// contaminados por observadores concurrentes), no comportamiento nuevo. Estos
+// casos fijan el contrato v2 y fallarían si alguien "adaptara" el reemplazo a
+// los valores contaminados del monitor.
+const esperado = (s, msg) => {
+  const r = d.processMessage(s, msg);
+  if (!r.code) return { status: r.status || 200, body: r.ok };
+  const [status, body] = d.ERRORES[r.code];
+  return { status, body: r.intentos === undefined ? body : { ...body, intentos: r.intentos } };
+};
+
+test("DEPOSITO sin ALTA -> 404 E401 (el monto no crea la cuenta)", () => {
+  assert.deepStrictEqual(esperado(st(), "DEPOSITO;AC-0001;1000000000;46"),
+    { status: 404, body: { error: "E401", mensaje: "cuenta inexistente" } });
+});
+test("DEPOSITO con ALTA -> 200 OP-0001", () => {
+  const s = st();
+  assert.deepStrictEqual(esperado(s, "ALTA;A;62"), { status: 201, body: { cuentaId: "AC-0001" } });
+  assert.deepStrictEqual(esperado(s, "DEPOSITO;AC-0001;1000000000;46"),
+    { status: 200, body: { status: "recieved", operacionId: "OP-0001" } });
+});
+test("DEPOSITO monto 0 -> 400 E303 antes de validar la cuenta", () => {
+  assert.deepStrictEqual(esperado(st(), "DEPOSITO;AC-0001;0;31"),
+    { status: 400, body: { error: "E303", mensaje: "monto inválido" } });
+});
+test("DEPOSITO monto de 11 dígitos -> 400 E303", () => {
+  assert.deepStrictEqual(esperado(st(), "DEPOSITO;AC-0001;10000000000;63"),
+    { status: 400, body: { error: "E303", mensaje: "monto inválido" } });
+});
+test("secuencia v2: saldo decimal y E506 solo con nombres distintos", () => {
+  const s = st();
+  assert.deepStrictEqual(esperado(s, "ALTA;A;62"), { status: 201, body: { cuentaId: "AC-0001" } });
+  assert.deepStrictEqual(esperado(s, "ALTA;B;59"), { status: 201, body: { cuentaId: "AC-0002" } });
+  assert.deepStrictEqual(esperado(s, "DEPOSITO;AC-0001;1000000;51"),
+    { status: 200, body: { status: "recieved", operacionId: "OP-0001" } });
+  assert.deepStrictEqual(esperado(s, "CONSULTA;AC-0001;14"),
+    { status: 200, body: { cuenta_id: "AC-0001", saldo: "10000.00" } });
+  assert.deepStrictEqual(esperado(s, "TRANSFER;AC-0001;AC-0002;50000;59"),
+    { status: 200, body: { status: "recieved", operacionId: "OP-0002" } });
+  assert.deepStrictEqual(esperado(s, "TRANSFER;AC-0001;AC-0002;50001;56"),
+    { status: 422, body: { error: "E506", mensaje: "límite excedido" } });
+});
+test("secuencia v2: 3 E507 -> E510 423 con intentos", () => {
+  const s = st();
+  assert.deepStrictEqual(esperado(s, "ALTA;A;62"), { status: 201, body: { cuentaId: "AC-0001" } });
+  assert.deepStrictEqual(esperado(s, "ALTA;B;59"), { status: 201, body: { cuentaId: "AC-0002" } });
+  assert.deepStrictEqual(esperado(s, "DEPOSITO;AC-0001;100;82"),
+    { status: 200, body: { status: "recieved", operacionId: "OP-0001" } });
+  for (let i = 0; i < 3; i++)
+    assert.deepStrictEqual(esperado(s, "TRANSFER;AC-0001;AC-0002;101;21"),
+      { status: 422, body: { error: "E507", mensaje: "saldo insuficiente" } });
+  assert.deepStrictEqual(esperado(s, "TRANSFER;AC-0001;AC-0002;101;21"),
+    { status: 423, body: { error: "E510", mensaje: "cuenta bloqueada", intentos: 1 } });
+});
+
 console.log(`\n${n} pruebas OK${process.exitCode ? " (con fallas)" : ""}`);
