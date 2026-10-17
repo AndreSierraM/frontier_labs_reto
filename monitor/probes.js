@@ -2,7 +2,7 @@
  * Catálogo de sondas del original (datos, sin lógica).
  *
  * `catalog()` devuelve listas uniformes `{label, method, path, body}`:
- *   battery   -> contrato y estado en secuencia (31, una sola pasada rápida)
+ *   battery   -> contrato y estado en secuencia (45, una sola pasada rápida)
  *   discovery -> comandos/rutas/montos/controles candidatos (descubren novedades)
  *   routes    -> métodos y rutas inexistentes
  *   all       -> todo (para el recon en GitHub Actions)
@@ -30,6 +30,12 @@ const c = (body) => `${body};${refControl(body)}`;
 // --- Batería de contrato y estado (secuencia con resets implícitos) --------
 const BATERIA = [
   ["reset", null],
+  // Regresión (incidente 2026-10-17): sin `ALTA` no existe `AC-0001`. Un monto
+  // válido da `404 E401` (K-D4); uno inválido da `400 E303` porque el monto se
+  // valida antes que la cuenta (K-D2/K-D3). Bloquea falsos positivos si el
+  // monitor reintroduce una cuenta viva en el descubrimiento.
+  ["dep-sin-alta", c("DEPOSITO;AC-0001;1000000000")],
+  ["dep-monto-inv", c("DEPOSITO;AC-0001;0")],
   ["PING", "PING;64"],
   ["PING-ignore", "PING;abc"],
   ["E103", "PING"],
@@ -72,6 +78,12 @@ const BATERIA = [
   ["lim-saldo", c("CONSULTA;AC-0001")],
   ["lim-50000", c("TRANSFER;AC-0001;AC-0002;50000")],
   ["lim-50001", c("TRANSFER;AC-0001;AC-0002;50001")],
+  // Incidente 2026-10-17 · caso 2 del diagnóstico: con la cuenta creada, el
+  // monto máximo válido (1000000000) acredita `OP-0001` (no E303/E506). Va al
+  // final de la batería para no correr los contadores de las sondas previas.
+  ["dep-con-alta-reset", null],
+  ["dep-con-alta-a", c("ALTA;A")],
+  ["dep-con-alta", c("DEPOSITO;AC-0001;1000000000")],
 ];
 
 // --- Descubrimiento -------------------------------------------------------

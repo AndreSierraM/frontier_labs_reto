@@ -7,6 +7,22 @@
       "body": null
     },
     {
+      "label": "dep-sin-alta",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000000;46"
+      }
+    },
+    {
+      "label": "dep-monto-inv",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;0;31"
+      }
+    },
+    {
       "label": "PING",
       "method": "POST",
       "path": "/msg",
@@ -312,6 +328,28 @@
       "path": "/msg",
       "body": {
         "m": "TRANSFER;AC-0001;AC-0002;50001;56"
+      }
+    },
+    {
+      "label": "dep-con-alta-reset",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "dep-con-alta-a",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "dep-con-alta",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000000;46"
       }
     }
   ],
@@ -849,6 +887,22 @@
       "body": null
     },
     {
+      "label": "dep-sin-alta",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000000;46"
+      }
+    },
+    {
+      "label": "dep-monto-inv",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;0;31"
+      }
+    },
+    {
       "label": "PING",
       "method": "POST",
       "path": "/msg",
@@ -1154,6 +1208,28 @@
       "path": "/msg",
       "body": {
         "m": "TRANSFER;AC-0001;AC-0002;50001;56"
+      }
+    },
+    {
+      "label": "dep-con-alta-reset",
+      "method": "POST",
+      "path": "/__reset",
+      "body": null
+    },
+    {
+      "label": "dep-con-alta-a",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "ALTA;A;62"
+      }
+    },
+    {
+      "label": "dep-con-alta",
+      "method": "POST",
+      "path": "/msg",
+      "body": {
+        "m": "DEPOSITO;AC-0001;1000000000;46"
       }
     },
     {
